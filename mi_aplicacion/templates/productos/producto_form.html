@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if producto %}Editar{% else %}Crear{% endif %} Producto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .cancel-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1em;
+            color: #2196F3;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .cancel-link:hover {
+            text-decoration: underline;
+        }  
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .product-detail {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .product-detail h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .product-detail p {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .product-detail .price {
+            font-size: 1.5em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        .product-detail .category, .product-detail .status {
+            font-size: 1.2em;
+            color: #2196F3;
+        }
+        .product-detail .status {
+            color: #F44336;
+        }
+        .product-detail .actions {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .product-detail .actions a {
+            text-decoration: none;
+            color: white;
+            background-color: #2196F3;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
+        }
+        .product-detail .actions a:hover {
+            background-color: #1976D2;
+        }
+        .product-detail .actions .back-link {
+            background-color: #4CAF50;
+        }
+        .product-detail .actions .back-link:hover {
+            background-color: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-wrapper">
+            <h1>{% if producto %}Editar{% else %}Crear{% endif %} Producto</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Guardar</button>
+            </form>
+            <a href="{% url 'producto_list' %}" class="cancel-link">Cancelar</a>
+        </div>
+    </div>
+</body>
+</html>

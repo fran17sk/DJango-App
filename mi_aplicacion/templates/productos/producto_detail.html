@@ -1,0 +1,14 @@
+
+    <div class="container">
+        <div class="product-detail">
+            <h1>{{ producto.nombre }}</h1>
+            <p>{{ producto.descripcion }}</p>
+            <p class="price">Precio: ${{ producto.precio }}</p>
+            <p class="category">Categoría: {{ producto.categoria }}</p>
+            <p class="status">Estado: {{ producto.estado }}</p>
+            <div class="actions">
+                <a href="{% url 'producto_update' producto.pk %}">Editar</a>
+                <a href="{% url 'producto_list' %}" class="back-link">Volver a la lista</a>
+            </div>
+        </div>
+    </div>
