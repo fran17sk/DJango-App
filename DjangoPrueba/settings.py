@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-+oj@n#k^8w0y_stvqoiy9hk=kkk*#_xohc(+f9&$_doq%@%fuy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.120']
-
+ALLOWED_HOSTS = ['192.168.0.120','127.0.0.1']
 
 # Application definition
 
@@ -48,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'mi_aplicacion.Middleware.CacheControlMiddleware',
 ]
 
 ROOT_URLCONF = 'DjangoPrueba.urls'
@@ -124,5 +124,5 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-LOGIN_REDIRECT_URL = 'base'
-LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/accounts/login'

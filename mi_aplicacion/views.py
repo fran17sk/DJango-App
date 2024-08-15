@@ -8,16 +8,18 @@ from django.urls import reverse_lazy
 from .models import Producto
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django import forms
 
 @login_required
 def home(request):
     return render(request, 'base.html')
-
+def clone(request):
+    return render(request,'clone.html')
 class ProductoListView(LoginRequiredMixin,ListView):
     model = Producto
     template_name = 'productos/producto_list.html'
     context_object_name = 'productos'
-    login_url = '/login/'
+    login_url = '../accounts/login/'
 
 class ProductoDetailView(DetailView):
     model = Producto
@@ -29,6 +31,8 @@ class ProductoCreateView(CreateView):
     template_name = 'productos/producto_form.html'
     fields = ['nombre', 'descripcion', 'precio','categoria','estado']
     success_url = reverse_lazy('producto_list')
+    
+
 
 class ProductoUpdateView(UpdateView):
     model = Producto
