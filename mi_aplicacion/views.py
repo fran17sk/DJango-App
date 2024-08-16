@@ -5,21 +5,31 @@ from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Producto
+from .models import Producto,ProductoPorDeposito,Deposito
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 @login_required
 def home(request):
     return render(request, 'base.html')
-def clone(request):
-    return render(request,'clone.html')
 class ProductoListView(LoginRequiredMixin,ListView):
     model = Producto
     template_name = 'productos/producto_list.html'
     context_object_name = 'productos'
     login_url = '../accounts/login/'
+    def get_context_data(self, **kwargs):
+        # Llama al método base para obtener el contexto inicial
+        context = super().get_context_data(**kwargs)
+        
+        # Agrega la lista de objetos del modelo Deposito al contexto
+        context['user'] = self.request.user
+        context['depositos'] = Deposito.objects.all()
+        context['productos_por_deposito'] = ProductoPorDeposito.objects.all()
+        return context
+ 
 
 class ProductoDetailView(DetailView):
     model = Producto
