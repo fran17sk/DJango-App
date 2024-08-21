@@ -43,7 +43,6 @@ class ProductoCreateView(CreateView):
     success_url = reverse_lazy('producto_list')
     
 
-
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'productos/producto_form.html'
@@ -54,3 +53,32 @@ class ProductoDeleteView(DeleteView):
     model = Producto
     template_name = 'productos/producto_confirm_delete.html'
     success_url = reverse_lazy('producto_list')
+
+class DepositosListView(LoginRequiredMixin,ListView):
+    model=Deposito
+    template_name = 'depositos/depositos_list.html'
+    context_object_name = 'depositos'
+    login_url = '../accounts/login/'
+
+class DepositoDetailView(DetailView):
+    model = Deposito
+    template_name = 'depositos/deposito_detail.html'
+    context_object_name = 'deposito'
+
+class DepositoCreateView(CreateView):
+    model = Deposito
+    template_name = 'depositos/deposito_form.html'
+    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','localidad']
+    success_url = reverse_lazy('depositos_list')
+    
+
+class DepositoUpdateView(UpdateView):
+    model = Deposito
+    template_name = 'depositos/deposito_form.html'
+    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','localidad']
+    success_url = reverse_lazy('depositos_list')
+
+class DepositoDeleteView(DeleteView):
+    model = Deposito
+    template_name = 'depositos/deposito_confirm_delete.html'
+    success_url = reverse_lazy('depositos_list')
