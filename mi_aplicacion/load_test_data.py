@@ -1,4 +1,4 @@
-from mi_aplicacion.models import Provincia, Localidad, Deposito, Producto, ProductoPorDeposito
+from mi_aplicacion.models import Provincia, Localidad, Deposito, Producto, ProductoPorDeposito,Sucursal
 
 def run():
     # Crear provincias
@@ -13,6 +13,16 @@ def run():
         localidad = Localidad.objects.create(nombre=f"Localidad {i}", provincia=provincias[i % len(provincias)], estado="Activo")
         localidades.append(localidad)
 
+    #Crear sucursales
+    sucursales = []
+    for i in range (1,3):
+        sucursal = Sucursal.objects.create(
+            nombre=f"Sucursal {i}",
+            descripcion=f"Descripcion de la sucursal {i}",
+            ubicacion = f"Ubicacion de la sucursal {i}",
+            localidad=localidades[i % len(localidades)]
+        )
+        sucursales.append(sucursal)
     # Crear depósitos
     depositos = []
     for i in range(1, 11):
@@ -23,7 +33,7 @@ def run():
             email=f"deposito{i}@example.com",
             estado="Activo",
             capacidad_maxima=1000 + i * 100,
-            localidad=localidades[i % len(localidades)]
+            sucursal=sucursales[i % len(sucursales)]
         )
         depositos.append(deposito)
 
@@ -38,7 +48,6 @@ def run():
             estado="Activo"
         )
         productos.append(producto)
-
     # Crear productos por depósitos
     for i in range(1, 11):
         ProductoPorDeposito.objects.create(

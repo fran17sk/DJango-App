@@ -5,7 +5,11 @@ from .views import (
     ProductoDetailView,
     ProductoCreateView,
     ProductoUpdateView,
-    ProductoDeleteView
+    ProductoDeleteView,
+    SucursalListView,
+    SucursalCreateView,
+    SucursalDeleteView,
+    SucursalUpdateView
 )
 from . import views
 
@@ -18,6 +22,10 @@ urlpatterns = [
     path('productos/nuevo/', ProductoCreateView.as_view(), name='producto_create'),
     path('productos/editar/<int:pk>/', ProductoUpdateView.as_view(), name='producto_update'),
     path('productos/eliminar/<int:pk>/', ProductoDeleteView.as_view(), name='producto_delete'),
+    path('sucursales/',SucursalListView.as_view(),name='sucursal_list'),
+    path('sucursales/nuevo/',SucursalCreateView.as_view(),name='sucursal_create'),
+    path('sucursales/eliminar/<int:pk>',SucursalDeleteView.as_view(),name='sucursal_delete'),
+    path('sucursales/editar/<int:pk>',SucursalUpdateView.as_view(),name='sucursal_update')
 ]
 ###urlpatterns = [
 ###    path('', ProductoListView.as_view(), name='producto_list'),
