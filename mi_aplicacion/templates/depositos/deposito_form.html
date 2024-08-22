@@ -85,7 +85,7 @@
 <body>
     <div class="container">
         <div class="form-wrapper">
-            <h1>{% if producto %}Editar{% else %}Crear{% endif %} Producto</h1>
+            <h1>{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</h1>
             <form method="post">
                 {% csrf_token %}
                 <div class="form-group">
@@ -93,24 +93,32 @@
                     {{ form.nombre }}
                 </div>
                 <div class="form-group">
-                    <label for="id_descripcion">Descripción</label>
-                    {{ form.descripcion }}
+                    <label for="id_descripcion">Direccion</label>
+                    {{ form.direccion }}
                 </div>
                 <div class="form-group">
-                    <label for="id_precio">Precio</label>
-                    {{ form.precio }}
+                    <label for="id_precio">Telefono</label>
+                    {{ form.telefono }}
                 </div>
                 <div class="form-group">
-                    <label for="id_categoria">Categoría</label>
-                    {{ form.categoria }}
+                    <label for="id_categoria">Correo electronico</label>
+                    {{ form.email }}
                 </div>
                 <div class="form-group">
                     <label for="id_estado">Estado</label>
                     {{ form.estado }}
                 </div>
-                <button type="submit">Guardar Producto</button>
+                <div class="form-group">
+                    <label for="id_estado">Capacidad Maxima</label>
+                    {{ form.capacidad_maxima }}
+                </div>
+                <div class="form-group">
+                    <label for="id_estado">Localidad</label>
+                    {{ form.localidad }}
+                </div>
+                <button type="submit">{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</button>
             </form>
-            <a href="{% url 'producto_list' %}" class="cancel-link">Cancelar</a>
+            <a href="{% url 'depositos_list' %}" class="cancel-link">Cancelar</a>
         </div>
     </div>
 </body>

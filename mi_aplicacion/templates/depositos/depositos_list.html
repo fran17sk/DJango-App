@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
-    <title>Lista de Productos</title>
+    <title>Lista de Depositos</title>
     <style>
       body{
         background-color: #ffffff;
@@ -90,8 +90,8 @@
   </nav>
     <div class="container">
         <div class="d-flex-sp">
-            <h1>Lista de Productos</h1>
-            <a href="{% url 'producto_create' %}" class=" btn btn-outline-primary">Agregar Producto</a>
+            <h1>Lista de Depositos</h1>
+            <a href="{% url 'deposito_create' %}" class=" btn btn-outline-primary">Agregar Deposito</a>
         </div>
         <div class="">
             <table id="example" class="display" style="width:100%">
@@ -99,38 +99,42 @@
                     <tr>
                         <th>Id</th>
                         <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Precio</th>
-                        <th>Categoria</th>
+                        <th>Direccion</th>
+                        <th>telefono</th>
+                        <th>email</th>
                         <th>Estado</th>
-                        <th>Iconos</th>
+                        <th>Cap_max</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for producto in productos %}
+                    {% for deposito in depositos %}
                     <tr>
-                        <td>{{producto.id}}</td>
-                        <td>{{producto.nombre}}</td>
-                        <td>{{producto.descripcion}}</td>
-                        <td>{{producto.precio}}</td>
-                        <td>{{producto.categoria}}</td>
-                        <td>{{producto.estado}}</td>
-                        <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
-                          <a href="{% url 'producto_detail' producto.pk %}"><i class="bi bi-eye"></i></a>
-                          <a href="{% url 'producto_delete' producto.pk %}"><i class="bi bi-trash"></i></a></td>
+                        <td>{{deposito.id}}</td>
+                        <td>{{deposito.nombre}}</td>
+                        <td>{{deposito.direccion}}</td>
+                        <td>{{deposito.telefono}}</td>
+                        <td>{{deposito.email}}</td>
+                        <td>{{deposito.estado}}</td>
+                        <td>{{deposito.capacidad_maxima}}</td>
+                        <td><a href="{% url 'deposito_update' deposito.pk %}"><i class="bi bi-pencil-square"></i></a>
+                          <a href="{% url 'deposito_detail' deposito.pk %}"><i class="bi bi-eye"></i></a>
+                          <a href="{% url 'deposito_delete' deposito.pk %}"><i class="bi bi-trash"></i></a></td>
                     </tr>
                     {% empty %}
-                <p>No hay productos disponibles.</p>
+                <p>No hay depositos disponibles.</p>
                 {% endfor %}
                 </tbody>
                 <tfoot>
                     <tr>
                         <th>Id</th>
                         <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Precio</th>
-                        <th>Categoria</th>
+                        <th>Direccion</th>
+                        <th>telefono</th>
+                        <th>email</th>
                         <th>Estado</th>
+                        <th>Cap_max</th>
+                        <th>Acciones</th>
                     </tr>
                 </tfoot>
             </table>
@@ -138,6 +142,8 @@
         
     </div>
 
+
+    </footer>
 
     <script>
         new DataTable('#example');
