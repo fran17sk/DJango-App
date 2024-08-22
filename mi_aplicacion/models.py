@@ -1,5 +1,4 @@
 
-
 # Create your models here.
 from django.db import models
 
@@ -18,6 +17,13 @@ class Localidad(models.Model):
     def __str__(self):
         return self.nombre
 
+class Sucursal (models.Model):
+    nombre=models.CharField(max_length=255)
+    ubicacion=models.CharField(max_length=255)
+    descripcion=models.TextField(blank=True,null=True)
+    localidad = models.ForeignKey(Localidad,on_delete=models.SET_NULL,null=True,blank=True)
+
+
 class Deposito(models.Model):
     nombre = models.CharField(max_length=255)
     direccion = models.CharField(max_length=255)
@@ -25,8 +31,7 @@ class Deposito(models.Model):
     email = models.EmailField(blank=True, null=True)
     estado = models.CharField(max_length=255, blank=True, null=True)
     capacidad_maxima = models.IntegerField(blank=True, null=True)
-    localidad = models.ForeignKey(Localidad, on_delete=models.SET_NULL, null=True, blank=True)
-
+    sucursal = models.ForeignKey(Sucursal,on_delete=models.SET_NULL,null=True,blank=True)
     def __str__(self):
         return self.nombre
 
@@ -50,3 +55,4 @@ class ProductoPorDeposito(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} en {self.deposito.nombre}"
+    

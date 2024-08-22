@@ -6,6 +6,10 @@ from .views import (
     ProductoCreateView,
     ProductoUpdateView,
     ProductoDeleteView,
+    SucursalListView,
+    SucursalCreateView,
+    SucursalDeleteView,
+    SucursalUpdateView,
     DepositosListView,
     DepositoCreateView,
     DepositoUpdateView,
@@ -23,17 +27,17 @@ urlpatterns = [
     path('producto/detail/<int:pk>/',ProductoDetailView.as_view(), name='producto_detail'),
     path('productos/editar/<int:pk>/', ProductoUpdateView.as_view(), name='producto_update'),
     path('productos/eliminar/<int:pk>/', ProductoDeleteView.as_view(), name='producto_delete'),
+    path('sucursales/',SucursalListView.as_view(),name='sucursal_list'),
+    path('sucursales/nuevo/',SucursalCreateView.as_view(),name='sucursal_create'),
+    path('sucursales/eliminar/<int:pk>',SucursalDeleteView.as_view(),name='sucursal_delete'),
+    path('sucursales/editar/<int:pk>',SucursalUpdateView.as_view(),name='sucursal_update'),
     path('depositos/',DepositosListView.as_view(), name='depositos_list'),
     path('depositos/nuevo',DepositoCreateView.as_view(), name='deposito_create'),
     path('depositos/editar/<int:pk>/',DepositoUpdateView.as_view(), name='deposito_update'),
     path('depositos/delete/<int:pk>/',DepositoDeleteView.as_view(), name='deposito_delete'),
-    path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),
+    path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),]
 
 
-
-    
-
-]
 ###urlpatterns = [
 ###    path('', ProductoListView.as_view(), name='producto_list'),
 ###    path('<int:pk>/', ProductoDetailView.as_view(), name='producto_detail'),

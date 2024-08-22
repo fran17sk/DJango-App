@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from .models import Producto,Sucursal
 from .models import Producto,ProductoPorDeposito,Deposito
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -54,6 +55,28 @@ class ProductoDeleteView(DeleteView):
     template_name = 'productos/producto_confirm_delete.html'
     success_url = reverse_lazy('producto_list')
 
+class SucursalListView (LoginRequiredMixin,ListView):
+    model = Sucursal
+    template_name="sucursales/sucursal_list.html"
+    context_object_name="sucursal"
+    login_url='../accounts/login'
+
+class SucursalCreateView(CreateView):
+    model=Sucursal
+    template_name='sucursales/sucursal_form.html'
+    fields=['nombre','ubicacion','descripcion']
+    success_url=reverse_lazy('sucursal_list')
+
+class SucursalDeleteView (DeleteView):
+    model=Sucursal
+    template_name='sucursales/sucursal_confirm_delete.html'
+    success_url=reverse_lazy('sucursal_list')
+
+class SucursalUpdateView (UpdateView):
+    model=Sucursal
+    template_name='sucursales/sucursal_form.html'
+    fields=['nombre','ubicacion','descripcion']
+    success_url=reverse_lazy('sucursal_list')
 class DepositosListView(LoginRequiredMixin,ListView):
     model=Deposito
     template_name = 'depositos/depositos_list.html'
