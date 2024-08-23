@@ -46,12 +46,19 @@
             <li class="nav-item active">
                 <a class="nav-link" href="{% url 'home' %}">Inicio</a>
             </li>
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'sucursal_list' %}">Sucursales</a>
+          </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'producto_list' %}">Productos</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'depositos_list' %}">Depositos</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'productos_list' %}">Productos/Depositos</a>
+            </li>
+            
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               Dropdown
@@ -97,7 +104,7 @@
             <table id="example" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>Sucursal</th>
                         <th>Nombre</th>
                         <th>Direccion</th>
                         <th>telefono</th>
@@ -110,7 +117,7 @@
                 <tbody>
                     {% for deposito in depositos %}
                     <tr>
-                        <td>{{deposito.id}}</td>
+                        <td>{{deposito.sucursal}}</td>
                         <td>{{deposito.nombre}}</td>
                         <td>{{deposito.direccion}}</td>
                         <td>{{deposito.telefono}}</td>
@@ -127,7 +134,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Id</th>
+                        <th>Sucursal</th>
                         <th>Nombre</th>
                         <th>Direccion</th>
                         <th>telefono</th>

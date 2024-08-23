@@ -23,8 +23,12 @@ class Sucursal (models.Model):
     descripcion=models.TextField(blank=True,null=True)
     localidad = models.ForeignKey(Localidad,on_delete=models.SET_NULL,null=True,blank=True)
 
+    def __str__(self):
+        return self.nombre
+
 
 class Deposito(models.Model):
+    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=255)
     direccion = models.CharField(max_length=255)
     telefono = models.CharField(max_length=255, blank=True, null=True)
@@ -34,6 +38,7 @@ class Deposito(models.Model):
     sucursal = models.ForeignKey(Sucursal,on_delete=models.SET_NULL,null=True,blank=True)
     def __str__(self):
         return self.nombre
+    
 
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
