@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
-    <title>Lista de Depositos</title>
-    <style>
+    <title>Productos en {{ sucursal.nombre }}</title>
+<style>
       body{
         background-color: #ffffff;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' %3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%2380F'/%3E%3Cstop offset='1' stop-color='%23f40'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpattern id='b' width='24' height='24' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%23ffffff' cx='12' cy='12' r='12'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23b)' fill-opacity='0.04'/%3E%3C/svg%3E");
@@ -97,51 +97,44 @@
   </nav>
     <div class="container">
         <div class="d-flex-sp">
-            <h1>Lista de Depositos</h1>
-            <a href="{% url 'deposito_create' %}" class=" btn btn-outline-primary">Agregar Deposito</a>
+            <h1>Productos en {{ sucursal.nombre }}</h1>
         </div>
         <div class="">
             <table id="example" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Sucursal</th>
-                        <th>Nombre</th>
-                        <th>Direccion</th>
-                        <th>telefono</th>
-                        <th>email</th>
-                        <th>Estado</th>
-                        <th>Cap_max</th>
-                        <th>Acciones</th>
+                        <th>Producto</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Fecha de Ingreso</th>
+                        <th>Estado en Depósito</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for deposito in depositos %}
-                    <tr>
-                        <td>{{deposito.sucursal}}</td>
-                        <td>{{deposito.nombre}}</td>
-                        <td>{{deposito.direccion}}</td>
-                        <td>{{deposito.telefono}}</td>
-                        <td>{{deposito.email}}</td>
-                        <td>{{deposito.estado}}</td>
-                        <td>{{deposito.capacidad_maxima}}</td>
-                        <td><a href="{% url 'deposito_update' deposito.pk %}"><i class="bi bi-pencil-square"></i></a>
-                          <a href="{% url 'deposito_detail' deposito.pk %}"><i class="bi bi-eye"></i></a>
-                          <a href="{% url 'productos_por_deposito' deposito.pk  %}"><i class="bi bi-cart"></i></a></td>
-                    </tr>
+                    {% for relacion in productos_en_sucursal %}
+                        <tr>
+                            <td>{{ relacion.producto.nombre }}</td>
+                            <td>{{ relacion.producto.descripcion }}</td>
+                            <td>{{ relacion.producto.categoria }}</td>
+                            <td>{{ relacion.stock_actual }}</td>
+                            <td>{{ relacion.fecha_ingreso }}</td>
+                            <td>{{ relacion.estado }}</td>
+                        </tr>
                     {% empty %}
-                <p>No hay depositos disponibles.</p>
-                {% endfor %}
+                        <li>No hay productos en este depósito.</li>
+                    {% endfor %}
+                    
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Sucursal</th>
-                        <th>Nombre</th>
-                        <th>Direccion</th>
-                        <th>telefono</th>
-                        <th>email</th>
-                        <th>Estado</th>
-                        <th>Cap_max</th>
-                        <th>Acciones</th>
+                      <th>Producto</th>
+                      <th>Descripción</th>
+                      <th>Categoría</th>
+                      <th>Stock Actual</th>
+                      <th>Fecha de Ingreso</th>
+                      <th>Estado en Depósito</th>
+
                     </tr>
                 </tfoot>
             </table>
@@ -149,8 +142,6 @@
         
     </div>
 
-
-    </footer>
 
     <script>
         new DataTable('#example');

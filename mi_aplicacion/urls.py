@@ -1,28 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import (
-    ProductoListView,
-    ProductoDetailView,
-    ProductoCreateView,
-    ProductoUpdateView,
-    ProductoDeleteView,
-    SucursalListView,
-    SucursalCreateView,
-    SucursalDeleteView,
-    SucursalUpdateView,
-    SucursalDetailView,
-    DepositosListView,
-    DepositoCreateView,
-    DepositoUpdateView,
-    DepositoDeleteView,
-    DepositoDetailView,
-    ProductoXDepositoListView,
-    ProductoXDepositoCreateView,
-    ProductoXDepositoUpdateView,
-    ProductoXDepositoDeleteView,
-    ProductoXDepositoDetailView,
-
-)
+from .views import *
 from . import views
 
 urlpatterns = [
@@ -48,7 +26,18 @@ urlpatterns = [
     path('productos_list/nuevo/', ProductoXDepositoCreateView.as_view(), name='producto_list_create'),
     path('productos_list/detail/<int:pk>/',ProductoXDepositoDetailView.as_view(), name='producto_list_detail'),
     path('productos_list/editar/<int:pk>/', ProductoXDepositoUpdateView.as_view(), name='producto_list_update'),
-    path('productos_list/eliminar/<int:pk>/', ProductoXDepositoDeleteView.as_view(), name='producto_list_delete'),]
+    path('productos_list/eliminar/<int:pk>/', ProductoXDepositoDeleteView.as_view(), name='producto_list_delete'),
+    
+    path('depositos/<int:deposito_id>/productos/', views.productos_por_deposito, name='productos_por_deposito'),
+    path('sucursales/<int:sucursal_id>/productos/', views.productos_por_sucursal, name='productos_por_sucursal'),
+
+
+  
+    path('registrar_movimiento/', views.registrar_movimiento, name='registrar_movimiento'),
+    path('exito/', views.exito, name='exito'),  # Vista para la página de éxito
+
+
+    ]
 
 
 ###urlpatterns = [

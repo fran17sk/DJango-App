@@ -1,17 +1,15 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Producto,Sucursal,Localidad
-from .models import Producto,ProductoPorDeposito,Deposito
+from .models import *
+from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect,render,get_object_or_404
 
 @login_required
 def home(request):
@@ -181,3 +179,77 @@ class ProductoXDepositoDeleteView(DeleteView):
     model = ProductoPorDeposito
     template_name = 'productos_list/producto_confirm_delete.html'
     success_url = reverse_lazy('productos_list')
+
+
+def  productos_por_deposito(request,deposito_id):
+    deposito = get_object_or_404(Deposito, id=deposito_id)
+    productos_en_deposito = ProductoPorDeposito.objects.filter(deposito=deposito)
+
+    return render(request, 'productos_list/productos_por_depositos.html', {
+        'deposito': deposito,
+        'productos_en_deposito': productos_en_deposito,
+    })
+
+
+def productos_por_sucursal(request,sucursal_id):
+    sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+    depositos = sucursal.depositos.all()
+    productos_en_sucursal = ProductoPorDeposito.objects.filter(deposito__in=depositos)
+
+    return render(request, 'productos_list/productos_por_sucursal.html', {
+        'sucursal': sucursal,
+        'productos_en_sucursal': productos_en_sucursal,
+    })
+
+
+
+
+
+
+
+def registrar_movimiento(request):
+    if request.method == 'POST':
+        form = MovimientoForm(request.POST)
+        if form.is_valid():
+            producto_por_deposito = form.cleaned_data['producto_por_deposito']
+            tipo_movimiento = form.cleaned_data['tipo_movimiento']
+            cantidad = form.cleaned_data['cantidad']
+
+            # Actualizar la cantidad en el modelo
+            if tipo_movimiento == 'ingreso':
+                producto_por_deposito.cantidad += cantidad
+            elif tipo_movimiento == 'egreso':
+                if producto_por_deposito.cantidad >= cantidad:
+                    producto_por_deposito.cantidad -= cantidad
+                else:
+                    form.add_error('cantidad', 'No hay suficiente stock para este egreso.')
+                    return render(request, 'registrar_movimiento.html', {'form': form})
+
+            producto_por_deposito.save()
+            return redirect('exito')  # Redirige a una página de éxito o a otra vista
+
+    else:
+        form = MovimientoForm()
+    
+    return render(request, 'registrar_movimiento.html', {'form': form})
+
+
+
+def exito(request):
+    return render(request, 'exito.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
