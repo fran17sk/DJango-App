@@ -22,6 +22,8 @@ class Sucursal (models.Model):
     ubicacion=models.CharField(max_length=255)
     descripcion=models.TextField(blank=True,null=True)
     localidad = models.ForeignKey(Localidad,on_delete=models.SET_NULL,null=True,blank=True)
+    def __str__(self):
+        return self.nombre
 
     def __str__(self):
         return self.nombre
@@ -40,12 +42,21 @@ class Deposito(models.Model):
         return self.nombre
     
 
+
+class Proveedor (models.Model):
+    nombre = models.CharField(max_length=255,blank=True,null=True)
+    correo = models.CharField(max_length=255,blank=True,null=True)
+    domicilio = models.CharField(max_length=255,blank=True,null=True)
+    def __str__(self):
+        return self.nombre
+
 class Producto(models.Model):
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField(blank=True, null=True)
     precio = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     categoria = models.CharField(max_length=255, blank=True, null=True)
     estado = models.CharField(max_length=255, blank=True, null=True)
+    proveedor = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
     
     def __str__(self):
         return self.nombre
@@ -60,7 +71,24 @@ class ProductoPorDeposito(models.Model):
 
     def __str__(self):
         return f"{self.producto.nombre} en {self.deposito.nombre}"
-    
+
+
+class OrdenCompra (models.Model):
+    nordenCompra = models.IntegerField(blank=True,null=True)
+    fecha = models.DateField(blank=True,null=True)
+    proveedor = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
+    fechaentrega=models.DateField(blank=True,null=True)
+    lugarentrega=models.ForeignKey(Deposito,on_delete=models.CASCADE,null=True)
+    condiciones = models.TextField(blank=True,null=True)
+    total = models.DecimalField(max_digits=15,decimal_places=2,blank=True,null=True)
+
+class DetalleOrden (models.Model):
+    producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
+    ordecompra=models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
+    precio_unitario=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
+    cantidad=models.IntegerField(blank=True,null=True)
+    subtotal=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
+
 
 
 class Movement(models.Model):
@@ -78,3 +106,4 @@ class MovementProduct(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in {self.movement}"
+

@@ -114,6 +114,9 @@ body {
             <p class="category">Correo Electronico: {{ deposito.email }}</p>
             <p class="status">Estado: {{ deposito.estado }}</p>
             <p class="status">Capacidad Maxima: {{ deposito.capacidad_maxima }}</p>
+
+            <p class="status">Sucursal: {{ deposito.sucursal }}</p>
+
             <div class="actions">
                 <a href="{% url 'deposito_update' deposito.pk %}">Editar</a>
                 <a href="{% url 'depositos_list' %}" class="back-link">Volver a la lista</a>

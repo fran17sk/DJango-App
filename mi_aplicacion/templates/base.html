@@ -61,7 +61,20 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'productos_list' %}">Productos/Depositos</a>
                 </li>
-                
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'proveedor_list' %}">Proveedores</a>
+                </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Compras
+                </a>
+                <ul class="dropdown-menu"> 
+                  <li><a class="dropdown-item" href="{% url 'orden_compra' %}">Generar Orden de Compra</a></li>
+                  <li><a class="dropdown-item">Registrar Factura</a></li>
+                  <li><a class="dropdown-item">Orden de Pago</a></li>
+                </ul>
+              </li>
+
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Dropdown

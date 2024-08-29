@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- DataTables CSS y JS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/jquery.dataTables.min.css">
+  <script src="https://cdn.datatables.net/2.1.3/js/jquery.dataTables.min.js"></script>
+    <title>Orden de Compra</title>
+    <style>
+      body{
+        background-color: #ffffff;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' %3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%2380F'/%3E%3Cstop offset='1' stop-color='%23f40'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpattern id='b' width='24' height='24' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%23ffffff' cx='12' cy='12' r='12'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23b)' fill-opacity='0.04'/%3E%3C/svg%3E");
+        background-attachment: fixed;  
+      }
+      .container{
+        margin: 50px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        width: 1600px;
+      }
+      .d-flex-sp{
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+      }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary bg_dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">BlueDragon</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'home' %}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'producto_list' %}">Productos</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'depositos_list' %}">Depositos</a>
+                </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Dropdown
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          
+              <div>
+                <i class="bi color-black bi-person-circle"></i>
+                <span class="color-black">{{user.username}}</span>
+                {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger">Logout</button>
+              </form>
+              {% else %}
+                        <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+                    {% endif %}
+              </div>
+            
+          </div>
+        </div>
+      </nav>
+      <div class="container">
+        <form id="csrfForm">
+            {% csrf_token %}
+        </form>
+        <h2>Orden de Compra</h2>
+    
+        <!-- Selección de proveedor -->
+        <div class="mb-3">
+            <label for="id_proveedor" class="form-label">Proveedor</label>
+            <select id="id_proveedor" class="form-select" required>
+                <!-- Opciones de proveedores serán cargadas desde Django -->
+            </select>
+        </div>
+    
+        <!-- Fecha de la orden -->
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha de la Orden</label>
+            <input type="date" class="form-control" id="fecha" required>
+        </div>
+    
+        <!-- Fecha de entrega -->
+        <div class="mb-3">
+            <label for="fechaentrega" class="form-label">Fecha de Entrega</label>
+            <input type="date" class="form-control" id="fechaentrega">
+        </div>
+    
+        <!-- Lugar de entrega -->
+        <div class="mb-3">
+            <label for="lugarentrega" class="form-label">Lugar de Entrega</label>
+            <select id="lugarentrega" class="form-select">
+                <!-- Opciones de depósitos serán cargadas desde Django -->
+            </select>
+        </div>
+    
+        <!-- Condiciones -->
+        <div class="mb-3">
+            <label for="condiciones" class="form-label">Condiciones</label>
+            <textarea id="condiciones" class="form-control" rows="3"></textarea>
+        </div>
+    
+        <!-- Botón para abrir el modal -->
+        <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal" disabled>Agregar Producto</button>
+    
+        <!-- Modal de Bootstrap para agregar productos -->
+        <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productoModalLabel">Agregar Producto</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="productoForm">
+                            <div class="mb-3">
+                                <label for="producto" class="form-label">Producto</label>
+                                <select id="producto" class="form-select" required>
+                                    <!-- Opciones de productos serán cargadas vía AJAX -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="precio_unitario" class="form-label">Precio Unitario</label>
+                                <input type="number" class="form-control" id="precio_unitario" step="0.01" required>
+                              </div>
+                            <div class="mb-3">
+                                <label for="cantidad" class="form-label">Cantidad</label>
+                                <input type="number" class="form-control" id="cantidad" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subtotal" class="form-label">Subtotal</label>
+                                <input type="text" class="form-control" id="subtotal" readonly>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Tabla para mostrar productos agregados -->
+        <table class="table table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productosTableBody">
+                <!-- Los productos se agregarán aquí -->
+            </tbody>
+        </table>
+    
+        <!-- Mostrar total -->
+        <div class="text-end mt-3">
+            <h4>Total: <span id="totalOrden">0</span></h4>
+        </div>
+    
+        <!-- Botón para enviar la orden -->
+        <button class="btn btn-success" id="confirmarOrdenBtn">Confirmar Orden</button>
+    </div>
+    
+    <script>
+    $(document).ready(function() {
+        const proveedorSelect = $('#id_proveedor');
+        const lugarentregaSelect = $('#lugarentrega');
+        const agregarProductoBtn = $('#AbrirF');
+        const totalOrden = $('#totalOrden');
+        let productosAgregados = [];
+
+            // Función para cargar proveedores
+    function cargarProveedores() {
+        $.ajax({
+            url: "{% url 'get_proveedores' %}",
+            success: function(data) {
+                const proveedores = data.proveedores;
+                proveedorSelect.empty();
+                proveedorSelect.append(new Option('Seleccione un proveedor', ''));
+                proveedores.forEach(function(proveedor) {
+                    proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
+                });
+            }
+        });
+    }
+
+    // Función para cargar depósitos
+    function cargarDepositos() {
+        $.ajax({
+            url: "{% url 'get_depositos' %}",
+            success: function(data) {
+                const depositos = data.depositos;
+                lugarentregaSelect.empty();
+                lugarentregaSelect.append(new Option('Seleccione un depósito', ''));
+                depositos.forEach(function(deposito) {
+                    lugarentregaSelect.append(new Option(deposito.nombre, deposito.id));
+                });
+            }
+        });
+    }
+
+    // Cargar proveedores y depósitos al iniciar
+    cargarProveedores();
+    cargarDepositos();
+    
+        // Habilitar botón si se selecciona un proveedor
+        proveedorSelect.change(function () {
+            const proveedorSeleccionado = proveedorSelect.val();
+            if (proveedorSeleccionado) {
+                agregarProductoBtn.prop('disabled', false);
+                cargarProductos(proveedorSeleccionado);
+            } else {
+                agregarProductoBtn.prop('disabled', true);
+            }
+        });
+    
+        // Función para cargar productos vía AJAX
+        function cargarProductos(proveedorId) {
+            $.ajax({
+                url: "{% url 'get_productos' %}",
+                data: {
+                    'proveedor_id': proveedorId
+                },
+                success: function(data) {
+                    const productos = data.productos;
+                    const productoSelect = $('#producto');
+                    productoSelect.empty();
+                    productos.forEach(function(producto) {
+                        productoSelect.append(new Option(producto.nombre, producto.id));
+                    });
+                }
+            });
+        }
+    
+        // Cambiar el precio y calcular subtotal cuando se selecciona un producto
+        $('#producto').change(function() {
+            const productoId = $(this).val();
+            $.ajax({
+                url: "{% url 'get_precio' %}",
+                data: {
+                    'producto_id': productoId
+                },
+                success: function(data) {
+                    $('#precio_unitario').val(data.precio_unitario);
+                    actualizarSubtotal();
+                }
+            });
+        });
+    
+        // Actualizar subtotal cuando cambia la cantidad
+        $('#cantidad').on('input', function() {
+            actualizarSubtotal();
+        });
+    
+        // Función para actualizar el subtotal
+        function actualizarSubtotal() {
+            const precioUnitario = parseFloat($('#precio_unitario').val());
+            const cantidad = parseInt($('#cantidad').val());
+            if (!isNaN(precioUnitario) && !isNaN(cantidad)) {
+                const subtotal = precioUnitario * cantidad;
+                $('#subtotal').val(subtotal.toFixed(2));
+            }
+        }
+    
+        // Agregar producto a la tabla y calcular total
+        $('#agregarProductoBtn').click(function() {
+            const productoId = $('#producto').val();
+            const productoNombre = $('#producto option:selected').text();
+            const cantidad = $('#cantidad').val();
+            const precioUnitario = $('#precio_unitario').val();
+            const subtotal = $('#subtotal').val();
+    
+            if (productoId && cantidad && subtotal) {
+                productosAgregados.push({
+                    productoId: productoId,
+                    productoNombre: productoNombre,
+                    cantidad: cantidad,
+                    precioUnitario: precioUnitario,
+                    subtotal: subtotal
+                });
+    
+                agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
+                actualizarTotalOrden();
+                $('#productoModal').modal('hide');
+            }
+        });
+    
+        // Función para agregar productos a la tabla
+        function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal) {
+            $('#productosTableBody').append(`
+                <tr>
+                    <td>${productoNombre}</td>
+                    <td>${cantidad}</td>
+                    <td>${precioUnitario}</td>
+                    <td>${subtotal}</td>
+                    <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
+                </tr>
+            `);
+        }
+    
+        // Actualizar el total de la orden
+        function actualizarTotalOrden() {
+            let total = 0;
+            productosAgregados.forEach(function(producto) {
+                total += parseFloat(producto.subtotal);
+            });
+            totalOrden.text(total.toFixed(2));
+        }
+    
+        // Manejar la eliminación de productos de la tabla
+        $('#productosTableBody').on('click', '.eliminarProductoBtn', function() {
+            const row = $(this).closest('tr');
+            const index = row.index();
+            productosAgregados.splice(index, 1);
+            row.remove();
+            actualizarTotalOrden();
+        });
+
+        const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+    
+                // Confirmar la orden y enviar los datos a Django
+                $('#confirmarOrdenBtn').click(function() {
+            const proveedorId = $('#id_proveedor').val();
+            const fecha = $('#fecha').val();
+            const fechaentrega = $('#fechaentrega').val();
+            const lugarentrega = $('#lugarentrega').val();
+            const condiciones = $('#condiciones').val();
+    
+            $.ajax({
+                url: "{% url 'confirmar_orden_compra' %}",
+                method: 'POST',
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                data: JSON.stringify({
+                    'proveedor_id': proveedorId,
+                    'fecha': fecha,
+                    'fechaentrega': fechaentrega,
+                    'lugarentrega': lugarentrega,
+                    'condiciones': condiciones,
+                    'productos': productosAgregados
+                }),
+                success: function(response) {
+                    alert('Orden de compra creada exitosamente');
+                    // Limpiar el formulario y la tabla
+                    $('#id_proveedor').val('');
+                    $('#lugarentrega').val('');
+                    $('#fecha').val('');
+                    $('#fechaentrega').val('');
+                    $('#condiciones').val('');
+                    $('#productosTableBody').empty();
+                    $('#totalOrden').text('0');
+                    productosAgregados = [];
+                    $('#AbrirF').prop('disabled', true);
+                },
+                error: function(error) {
+                    alert('Hubo un error al crear la orden de compra');
+                    console.log(error);
+                }
+            });
+        });
+    });
+    </script>
+</body>
