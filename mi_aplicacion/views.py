@@ -1,26 +1,24 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Producto,Sucursal
-from .models import Producto,ProductoPorDeposito,Deposito,OrdenCompra,Proveedor,DetalleOrden
 import json
+from .models import *
+from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect,render,get_object_or_404
 
 @login_required
 def home(request):
     return render(request, 'base.html')
 class ProductoListView(LoginRequiredMixin,ListView):
-    model = Producto
+    model = ProductoPorDeposito
     template_name = 'productos/producto_list.html'
-    context_object_name = 'productos'
+    context_object_name = 'productos_por_deposito'
     login_url = '../accounts/login/'
     def get_context_data(self, **kwargs):
         # Llama al método base para obtener el contexto inicial
@@ -29,7 +27,7 @@ class ProductoListView(LoginRequiredMixin,ListView):
         # Agrega la lista de objetos del modelo Deposito al contexto
         context['user'] = self.request.user
         context['depositos'] = Deposito.objects.all()
-        context['productos_por_deposito'] = ProductoPorDeposito.objects.all()
+        context['productos'] = Producto.objects.all()
         return context
  
 
@@ -78,6 +76,13 @@ class SucursalUpdateView (UpdateView):
     template_name='sucursales/sucursal_form.html'
     fields=['nombre','ubicacion','descripcion']
     success_url=reverse_lazy('sucursal_list')
+
+
+class SucursalDetailView(DetailView):
+    model = Sucursal
+    template_name = 'sucursales/sucursal_detail.html'
+    context_object_name = 'sucursal'
+
 class DepositosListView(LoginRequiredMixin,ListView):
     model=Deposito
     template_name = 'depositos/depositos_list.html'
@@ -92,20 +97,34 @@ class DepositoDetailView(DetailView):
 class DepositoCreateView(CreateView):
     model = Deposito
     template_name = 'depositos/deposito_form.html'
+
     fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','sucursal']
+
+    fields = '__all__'
+
     success_url = reverse_lazy('depositos_list')
     
 
 class DepositoUpdateView(UpdateView):
     model = Deposito
     template_name = 'depositos/deposito_form.html'
-    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','sucursal']
+
+    fields = '__all__'
     success_url = reverse_lazy('depositos_list')
+    def get_context_data(self, **kwargs):
+        # Llama al método base para obtener el contexto inicial
+        context = super().get_context_data(**kwargs)
+        
+        # Agrega la lista de objetos del modelo Deposito al contexto
+        context['sucursal'] = Sucursal.objects.all()
+        return context
+
 
 class DepositoDeleteView(DeleteView):
     model = Deposito
     template_name = 'depositos/deposito_confirm_delete.html'
     success_url = reverse_lazy('depositos_list')
+
 
 class OrdenCompraView (CreateView):
     model=OrdenCompra
@@ -204,3 +223,138 @@ def get_proveedores(request):
 def get_depositos(request):
     depositos = Deposito.objects.all().values('id', 'nombre')  # Ajusta los campos según tu modelo
     return JsonResponse({'depositos': list(depositos)})
+
+
+
+class ProductoXDepositoListView(LoginRequiredMixin,ListView):
+    model = ProductoPorDeposito
+    template_name = 'productos_list/producto_list.html'
+    context_object_name = 'productos_por_deposito'
+    login_url = '../accounts/login/'
+    def get_context_data(self, **kwargs):
+        # Llama al método base para obtener el contexto inicial
+        context = super().get_context_data(**kwargs)
+        
+        # Agrega la lista de objetos del modelo Deposito al contexto
+        context['user'] = self.request.user
+        context['depositos'] = Deposito.objects.all()
+        context['productos'] = Producto.objects.all()
+        return context
+
+
+class ProductoXDepositoDetailView(DetailView):
+    model = ProductoPorDeposito
+    template_name = 'productos_list/producto_detail.html'
+    context_object_name = 'productos_por_deposito'
+    def get_context_data(self, **kwargs):
+        # Llama al método base para obtener el contexto inicial
+        context = super().get_context_data(**kwargs)
+        
+        # Agrega la lista de objetos del modelo Deposito al contexto
+        context['user'] = self.request.user
+        context['depositos'] = Deposito.objects.all()
+        context['productos'] = Producto.objects.all()
+        return context
+
+class ProductoXDepositoCreateView(CreateView):
+    model = ProductoPorDeposito
+    template_name = 'productos_list/producto_form.html'
+    fields = '__all__'
+    success_url = reverse_lazy('productos_list')
+    
+    def get_context_data(self, **kwargs):
+        # Llama al método base para obtener el contexto inicial
+        context = super().get_context_data(**kwargs)
+        
+        # Agrega la lista de objetos del modelo Deposito al contexto
+        context['user'] = self.request.user
+        context['depositos'] = Deposito.objects.all()
+        context['productos'] = Producto.objects.all()
+        return context
+    
+
+class ProductoXDepositoUpdateView(UpdateView):
+    model = ProductoPorDeposito
+    template_name = 'productos_list/producto_form.html'
+    fields = '__all__'
+    success_url = reverse_lazy('productos_list')
+    
+
+class ProductoXDepositoDeleteView(DeleteView):
+    model = ProductoPorDeposito
+    template_name = 'productos_list/producto_confirm_delete.html'
+    success_url = reverse_lazy('productos_list')
+
+
+def  productos_por_deposito(request,deposito_id):
+    deposito = get_object_or_404(Deposito, id=deposito_id)
+    productos_en_deposito = ProductoPorDeposito.objects.filter(deposito=deposito)
+
+    return render(request, 'productos_list/productos_por_depositos.html', {
+        'deposito': deposito,
+        'productos_en_deposito': productos_en_deposito,
+    })
+
+
+def productos_por_sucursal(request,sucursal_id):
+    sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+    depositos = sucursal.depositos.all()
+    productos_en_sucursal = ProductoPorDeposito.objects.filter(deposito__in=depositos)
+
+    return render(request, 'productos_list/productos_por_sucursal.html', {
+        'sucursal': sucursal,
+        'productos_en_sucursal': productos_en_sucursal,
+    })
+
+
+
+
+
+
+
+def registrar_movimiento(request):
+    if request.method == 'POST':
+        form = MovimientoForm(request.POST)
+        if form.is_valid():
+            producto_por_deposito = form.cleaned_data['producto_por_deposito']
+            tipo_movimiento = form.cleaned_data['tipo_movimiento']
+            cantidad = form.cleaned_data['cantidad']
+
+            # Actualizar la cantidad en el modelo
+            if tipo_movimiento == 'ingreso':
+                producto_por_deposito.cantidad += cantidad
+            elif tipo_movimiento == 'egreso':
+                if producto_por_deposito.cantidad >= cantidad:
+                    producto_por_deposito.cantidad -= cantidad
+                else:
+                    form.add_error('cantidad', 'No hay suficiente stock para este egreso.')
+                    return render(request, 'registrar_movimiento.html', {'form': form})
+
+            producto_por_deposito.save()
+            return redirect('exito')  # Redirige a una página de éxito o a otra vista
+
+    else:
+        form = MovimientoForm()
+    
+    return render(request, 'registrar_movimiento.html', {'form': form})
+
+
+
+def exito(request):
+    return render(request, 'exito.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,26 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import (
-    ProductoListView,
-    ProductoDetailView,
-    ProductoCreateView,
-    ProductoUpdateView,
-    ProductoDeleteView,
-    SucursalListView,
-    SucursalCreateView,
-    SucursalDeleteView,
-    SucursalUpdateView,
-    DepositosListView,
-    DepositoCreateView,
-    DepositoUpdateView,
-    DepositoDeleteView,
-    DepositoDetailView,
-    OrdenCompraView,
-    ProveedorListView,
-    ProveedorCreateView,
-    ProveedorUpdateView,
-    ProveedorDeleteView
-)
+from .views import *
 from . import views
 
 urlpatterns = [
@@ -36,11 +16,14 @@ urlpatterns = [
     path('sucursales/nuevo/',SucursalCreateView.as_view(),name='sucursal_create'),
     path('sucursales/eliminar/<int:pk>',SucursalDeleteView.as_view(),name='sucursal_delete'),
     path('sucursales/editar/<int:pk>',SucursalUpdateView.as_view(),name='sucursal_update'),
+    path('sucursales/detail/<int:pk>/',SucursalDetailView.as_view(), name='sucursal_detail'),
     path('depositos/',DepositosListView.as_view(), name='depositos_list'),
     path('depositos/nuevo',DepositoCreateView.as_view(), name='deposito_create'),
     path('depositos/editar/<int:pk>/',DepositoUpdateView.as_view(), name='deposito_update'),
     path('depositos/delete/<int:pk>/',DepositoDeleteView.as_view(), name='deposito_delete'),
     path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),
+
+  
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
     path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),
@@ -51,6 +34,25 @@ urlpatterns = [
     path('confirmar_orden/',views.confirmar_orden_compra,name='confirmar_orden_compra'),
     path('get_proveedores/',views.get_proveedores,name='get_proveedores'),
     path('get_depositos/',views.get_depositos,name='get_depositos')
+
+  
+  
+    path('productos_list/', ProductoXDepositoListView.as_view(), name='productos_list'),
+    path('productos_list/nuevo/', ProductoXDepositoCreateView.as_view(), name='producto_list_create'),
+    path('productos_list/detail/<int:pk>/',ProductoXDepositoDetailView.as_view(), name='producto_list_detail'),
+    path('productos_list/editar/<int:pk>/', ProductoXDepositoUpdateView.as_view(), name='producto_list_update'),
+    path('productos_list/eliminar/<int:pk>/', ProductoXDepositoDeleteView.as_view(), name='producto_list_delete'),
+    
+    path('depositos/<int:deposito_id>/productos/', views.productos_por_deposito, name='productos_por_deposito'),
+    path('sucursales/<int:sucursal_id>/productos/', views.productos_por_sucursal, name='productos_por_sucursal'),
+
+
+  
+    path('registrar_movimiento/', views.registrar_movimiento, name='registrar_movimiento'),
+    path('exito/', views.exito, name='exito'),  # Vista para la página de éxito
+
+
+
     ]
 
 

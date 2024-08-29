@@ -98,35 +98,39 @@
     <div class="container">
         <div class="d-flex-sp">
             <h1>Lista de Productos</h1>
-            <a href="{% url 'producto_create' %}" class=" btn btn-outline-primary">Agregar Producto</a>
+            <a href="{% url 'producto_list_create' %}" class=" btn btn-outline-primary">Agregar Producto</a>
         </div>
         <div class="">
             <table id="example" class="display" style="width:100%">
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
+                        <th>Producto</th>
+                        <th>Descripción</th>
                         <th>Precio</th>
-                        <th>Categoria</th>
+                        <th>Categoría</th>
                         <th>Estado</th>
-                        <th>Proveedor_ID</th>
-                        <th>Iconos</th>
+                        <th>Depósito</th>
+                        <th>Stock Actual</th>
+                        <th>Fecha de Ingreso</th>
+                        <th>Estado en Depósito</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for producto in productos %}
+                  {% for producto_por_deposito in productos_por_deposito %}
                     <tr>
-                        <td>{{producto.id}}</td>
-                        <td>{{producto.nombre}}</td>
-                        <td>{{producto.descripcion}}</td>
-                        <td>{{producto.precio}}</td>
-                        <td>{{producto.categoria}}</td>
-                        <td>{{producto.estado}}</td>
-                        <td>{{producto.proveedor_id}}</td>
-                        <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
-                          <a href="{% url 'producto_detail' producto.pk %}"><i class="bi bi-eye"></i></a>
-                          <a href="{% url 'producto_delete' producto.pk %}"><i class="bi bi-trash"></i></a></td>
+                        <td>{{ producto_por_deposito.producto.nombre }}</td>
+                        <td>{{ producto_por_deposito.producto.descripcion }}</td>
+                        <td>{{ producto_por_deposito.producto.precio }}</td>
+                        <td>{{ producto_por_deposito.producto.categoria }}</td>
+                        <td>{{ producto_por_deposito.producto.estado }}</td>
+                        <td>{{ producto_por_deposito.deposito.nombre }}</td>
+                        <td>{{ producto_por_deposito.cantidad }}</td>
+                        <td>{{ producto_por_deposito.fecha_ingreso }}</td>
+                        <td>{{ producto_por_deposito.estado }}</td>
+                        <td><a href="{% url 'producto_list_update' producto_por_deposito.pk %}"><i class="bi bi-pencil-square"></i></a>
+                          <a href="{% url 'producto_list_detail' producto_por_deposito.pk %}"><i class="bi bi-eye"></i></a>
+                          <a href="{% url 'producto_list_delete' producto_por_deposito.pk %}"><i class="bi bi-trash"></i></a></td>
                     </tr>
                     {% empty %}
                 <p>No hay productos disponibles.</p>
@@ -134,12 +138,17 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Precio</th>
-                        <th>Categoria</th>
-                        <th>Estado</th>
+                      <th>Producto</th>
+                      <th>Descripción</th>
+                      <th>Precio</th>
+                      <th>Categoría</th>
+                      <th>Estado</th>
+                      <th>Depósito</th>
+                      <th>Stock Actual</th>
+                      <th>Fecha de Ingreso</th>
+                      <th>Estado en Depósito</th>
+                      <th>Acciones</th>
+
                     </tr>
                 </tfoot>
             </table>
