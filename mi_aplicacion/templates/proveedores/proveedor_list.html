@@ -111,8 +111,7 @@
                     <td>{{proveedor.nombre}}</td>
                     <td>{{proveedor.domicilio}}</td>
                     <td>{{proveedor.correo}}</td>
-                    <td><a href="{% url 'producto_update' proveedor.pk %}"><i class="bi bi-pencil-square"></i></a>
-                      <a href="{% url 'producto_detail' proveedor.pk %}"><i class="bi bi-eye"></i></a>
+                    <td><a href="{% url 'proveedor_update' proveedor.pk %}"><i class="bi bi-pencil-square"></i></a>
                       <a href="{% url 'proveedor_delete' proveedor.pk %}"><i class="bi bi-trash"></i></a></td>
                 </tr>
                 {% empty %}

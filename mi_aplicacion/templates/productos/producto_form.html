@@ -108,6 +108,10 @@
                     <label for="id_estado">Estado</label>
                     {{ form.estado }}
                 </div>
+                <div class="form-group">
+                    <label for="id_proveedor">Proveedor</label>
+                    {{ form.proveedor }}
+                </div>
                 <button type="submit">Guardar Producto</button>
             </form>
             <a href="{% url 'producto_list' %}" class="cancel-link">Cancelar</a>
