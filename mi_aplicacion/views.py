@@ -6,7 +6,7 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import Producto,Sucursal
-from .models import Producto,ProductoPorDeposito,Deposito
+from .models import Producto,ProductoPorDeposito,Deposito,OrdenCompra,Proveedor
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
@@ -91,17 +91,53 @@ class DepositoDetailView(DetailView):
 class DepositoCreateView(CreateView):
     model = Deposito
     template_name = 'depositos/deposito_form.html'
-    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','localidad']
+    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','sucursal']
     success_url = reverse_lazy('depositos_list')
     
 
 class DepositoUpdateView(UpdateView):
     model = Deposito
     template_name = 'depositos/deposito_form.html'
-    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','localidad']
+    fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','sucursal']
     success_url = reverse_lazy('depositos_list')
 
 class DepositoDeleteView(DeleteView):
     model = Deposito
     template_name = 'depositos/deposito_confirm_delete.html'
     success_url = reverse_lazy('depositos_list')
+
+class OrdenCompraView (CreateView):
+    model=OrdenCompra
+    template_name='compras/compras_orden.html'
+    fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones','total']
+
+class ProveedorListView(LoginRequiredMixin,ListView):
+    model=Proveedor
+    template_name='proveedores/proveedor_list.html'
+    context_object_name='proveedores'
+    login_url='../accounts/login'
+class ProveedorCreateView(CreateView):
+    model=Proveedor
+    template_name='proveedores/proveedor_form.html'
+    context_object_name='proveedores'
+    fields=['nombre','correo','domicilio']
+    success_url=reverse_lazy('proveedor_list')
+
+class ProveedorDeleteView(DeleteView):
+    model=Proveedor
+    template_name='proveedores/proveedor_delete.html'
+    success_url=reverse_lazy('proveedor_list')
+
+from django.http import JsonResponse
+from .models import Producto
+
+def get_productos(request):
+    proveedor_id = request.GET.get('proveedor_id')
+    productos = Producto.objects.filter(proveedor_id=proveedor_id)
+    productos_list = [{'id': p.id, 'nombre': p.nombre} for p in productos]
+    return JsonResponse({'productos': productos_list})
+
+def get_precio(request):
+    producto_id = request.GET.get('producto_id')
+    producto = Producto.objects.get(id=producto_id)
+    return JsonResponse({'precio_unitario': str(producto.precio_unitario)})

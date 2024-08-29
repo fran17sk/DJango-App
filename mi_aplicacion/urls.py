@@ -14,7 +14,11 @@ from .views import (
     DepositoCreateView,
     DepositoUpdateView,
     DepositoDeleteView,
-    DepositoDetailView
+    DepositoDetailView,
+    OrdenCompraView,
+    ProveedorListView,
+    ProveedorCreateView,
+    ProveedorDeleteView
 )
 from . import views
 
@@ -35,7 +39,14 @@ urlpatterns = [
     path('depositos/nuevo',DepositoCreateView.as_view(), name='deposito_create'),
     path('depositos/editar/<int:pk>/',DepositoUpdateView.as_view(), name='deposito_update'),
     path('depositos/delete/<int:pk>/',DepositoDeleteView.as_view(), name='deposito_delete'),
-    path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),]
+    path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),
+    path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
+    path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
+    path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),
+    path('proveedores/eliminar/<int:pk>',ProveedorDeleteView.as_view(),name='proveedor_delete'),
+    path('get_productos/',views.get_productos,name='get_productos'),
+    path('get_precio/',views.get_precio,name='get_precio')
+    ]
 
 
 ###urlpatterns = [

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
-    <title>Lista de Productos</title>
+    <title>Lista de Proveedores</title>
     <style>
       body{
         background-color: #ffffff;
@@ -88,61 +88,54 @@
       </div>
     </div>
   </nav>
-    <div class="container">
-        <div class="d-flex-sp">
-            <h1>Lista de Productos</h1>
-            <a href="{% url 'producto_create' %}" class=" btn btn-outline-primary">Agregar Producto</a>
-        </div>
-        <div class="">
-            <table id="example" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Precio</th>
-                        <th>Categoria</th>
-                        <th>Estado</th>
-                        <th>Proveedor_ID</th>
-                        <th>Iconos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for producto in productos %}
-                    <tr>
-                        <td>{{producto.id}}</td>
-                        <td>{{producto.nombre}}</td>
-                        <td>{{producto.descripcion}}</td>
-                        <td>{{producto.precio}}</td>
-                        <td>{{producto.categoria}}</td>
-                        <td>{{producto.estado}}</td>
-                        <td>{{producto.proveedor_id}}</td>
-                        <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
-                          <a href="{% url 'producto_detail' producto.pk %}"><i class="bi bi-eye"></i></a>
-                          <a href="{% url 'producto_delete' producto.pk %}"><i class="bi bi-trash"></i></a></td>
-                    </tr>
-                    {% empty %}
-                <p>No hay productos disponibles.</p>
-                {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Precio</th>
-                        <th>Categoria</th>
-                        <th>Estado</th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
-        
+  <div class="container">
+    <div class="d-flex-sp">
+        <h1>Lista de Proveedores</h1>
+        <a href="{% url 'proveedor_create' %}" class=" btn btn-outline-primary">Agregar Proveedor</a>
+    </div>
+    <div class="">
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Domicilio</th>
+                    <th>Correo</th>
+                    <th>Iconos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td>{{proveedor.id}}</td>
+                    <td>{{proveedor.nombre}}</td>
+                    <td>{{proveedor.domicilio}}</td>
+                    <td>{{proveedor.correo}}</td>
+                    <td><a href="{% url 'producto_update' proveedor.pk %}"><i class="bi bi-pencil-square"></i></a>
+                      <a href="{% url 'producto_detail' proveedor.pk %}"><i class="bi bi-eye"></i></a>
+                      <a href="{% url 'proveedor_delete' proveedor.pk %}"><i class="bi bi-trash"></i></a></td>
+                </tr>
+                {% empty %}
+            <p>No hay proveedores disponibles.</p>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Domicilio</th>
+                    <th>Correo</th>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
+</div>
 
-    <script>
-        new DataTable('#example');
-    </script>
+
+<script>
+    new DataTable('#example');
+</script>
+
 </body>
 </html>

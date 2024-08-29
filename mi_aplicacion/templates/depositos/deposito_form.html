@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>{% if producto %}Editar{% else %}Crear{% endif %} Producto</title>
+    <title>{% if producto %}Editar{% else %}Crear{% endif %} Deposito</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -93,15 +93,15 @@
                     {{ form.nombre }}
                 </div>
                 <div class="form-group">
-                    <label for="id_descripcion">Direccion</label>
+                    <label for="id_direccion">Direccion</label>
                     {{ form.direccion }}
                 </div>
                 <div class="form-group">
-                    <label for="id_precio">Telefono</label>
+                    <label for="id_telefono">Telefono</label>
                     {{ form.telefono }}
                 </div>
                 <div class="form-group">
-                    <label for="id_categoria">Correo electronico</label>
+                    <label for="id_email">Correo electronico</label>
                     {{ form.email }}
                 </div>
                 <div class="form-group">
@@ -109,12 +109,12 @@
                     {{ form.estado }}
                 </div>
                 <div class="form-group">
-                    <label for="id_estado">Capacidad Maxima</label>
+                    <label for="id_capacidad_maxima">Capacidad Maxima</label>
                     {{ form.capacidad_maxima }}
                 </div>
                 <div class="form-group">
-                    <label for="id_estado">Localidad</label>
-                    {{ form.localidad }}
+                    <label for="id_sucursal">Sucursal</label>
+                    {{ form.sucursal }}
                 </div>
                 <button type="submit">{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</button>
             </form>
