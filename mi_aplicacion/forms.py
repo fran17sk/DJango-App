@@ -22,3 +22,4 @@ class MovimientoForm(forms.Form):
             self.add_error('cantidad', 'No hay suficiente stock para este egreso.')
 
         return cleaned_data
+

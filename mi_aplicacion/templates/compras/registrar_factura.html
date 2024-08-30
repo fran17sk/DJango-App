@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <form method="post" class="form-container">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <button type="submit">Guardar Producto</button>
+    </form>
+    <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
+    
+    <script>
+        new DataTable('#example');
+    
+        function cargarDatosOrden(id) {
+            $.ajax({
+                url: "{% url 'get_orden' %}",
+                data: {
+                    'orden_id': id
+                },
+                success: function(data) {
+                    console.log(data)
+                }
+            });
+        }
+    
+    </script>
+</body>
+</html>
