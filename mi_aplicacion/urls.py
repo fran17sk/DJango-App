@@ -23,7 +23,12 @@ urlpatterns = [
     path('depositos/delete/<int:pk>/',DepositoDeleteView.as_view(), name='deposito_delete'),
     path('depositos/detail/<int:pk>/',DepositoDetailView.as_view(), name='deposito_detail'),
 
-  
+    
+    path('facturas/',views.Facturas_list,name='facturas_list'),
+    path('get_orden/',views.getDetalleOrden,name='get_orden'),
+    path('facturas/new',views.createFactura.as_view(),name='factura_new'),
+    path('facturas/detail/<int:pk>',views.detalleFactura,name='facturas_detail'),
+
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
     path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),

@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from .models import Producto
 from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
@@ -12,9 +14,11 @@ from django import forms
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
 
+
 @login_required
 def home(request):
     return render(request, 'base.html')
+
 class ProductoListView(LoginRequiredMixin,ListView):
     model = ProductoPorDeposito
     template_name = 'productos/producto_list.html'
@@ -100,7 +104,7 @@ class DepositoCreateView(CreateView):
 
     fields = ['nombre', 'direccion', 'telefono','email','estado','capacidad_maxima','sucursal']
 
-    fields = '__all__'
+    #fields = '__all__'
 
     success_url = reverse_lazy('depositos_list')
     
@@ -176,8 +180,8 @@ class CategoriaUpdateView (UpdateView):
     fields=['nombre','descripcion','proveedor']
     success_url=reverse_lazy('categoria_list')
 
-from django.http import JsonResponse
-from .models import Producto
+
+
 
 def get_productos(request):
     proveedor_id = request.GET.get('proveedor_id')
@@ -368,12 +372,25 @@ def exito(request):
 
 
 
+def Facturas_list(request):
+    facturas = FacturasCompras.objects.all()
+    return render (request,'compras/compras_factura.html',{'facturas':facturas})
 
 
+def detalleFactura(request,pk):
+    factura = FacturasCompras.objects.get(pk=pk)
+    return render (request,'compras/detail_factura.html',{'factura':factura})
 
+class createFactura(CreateView):
+    model=FacturasCompras
+    template_name = 'compras/registrar_factura.html'
+    fields = '__all__'
+    success_url = reverse_lazy('facturas_list')
 
-
-
+def getDetalleOrden(request):
+    id = request.GET.get('orden_id')
+    orden = Proveedor.objects.get(id=id)  # Ajusta los campos según tu modelo
+    return JsonResponse({'orden':orden})
 
 
 
