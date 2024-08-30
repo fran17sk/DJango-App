@@ -4,41 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    {% block extra_head %}{% endblock %}
-    {% block extra_scripts %}
-    <!-- Scripts adicionales -->
-    {% endblock %}
-    <title>{% block title %}Mi Aplicación{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
+    <title>{% block title %}Lista de Categorias{% endblock %}</title>
     <style>
-      body{
+        body{
         background-color: #ffffff;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' %3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%2380F'/%3E%3Cstop offset='1' stop-color='%23f40'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpattern id='b' width='24' height='24' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%23ffffff' cx='12' cy='12' r='12'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23b)' fill-opacity='0.04'/%3E%3C/svg%3E");
-        background-attachment: fixed;
+        background-attachment: fixed;  
       }
-      .bg_dark{
-        color: white;
-        background-color: #470561;
+      .container{
+        margin: 50px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        width: 1600px;
       }
-      a{
-        font-style: none;
-      }
-      .color-black{
-        color: black;
-      }
-      .user{
-        margin: 10px;
-      }
-      .container-div{
-        height: 550px;
+      .d-flex-sp{
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
       }
     </style>
 </head>
 <body>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary bg_dark">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary bg_dark">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">BlueDragon</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,9 +49,9 @@
                 <li class="nav-item active">
                   <a class="nav-link" href="{% url 'sucursal_list' %}">Sucursales</a>
               </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'categoria_list' %}">Categorias</a>
-                </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'categoria_list' %}">Categorias</a>
+              </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'producto_list' %}">Productos</a>
                 </li>
@@ -100,18 +97,50 @@
       </nav>
 
 
-
-    <div class="container-div mt-4">
-        {% block content %}
-        <!-- Aquí se insertará el contenido específico de cada página -->
-        {% endblock %}
-    </div>
-
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="container">
-            <span class="text-muted">© 2024 Mi Aplicación</span>
+      <div class="container">
+        <div class="d-flex-sp">
+            <h1>Lista de Categorias</h1>
+            <a href="{% url 'categoria_create' %}" class=" btn btn-outline-primary">Agregar Categorias</a>
         </div>
-    </footer>
+        <div class="">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Iconos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td>{{categoria.id}}</td>
+                        <td>{{categoria.nombre}}</td>
+                        <td>{{categoria.descripcion}}</td>
+                        <td><a href="{% url 'categoria_update' categoria.pk %}"><i class="bi bi-pencil-square"></i></a>
+                          <a href="{% url 'categoria_delete' categoria.pk %}"><i class="bi bi-trash"></i></a></td>
+                    </tr>
+                    {% empty %}
+                <p>No hay Categorias disponibles.</p>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Descripcion</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    
+    </div>
+    
+    
+    <script>
+        new DataTable('#example');
+    </script>
 
     
 </body>

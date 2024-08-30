@@ -14,6 +14,7 @@ from django import forms
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
 
+
 @login_required
 def home(request):
     return render(request, 'base.html')
@@ -155,6 +156,31 @@ class ProveedorDeleteView(DeleteView):
     model=Proveedor
     template_name='proveedores/proveedor_delete.html'
     success_url=reverse_lazy('proveedor_list')
+
+class CategoriaListView(LoginRequiredMixin,ListView):
+    model=Categoria
+    template_name='categorias/categorias_list.html'
+    context_object_name='categorias'
+    login_url='../accounts/login'
+
+class CategoriaCreateView(CreateView):
+    model=Categoria
+    template_name='categorias/categorias_form.html'
+    context_object_name='categorias'
+    fields=['nombre','descripcion','proveedor']
+    success_url=reverse_lazy('categoria_list')
+class CategoriaDeleteView (DeleteView):
+    model=Categoria
+    template_name='categorias/categorias_delete.html'
+    success_url=reverse_lazy('categoria_list')
+class CategoriaUpdateView (UpdateView):
+    model=Categoria
+    template_name='categorias/categorias_form.html'
+    context_object_name='categorias'
+    fields=['nombre','descripcion','proveedor']
+    success_url=reverse_lazy('categoria_list')
+
+
 
 
 def get_productos(request):
