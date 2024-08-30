@@ -153,6 +153,29 @@ class ProveedorDeleteView(DeleteView):
     template_name='proveedores/proveedor_delete.html'
     success_url=reverse_lazy('proveedor_list')
 
+class CategoriaListView(LoginRequiredMixin,ListView):
+    model=Categoria
+    template_name='categorias/categorias_list.html'
+    context_object_name='categorias'
+    login_url='../accounts/login'
+
+class CategoriaCreateView(CreateView):
+    model=Categoria
+    template_name='categorias/categorias_form.html'
+    context_object_name='categorias'
+    fields=['nombre','descripcion','proveedor']
+    success_url=reverse_lazy('categoria_list')
+class CategoriaDeleteView (DeleteView):
+    model=Categoria
+    template_name='categorias/categorias_delete.html'
+    success_url=reverse_lazy('categoria_list')
+class CategoriaUpdateView (UpdateView):
+    model=Categoria
+    template_name='categorias/categorias_form.html'
+    context_object_name='categorias'
+    fields=['nombre','descripcion','proveedor']
+    success_url=reverse_lazy('categoria_list')
+
 from django.http import JsonResponse
 from .models import Producto
 

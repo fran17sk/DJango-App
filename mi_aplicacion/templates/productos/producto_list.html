@@ -49,6 +49,9 @@
             <li class="nav-item active">
               <a class="nav-link" href="{% url 'sucursal_list' %}">Sucursales</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'categoria_list' %}">Categorias</a>
+          </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'producto_list' %}">Productos</a>
             </li>
@@ -58,22 +61,19 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'productos_list' %}">Productos/Depositos</a>
             </li>
-            
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'proveedor_list' %}">Proveedores</a>
+            </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
+            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Compras
             </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#">Action</a></li>
-              <li><a class="dropdown-item" href="#">Another action</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <ul class="dropdown-menu"> 
+              <li><a class="dropdown-item" href="{% url 'orden_compra' %}">Generar Orden de Compra</a></li>
+              <li><a class="dropdown-item">Registrar Factura</a></li>
+              <li><a class="dropdown-item">Orden de Pago</a></li>
             </ul>
           </li>
-          <li class="nav-item">
-            <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-          </li>
-        </ul>
         <form class="d-flex" role="search">
           <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success" type="submit">Search</button>
@@ -108,9 +108,7 @@
                         <th>Nombre</th>
                         <th>Descripcion</th>
                         <th>Precio</th>
-                        <th>Categoria</th>
                         <th>Estado</th>
-                        <th>Proveedor_ID</th>
                         <th>Iconos</th>
                     </tr>
                 </thead>
@@ -121,9 +119,7 @@
                         <td>{{producto.nombre}}</td>
                         <td>{{producto.descripcion}}</td>
                         <td>{{producto.precio}}</td>
-                        <td>{{producto.categoria}}</td>
                         <td>{{producto.estado}}</td>
-                        <td>{{producto.proveedor_id}}</td>
                         <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
                           <a href="{% url 'producto_detail' producto.pk %}"><i class="bi bi-eye"></i></a>
                           <a href="{% url 'producto_delete' producto.pk %}"><i class="bi bi-trash"></i></a></td>
@@ -138,7 +134,6 @@
                         <th>Nombre</th>
                         <th>Descripcion</th>
                         <th>Precio</th>
-                        <th>Categoria</th>
                         <th>Estado</th>
                     </tr>
                 </tfoot>

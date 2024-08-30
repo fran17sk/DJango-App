@@ -33,8 +33,13 @@ urlpatterns = [
     path('get_precio/',views.get_precio,name='get_precio'),
     path('confirmar_orden/',views.confirmar_orden_compra,name='confirmar_orden_compra'),
     path('get_proveedores/',views.get_proveedores,name='get_proveedores'),
-    path('get_depositos/',views.get_depositos,name='get_depositos')
+    path('get_depositos/',views.get_depositos,name='get_depositos'),
 
+    path('categorias/',CategoriaListView.as_view(),name='categoria_list'),
+    path('categorias/nuevo/',CategoriaCreateView.as_view(),name='categoria_create'),
+    path('categorias/eliminar/<int:pk>',CategoriaDeleteView.as_view(),name='categoria_delete'),
+    path('categorias/editar/<int:pk>',CategoriaUpdateView.as_view(),name='categoria_update'),
+  
   
   
     path('productos_list/', ProductoXDepositoListView.as_view(), name='productos_list'),
