@@ -1,17 +1,16 @@
-from mi_aplicacion.models import Provincia, Localidad, Deposito, Producto, ProductoPorDeposito
+from mi_aplicacion.models import *
 
 def run():
-    # Eliminar productos por depósitos
     ProductoPorDeposito.objects.all().delete()
-
-    # Eliminar productos
     Producto.objects.all().delete()
-
-    # Eliminar depósitos
     Deposito.objects.all().delete()
-
-    # Eliminar localidades
     Localidad.objects.all().delete()
-
-    # Eliminar provincias
     Provincia.objects.all().delete()
+    Sucursal.objects.all().delete()
+    Proveedor.objects.all().delete()
+    Categoria.objects.all().delete()
+    OrdenCompra.objects.all().delete()
+    DetalleOrden.objects.all().delete()
+    FacturasCompras.objects.all().delete()
+    Movement.objects.all().delete()
+    DetalleMovement.objects.all().delete()

@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+{% extends 'base.html' %}
+{% block extra_head %}
     <style>
         body {
         font-family: 'Arial', sans-serif;
@@ -74,8 +70,8 @@ a:hover {
     color: #31b0d5;
 }
     </style>
-</head>
-<body>
+{% endblock %}
+{% block content %}
     <div class="container">
         <h1>Eliminar Sucursal</h1>
         <p>¿Estás seguro de que deseas eliminar "{{ sucursal.nombre }}"?</p>
@@ -85,5 +81,5 @@ a:hover {
         </form>
         <a href="{% url 'sucursal_list' %}">Cancelar</a>
     </div>
-</body>
-</html>
+
+{% endblock %}

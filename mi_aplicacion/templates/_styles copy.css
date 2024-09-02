@@ -1,0 +1,8 @@
+:root{
+    --color-barra-lateral:rgb(34, 34, 34);
+    --color-textos: rgb(255,255,255);
+    --color-textos-menu:rgb(134,136,144);
+}
+body{
+    height: 100vh;
+}

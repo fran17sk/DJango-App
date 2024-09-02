@@ -58,16 +58,18 @@ class ProductoDeleteView(DeleteView):
     template_name = 'productos/producto_confirm_delete.html'
     success_url = reverse_lazy('producto_list')
 
+
+################################SUCURSALES########################################
 class SucursalListView (LoginRequiredMixin,ListView):
     model = Sucursal
     template_name="sucursales/sucursal_list.html"
-    context_object_name="sucursal"
+    context_object_name="sucursales"
     login_url='../accounts/login'
 
 class SucursalCreateView(CreateView):
     model=Sucursal
     template_name='sucursales/sucursal_form.html'
-    fields=['nombre','ubicacion','descripcion']
+    fields=['nombre','ubicacion','descripcion','estado','localidad']
     success_url=reverse_lazy('sucursal_list')
 
 class SucursalDeleteView (DeleteView):
@@ -78,15 +80,17 @@ class SucursalDeleteView (DeleteView):
 class SucursalUpdateView (UpdateView):
     model=Sucursal
     template_name='sucursales/sucursal_form.html'
-    fields=['nombre','ubicacion','descripcion']
+    fields=['nombre','ubicacion','descripcion','estado']
     success_url=reverse_lazy('sucursal_list')
-
 
 class SucursalDetailView(DetailView):
     model = Sucursal
     template_name = 'sucursales/sucursal_detail.html'
     context_object_name = 'sucursal'
 
+
+
+##################################DEPOSITOS#############################################
 class DepositosListView(LoginRequiredMixin,ListView):
     model=Deposito
     template_name = 'depositos/depositos_list.html'
@@ -123,12 +127,10 @@ class DepositoUpdateView(UpdateView):
         context['sucursal'] = Sucursal.objects.all()
         return context
 
-
 class DepositoDeleteView(DeleteView):
     model = Deposito
     template_name = 'depositos/deposito_confirm_delete.html'
     success_url = reverse_lazy('depositos_list')
-
 
 class OrdenCompraView (CreateView):
     model=OrdenCompra
@@ -140,17 +142,19 @@ class ProveedorListView(LoginRequiredMixin,ListView):
     template_name='proveedores/proveedor_list.html'
     context_object_name='proveedores'
     login_url='../accounts/login'
+
 class ProveedorCreateView(CreateView):
     model=Proveedor
     template_name='proveedores/proveedor_form.html'
     context_object_name='proveedores'
-    fields=['nombre','correo','domicilio']
+    fields='__all__'
     success_url=reverse_lazy('proveedor_list')
+
 class ProveedorUpdateView(UpdateView):
     model = Proveedor
     template_name='proveedores/proveedor_form.html'
     context_object_name='proveedores'
-    fields=['nombre','correo','domicilio']
+    fields='__all__'
     success_url=reverse_lazy('proveedor_list')
 class ProveedorDeleteView(DeleteView):
     model=Proveedor
@@ -167,19 +171,20 @@ class CategoriaCreateView(CreateView):
     model=Categoria
     template_name='categorias/categorias_form.html'
     context_object_name='categorias'
-    fields=['nombre','descripcion','proveedor']
+    fields=['nombre','descripcion']
     success_url=reverse_lazy('categoria_list')
+
 class CategoriaDeleteView (DeleteView):
     model=Categoria
     template_name='categorias/categorias_delete.html'
     success_url=reverse_lazy('categoria_list')
+
 class CategoriaUpdateView (UpdateView):
     model=Categoria
     template_name='categorias/categorias_form.html'
     context_object_name='categorias'
-    fields=['nombre','descripcion','proveedor']
+    fields=['nombre','descripcion']
     success_url=reverse_lazy('categoria_list')
-
 
 
 
@@ -192,7 +197,8 @@ def get_productos(request):
 def get_precio(request):
     producto_id = request.GET.get('producto_id')
     producto = Producto.objects.get(id=producto_id)
-    return JsonResponse({'precio_unitario': str(producto.precio_unitario)})
+    print(producto.precio)
+    return JsonResponse({'precio_unitario': str(producto.precio)})
 
 
 def confirmar_orden_compra(request):

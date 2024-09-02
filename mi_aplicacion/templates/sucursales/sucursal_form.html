@@ -1,89 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if producto %}Editar{% else %}Crear{% endif %} Producto</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            background-color: #ffffff;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25' %3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%2380F'/%3E%3Cstop offset='1' stop-color='%23f40'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpattern id='b' width='24' height='24' patternUnits='userSpaceOnUse'%3E%3Ccircle fill='%23ffffff' cx='12' cy='12' r='12'/%3E%3C/pattern%3E%3Crect width='100%25' height='100%25' fill='url(%23a)'/%3E%3Crect width='100%25' height='100%25' fill='url(%23b)' fill-opacity='0.04'/%3E%3C/svg%3E");
-        background-attachment: fixed;
-        }
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .form-wrapper {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-top: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-        .form-group label {
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-        .form-group input, .form-group select, .form-group textarea {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1em;
-        }
-        button {
-            background-color: #c90a99;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #7d0de6f8;
-        }
-        .cancel-link {
-            display: block;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 1em;
-            color: #2196F3;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        .cancel-link:hover {
-            text-decoration: underline;
-        }
-    </style>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
     <div class="container">
         <div class="form-wrapper">
             <h1>{% if sucursal %}Editar{% else %}Crear{% endif %} Sucursal</h1>
@@ -92,6 +8,14 @@
                 <div class="form-group">
                     <label for="id_nombre">Nombre</label>
                     {{ form.nombre }}
+                </div>
+                <div class="form-group">
+                    <label for="id_estado">Estado</label>
+                    {{ form.estado }}
+                </div>
+                <div class="form-group">
+                    <label for="id_localidad">Localidad</label>
+                    {{ form.localidad }}
                 </div>
                 <div class="form-group">
                     <div id="map" style="height: 400px;"></div>
@@ -111,7 +35,10 @@
             <a href="{% url 'sucursal_list' %}" class="cancel-link">Cancelar</a>
         </div>
     </div>
+{% endblock %}
 
+
+{% block script %}
     <script>
         // Inicializa el mapa centrado en Salta, Argentina
         var map = L.map('map').setView([-24.782126, -65.423198], 13);
@@ -157,5 +84,5 @@
         // Establece las coordenadas iniciales
         updateLocation(-24.782126, -65.423198);
     </script>
-</body>
-</html>
+
+{% endblock %}
