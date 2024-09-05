@@ -30,6 +30,9 @@ urlpatterns = [
     path('facturas/detail/<int:pk>',views.detalleFactura,name='facturas_detail'),
 
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
+    path('compras/',OrdenCompraListView.as_view(),name='orden_list'),
+    path('get_ordenes/',views.get_ordenes,name='get_ordenes'),
+
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
     path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),
     path('proveedores/eliminar/<int:pk>',ProveedorDeleteView.as_view(),name='proveedor_delete'),

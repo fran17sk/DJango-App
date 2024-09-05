@@ -14,7 +14,6 @@ from django import forms
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
 
-
 @login_required
 def home(request):
     return render(request, 'base.html')
@@ -43,14 +42,14 @@ class ProductoDetailView(DetailView):
 class ProductoCreateView(CreateView):
     model = Producto
     template_name = 'productos/producto_form.html'
-    fields = ['nombre', 'descripcion', 'precio','categoria','estado','proveedor']
+    fields = ['nombre', 'descripcion','categoria','estado','proveedor']
     success_url = reverse_lazy('producto_list')
     
 
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'productos/producto_form.html'
-    fields = ['nombre', 'descripcion', 'precio','categoria','estado']
+    fields = ['nombre', 'descripcion','categoria','estado']
     success_url = reverse_lazy('producto_list')
 
 class ProductoDeleteView(DeleteView):
@@ -132,10 +131,19 @@ class DepositoDeleteView(DeleteView):
     template_name = 'depositos/deposito_confirm_delete.html'
     success_url = reverse_lazy('depositos_list')
 
+##################################ORDEN DE COMPRA#############################################
+
 class OrdenCompraView (CreateView):
     model=OrdenCompra
     template_name='compras/compras_orden.html'
-    fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones','total']
+    fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones']
+    success_url=reverse_lazy('orden_list')
+
+class OrdenCompraListView (LoginRequiredMixin,ListView):
+    model = OrdenCompra
+    template_name='compras/compras_listaorden.html'
+    context_object_name='ordenes'
+    login_url='../accounts/login'
 
 class ProveedorListView(LoginRequiredMixin,ListView):
     model=Proveedor
@@ -209,32 +217,24 @@ def confirmar_orden_compra(request):
             
             # Crear una nueva OrdenCompra
             orden_compra = OrdenCompra(
+                nordenCompra=data['nordenCompra'],
                 proveedor_id=data['proveedor_id'],
                 fecha=data['fecha'],
                 fechaentrega=data.get('fechaentrega', None),
                 lugarentrega_id=data.get('lugarentrega', None),
                 condiciones=data.get('condiciones', ''),
-                total=0  # Este valor se actualizará después
             )
             orden_compra.save()
             
             # Procesar productos
             productos = data.get('productos', [])
-            total_orden = 0
             for producto in productos:
                 detalle_orden = DetalleOrden(
                     producto_id=producto['productoId'],
-                    ordecompra=orden_compra,
-                    precio_unitario=producto['precioUnitario'],
+                    ordencompra=orden_compra,
                     cantidad=producto['cantidad'],
-                    subtotal=producto['subtotal']
                 )
                 detalle_orden.save()
-                total_orden += float(producto['subtotal'])
-            
-            # Actualizar el total en OrdenCompra
-            orden_compra.total = total_orden
-            orden_compra.save()
 
             return JsonResponse({'status': 'success'})
         except KeyError as e:
@@ -253,11 +253,14 @@ def get_proveedores(request):
     proveedores = Proveedor.objects.all().values('id', 'nombre')  # Ajusta los campos según tu modelo
     return JsonResponse({'proveedores': list(proveedores)})
 
+
 def get_depositos(request):
     depositos = Deposito.objects.all().values('id', 'nombre')  # Ajusta los campos según tu modelo
     return JsonResponse({'depositos': list(depositos)})
 
-
+def get_ordenes(request):
+    ordenes = OrdenCompra.objects.filter(estado="Activo").select_related('proveedor').values('id','nordenCompra','proveedor__nombre')
+    return JsonResponse({'ordenes':list(ordenes)})
 
 class ProductoXDepositoListView(LoginRequiredMixin,ListView):
     model = ProductoPorDeposito
@@ -388,15 +391,21 @@ def detalleFactura(request,pk):
     return render (request,'compras/detail_factura.html',{'factura':factura})
 
 class createFactura(CreateView):
-    model=FacturasCompras
+    model = FacturasCompras
     template_name = 'compras/registrar_factura.html'
-    fields = '__all__'
+    fields = ['reference_orden','proveedor','numero_factura','tipo_factura','fecha_emision','descuento','impuestos','estado','metodo_pago','notas','total']
     success_url = reverse_lazy('facturas_list')
+    
+
 
 def getDetalleOrden(request):
-    id = request.GET.get('orden_id')
-    orden = Proveedor.objects.get(id=id)  # Ajusta los campos según tu modelo
-    return JsonResponse({'orden':orden})
+    orden_id = request.GET.get('orden_id')
+    try:
+        detalle_orden = DetalleOrden.objects.filter(ordencompra_id=orden_id)
+        productos = [{'id': d.producto.id, 'nombre': d.producto.nombre, 'cantidad': d.cantidad} for d in detalle_orden]
+        return JsonResponse({'productos': productos})
+    except OrdenCompra.DoesNotExist:
+        return JsonResponse({'error': 'Orden no encontrada'}, status=404)
 
 
 

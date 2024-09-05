@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="d-flex-sp">
+        <h1>Lista de Ordenes de Compra</h1>
+        <a href="{% url 'orden_compra' %}" class=" btn btn-outline-primary">Crear Orden de Compra</a>
+    </div>
+    <div class="">
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>N°Orden</th>
+                    <th>Fecha Creación</th>
+                    <th>Fecha Entrega</th>
+                    <th>Estado</th>
+                    <th>Condiciones</th>
+                    <th>Iconos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orden in ordenes %}
+                <tr>
+                    <td>{{orden.id}}</td>
+                    <td>{{orden.nordencompra}}</td>
+                    <td>{{orden.fecha}}</td>
+                    <td>{{orden.fechaentrega}}</td>
+                    <td>{{orden.estado}}</td>
+                    <td>{{orden.condiciones}}</td>
+                    <td><a href=""><i class="bi bi-pencil-square"></i></a>
+                      <a href=""><i class="bi bi-eye"></i></a>
+                      <a href=""><i class="bi bi-trash"></i></a></td>
+                </tr>
+                {% empty %}
+            <p>No hay Ordenes disponibles.</p>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Id</th>
+                    <th>N°Orden</th>
+                    <th>Fecha Creación</th>
+                    <th>Fecha Entrega</th>
+                    <th>Fecha Entrega</th>
+                    <th>Condiciones</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+</div>
+{% endblock %}

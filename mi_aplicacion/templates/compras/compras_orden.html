@@ -3,13 +3,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>  
     <title>Orden de Compra</title>
@@ -19,11 +13,14 @@
             flex-flow: row nowrap;
             justify-content: space-between;
         }
+        /* Ocultar la tabla de productos al inicio */
+        #DetalleOrden{
+            display: none;
+        }
     </style>
 {% endblock %}
 {% block content %}
-
-      <div class="container">
+    <div class="container">
         <form id="csrfForm">
             {% csrf_token %}
         </form>
@@ -36,7 +33,10 @@
                 <!-- Opciones de proveedores serán cargadas desde Django -->
             </select>
         </div>
-    
+        <div class="mb-3">
+            <label for="nordenCompra" class="form-label">N°Orden Compra</label>
+            <input type="number" class="form-control" id="nordenCompra">
+        </div>
         <!-- Fecha de la orden -->
         <div class="mb-3">
             <label for="fecha" class="form-label">Fecha de la Orden</label>
@@ -79,20 +79,13 @@
                             <div class="mb-3">
                                 <label for="producto" class="form-label">Producto</label>
                                 <select id="producto" class="form-select" required>
+                                    <option value="">Elegir producto</option>
                                     <!-- Opciones de productos serán cargadas vía AJAX -->
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="precio_unitario" class="form-label">Precio Unitario</label>
-                                <input type="number" class="form-control" id="precio_unitario" step="0.01" required>
-                              </div>
-                            <div class="mb-3">
                                 <label for="cantidad" class="form-label">Cantidad</label>
                                 <input type="number" class="form-control" id="cantidad" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="subtotal" class="form-label">Subtotal</label>
-                                <input type="text" class="form-control" id="subtotal" readonly>
                             </div>
                         </form>
                     </div>
@@ -104,73 +97,68 @@
             </div>
         </div>
     
-        <!-- Tabla para mostrar productos agregados -->
-        <table class="table table-striped mt-4">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unitario</th>
-                    <th>Subtotal</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="productosTableBody">
-                <!-- Los productos se agregarán aquí -->
-            </tbody>
-        </table>
-    
-        <!-- Mostrar total -->
-        <div class="text-end mt-3">
-            <h4>Total: <span id="totalOrden">0</span></h4>
+        <div id="DetalleOrden">
+            <!-- Tabla para mostrar productos agregados -->
+            <table class="table table-striped mt-4" id="productosTable">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="productosTableBody">
+                    <!-- Los productos se agregarán aquí -->
+                </tbody>
+            </table>
+                    <!-- Botón para enviar la orden -->
+            <button class="btn btn-success" id="confirmarOrdenBtn">Confirmar Orden</button>
         </div>
-    
-        <!-- Botón para enviar la orden -->
-        <button class="btn btn-success" id="confirmarOrdenBtn">Confirmar Orden</button>
+
     </div>
-    {% endblock %}
-    {% block script %} 
+{% endblock %}
+{% block script %} 
     <script>
     $(document).ready(function() {
         const proveedorSelect = $('#id_proveedor');
         const lugarentregaSelect = $('#lugarentrega');
         const agregarProductoBtn = $('#AbrirF');
-        const totalOrden = $('#totalOrden');
+        const detalleOrden = $('#DetalleOrden');
         let productosAgregados = [];
 
-            // Función para cargar proveedores
-    function cargarProveedores() {
-        $.ajax({
-            url: "{% url 'get_proveedores' %}",
-            success: function(data) {
-                const proveedores = data.proveedores;
-                proveedorSelect.empty();
-                proveedorSelect.append(new Option('Seleccione un proveedor', ''));
-                proveedores.forEach(function(proveedor) {
-                    proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
-                });
-            }
-        });
-    }
+        // Función para cargar proveedores
+        function cargarProveedores() {
+            $.ajax({
+                url: "{% url 'get_proveedores' %}",
+                success: function(data) {
+                    const proveedores = data.proveedores;
+                    proveedorSelect.empty();
+                    proveedorSelect.append(new Option('Seleccione un proveedor', ''));
+                    proveedores.forEach(function(proveedor) {
+                        proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
+                    });
+                }
+            });
+        }
 
-    // Función para cargar depósitos
-    function cargarDepositos() {
-        $.ajax({
-            url: "{% url 'get_depositos' %}",
-            success: function(data) {
-                const depositos = data.depositos;
-                lugarentregaSelect.empty();
-                lugarentregaSelect.append(new Option('Seleccione un depósito', ''));
-                depositos.forEach(function(deposito) {
-                    lugarentregaSelect.append(new Option(deposito.nombre, deposito.id));
-                });
-            }
-        });
-    }
+        // Función para cargar depósitos
+        function cargarDepositos() {
+            $.ajax({
+                url: "{% url 'get_depositos' %}",
+                success: function(data) {
+                    const depositos = data.depositos;
+                    lugarentregaSelect.empty();
+                    lugarentregaSelect.append(new Option('Seleccione un depósito', ''));
+                    depositos.forEach(function(deposito) {
+                        lugarentregaSelect.append(new Option(deposito.nombre, deposito.id));
+                    });
+                }
+            });
+        }
 
-    // Cargar proveedores y depósitos al iniciar
-    cargarProveedores();
-    cargarDepositos();
+        // Cargar proveedores y depósitos al iniciar
+        cargarProveedores();
+        cargarDepositos();
     
         // Habilitar botón si se selecciona un proveedor
         proveedorSelect.change(function () {
@@ -194,141 +182,108 @@
                     const productos = data.productos;
                     const productoSelect = $('#producto');
                     productoSelect.empty();
+                    productoSelect.append(new Option('Elegir producto', ''));
                     productos.forEach(function(producto) {
                         productoSelect.append(new Option(producto.nombre, producto.id));
                     });
                 }
             });
         }
-    
-        // Cambiar el precio y calcular subtotal cuando se selecciona un producto
-        $('#producto').change(function() {
-            const productoId = $(this).val();
-            $.ajax({
-                url: "{% url 'get_precio' %}",
-                data: {
-                    'producto_id': productoId
-                },
-                success: function(data) {
-                    $('#precio_unitario').val(data.precio_unitario);
-                    actualizarSubtotal();
-                }
-            });
-        });
-    
-        // Actualizar subtotal cuando cambia la cantidad
-        $('#cantidad').on('input', function() {
-            actualizarSubtotal();
-        });
-    
-        // Función para actualizar el subtotal
-        function actualizarSubtotal() {
-            const precioUnitario = parseFloat($('#precio_unitario').val());
-            const cantidad = parseInt($('#cantidad').val());
-            if (!isNaN(precioUnitario) && !isNaN(cantidad)) {
-                const subtotal = precioUnitario * cantidad;
-                $('#subtotal').val(subtotal.toFixed(2));
-            }
-        }
 
-        // Agregar producto a la tabla y calcular total
+        // Agregar producto a la tabla
         $('#agregarProductoBtn').click(function() {
             const productoId = $('#producto').val();
             const productoNombre = $('#producto option:selected').text();
             const cantidad = $('#cantidad').val();
-            const precioUnitario = $('#precio_unitario').val();
-            const subtotal = $('#subtotal').val();
     
-            if (productoId && cantidad && subtotal) {
+            if (productoId && cantidad) {
                 productosAgregados.push({
                     productoId: productoId,
                     productoNombre: productoNombre,
                     cantidad: cantidad,
-                    precioUnitario: precioUnitario,
-                    subtotal: subtotal
                 });
     
-                agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
-                actualizarTotalOrden();
+                agregarProductoATabla(productoNombre, cantidad);
                 $('#productoModal').modal('hide');
+                $('.modal-backdrop').remove();
+                // Mostrar la tabla de productos después de agregar un producto
+                detalleOrden.show();
             }
         });
     
         // Función para agregar productos a la tabla
-        function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal) {
+        function agregarProductoATabla(productoNombre, cantidad) {
             $('#productosTableBody').append(`
                 <tr>
                     <td>${productoNombre}</td>
                     <td>${cantidad}</td>
-                    <td>${precioUnitario}</td>
-                    <td>${subtotal}</td>
                     <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
                 </tr>
             `);
         }
-    
-        // Actualizar el total de la orden
-        function actualizarTotalOrden() {
-            let total = 0;
-            productosAgregados.forEach(function(producto) {
-                total += parseFloat(producto.subtotal);
-            });
-            totalOrden.text(total.toFixed(2));
-        }
-    
+
         // Manejar la eliminación de productos de la tabla
         $('#productosTableBody').on('click', '.eliminarProductoBtn', function() {
             const row = $(this).closest('tr');
             const index = row.index();
             productosAgregados.splice(index, 1);
             row.remove();
-            actualizarTotalOrden();
+
+            // Ocultar la tabla si no quedan productos
+            if (productosAgregados.length === 0) {
+                detalleOrden.hide();
+            }
         });
 
-        const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
-    
-                // Confirmar la orden y enviar los datos a Django
-                $('#confirmarOrdenBtn').click(function() {
-            const proveedorId = $('#id_proveedor').val();
-            const fecha = $('#fecha').val();
-            const fechaentrega = $('#fechaentrega').val();
-            const lugarentrega = $('#lugarentrega').val();
-            const condiciones = $('#condiciones').val();
-    
-            $.ajax({
-                url: "{% url 'confirmar_orden_compra' %}",
-                method: 'POST',
-                contentType: 'application/json',
-                headers: {
-                    'X-CSRFToken': csrftoken
-                },
-                data: JSON.stringify({
-                    'proveedor_id': proveedorId,
-                    'fecha': fecha,
-                    'fechaentrega': fechaentrega,
-                    'lugarentrega': lugarentrega,
-                    'condiciones': condiciones,
-                    'productos': productosAgregados
-                }),
-                success: function(response) {
-                    alert('Orden de compra creada exitosamente');
-                    // Limpiar el formulario y la tabla
-                    $('#id_proveedor').val('');
-                    $('#lugarentrega').val('');
-                    $('#fecha').val('');
-                    $('#fechaentrega').val('');
-                    $('#condiciones').val('');
-                    $('#productosTableBody').empty();
-                    $('#totalOrden').text('0');
-                    productosAgregados = [];
-                    $('#AbrirF').prop('disabled', true);
-                },
-                error: function(error) {
-                    alert('Hubo un error al crear la orden de compra');
-                    console.log(error);
-                }
-            });
-        });
+    function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+$('#confirmarOrdenBtn').click(function() {
+    const ordenData = {
+        'nordenCompra':$('#nordenCompra').val(),
+        'proveedor_id': $('#id_proveedor').val(),
+        'fecha': $('#fecha').val(),
+        'fechaentrega': $('#fechaentrega').val(),
+        'lugarentrega': $('#lugarentrega').val(),
+        'condiciones': $('#condiciones').val(),
+        'productos': productosAgregados
+    };
+
+    $.ajax({
+        type: "POST",
+        url: "{% url 'confirmar_orden_compra' %}",
+        data: JSON.stringify(ordenData),
+        contentType: "application/json",
+        headers: {
+            "X-CSRFToken": csrftoken // Enviar el token CSRF en los headers
+        },
+        success: function(response) {
+            alert('Orden confirmada exitosamente');
+        },
+        error: function(xhr, status, error) {
+            try {
+                const response = JSON.parse(xhr.responseText);
+                alert('Error: ' + response.message || 'Error al confirmar la orden');
+            } catch (e) {
+                alert('Error desconocido');
+            }
+        }
+    });
+});
     });
     </script>
 {% endblock %}
