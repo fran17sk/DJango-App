@@ -32,6 +32,7 @@ urlpatterns = [
 
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
     path('compras/',OrdenCompraListView.as_view(),name='orden_list'),
+    path('compras/detail/<int:pk>',views.detalleorden,name='orden_detail'),
     path('get_ordenes/',views.get_ordenes,name='get_ordenes'),
 
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),

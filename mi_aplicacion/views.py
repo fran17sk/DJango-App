@@ -145,6 +145,8 @@ class OrdenCompraListView (LoginRequiredMixin,ListView):
     context_object_name='ordenes'
     login_url='../accounts/login'
 
+
+
 class ProveedorListView(LoginRequiredMixin,ListView):
     model=Proveedor
     template_name='proveedores/proveedor_list.html'
@@ -379,7 +381,10 @@ def registrar_movimiento(request):
 def exito(request):
     return render(request, 'exito.html')
 
-
+def detalleorden(request,pk):
+    orden = OrdenCompra.objects.get(pk=pk)
+    detalles = DetalleOrden.objects.filter(ordencompra=orden)
+    return render (request,'compras/detail_orden.html',{'orden':orden,'detalles':detalles})
 
 def Facturas_list(request):
     facturas = FacturasCompras.objects.all()
@@ -388,7 +393,8 @@ def Facturas_list(request):
 
 def detalleFactura(request,pk):
     factura = FacturasCompras.objects.get(pk=pk)
-    return render (request,'compras/detail_factura.html',{'factura':factura})
+    detalles = DetalleFactura.objects.filter(factura=factura)
+    return render (request,'compras/detail_factura.html',{'factura':factura,'detalles':detalles})
 
 class createFactura(CreateView):
     model = FacturasCompras

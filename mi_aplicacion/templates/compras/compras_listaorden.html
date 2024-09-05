@@ -28,7 +28,7 @@
                     <td>{{orden.estado}}</td>
                     <td>{{orden.condiciones}}</td>
                     <td><a href=""><i class="bi bi-pencil-square"></i></a>
-                      <a href=""><i class="bi bi-eye"></i></a>
+                      <a href="{% url 'orden_detail' orden.pk %}"><i class="bi bi-eye"></i></a>
                       <a href=""><i class="bi bi-trash"></i></a></td>
                 </tr>
                 {% empty %}
