@@ -10,9 +10,9 @@ from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django import forms
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
+from django.contrib import messages
 
 @login_required
 def home(request):
@@ -407,9 +407,78 @@ def getDetalleOrden(request):
     except OrdenCompra.DoesNotExist:
         return JsonResponse({'error': 'Orden no encontrada'}, status=404)
 
+def registrar_factura(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            referencia_orden = data.get('reference_orden')
+            proveedor_id = data.get('proveedor_id')
+            numero_factura = data.get('numero_factura')
+            fecha_emision = data.get('fecha_emision')
+            estado = data.get('estado')
+            metodo_pago = data.get('metodo_pago')
+            impuestos = data.get('impuestos')
+            descuento = data.get('descuento')
+            total = data.get('total')
+            productos = data.get('productos')
 
+            # Obtener y actualizar la orden de compra
+            try:
+                orden = OrdenCompra.objects.get(id=referencia_orden)
+                orden.estado = 'Baja'
+                orden.save()
+            except OrdenCompra.DoesNotExist:
+                return JsonResponse({'message': f'Orden de compra con ID "{referencia_orden}" no encontrada'}, status=400)
 
+            # Obtener el proveedor
+            try:
+                proveedor_obj = Proveedor.objects.get(nombre=proveedor_id)
+                proveedor_id = proveedor_obj.id
+            except Proveedor.DoesNotExist:
+                return JsonResponse({'message': f'Proveedor con nombre "{proveedor_id}" no encontrado'}, status=400)
 
+            # Crear la factura
+            factura = FacturasCompras.objects.create(
+                reference_orden=orden,
+                proveedor_id=proveedor_id,
+                numero_factura=numero_factura,
+                fecha_emision=fecha_emision,
+                estado=estado,
+                metodo_pago=metodo_pago,
+                impuestos=impuestos,
+                descuento=descuento,
+                total=total
+            )
 
+            # Procesar los productos
+            for producto in productos:
+                producto_nombre = producto.get('productoNombre', '').strip()
+                cantidad = producto.get('cantidad')
+                precio = producto.get('precio')
+                subtotal = producto.get('subtotal')
 
+                # Validar campos de producto
+                if not producto_nombre or not cantidad or not precio or not subtotal:
+                    print('Datos de producto inválidos:', producto)  # Agregar impresión para depuración
+                    continue  # O puedes retornar un error si prefieres
 
+                try:
+                    producto_obj = Producto.objects.get(nombre=producto_nombre)
+                    DetalleFactura.objects.create(
+                        factura=factura,
+                        producto=producto_obj,
+                        cantidad=cantidad,
+                        preciounitario=precio,
+                        subtotal=subtotal
+                    )
+                except Producto.DoesNotExist:
+                    return JsonResponse({'message': f'Producto "{producto_nombre}" no encontrado'}, status=400)
+
+            return JsonResponse({'message': 'Factura registrada exitosamente'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Error al procesar los datos JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+
+    return JsonResponse({'message': 'Método no permitido'}, status=405)

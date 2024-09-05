@@ -28,6 +28,7 @@ urlpatterns = [
     path('get_orden/',views.getDetalleOrden,name='get_orden'),
     path('facturas/new',views.createFactura.as_view(),name='factura_new'),
     path('facturas/detail/<int:pk>',views.detalleFactura,name='facturas_detail'),
+    path('registrar_factura',views.registrar_factura,name='registrar_factura'),
 
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
     path('compras/',OrdenCompraListView.as_view(),name='orden_list'),
