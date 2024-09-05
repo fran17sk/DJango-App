@@ -1,11 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends 'base.html' %}
+{% block extra_head %}
     <title>Registrar Factura</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .container{
+            width: 60%;
+        }
         .modal-dialog {
             max-width: 800px;
         }
@@ -33,7 +33,8 @@
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+{% endblock %}
+{% block content %}
 <body>
     <div class="container mt-4">
         <h1>Registrar Factura</h1>
@@ -71,6 +72,15 @@
                     <option>Baja</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label for="tipo_factura" class="form-label">Tipo de Factura</label>
+                <select id="tipo_factura" class="form-select">
+                    <option>Seleccione un Tipo de Factura</option>
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                </select>
+            </div>
         </div>
         
         <!-- Tabla de Productos -->
@@ -100,6 +110,7 @@
                     <option>Transferencia Bancaria</option>
                 </select>
             </div>
+
             <div class="form-group">
                 <label for="descuento" class="form-label">Descuento</label>
                 <input id="descuento" class="form-control" type="number" />
@@ -118,7 +129,6 @@
         </div>
         
         <button class="btn btn-success" id="confirmarFacturaBtn">Guardar Factura</button>
-        <button type="button" id="mostrarAtributosBtn" class="btn btn-info mt-3">Mostrar Atributos</button>
         <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
 
 
@@ -160,7 +170,8 @@
             </div>
         </div>
     </div>
-
+    {% endblock %}
+    {% block script %} 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
 $(document).ready(function() {
@@ -175,6 +186,7 @@ $(document).ready(function() {
     const descuentoInput = $('#descuento');
     const impuestosInput = $('#impuesto');
     const metodoPagoSelect = $('#metodo_pago');
+    const tipofactura = $('tipo_factura');
     let ordenesData = []; // Variable para almacenar los datos de las órdenes
 
     // Función para cargar órdenes
@@ -262,6 +274,8 @@ $(document).ready(function() {
             $('#tablaDetalles tbody').append(row);
             calcularTotal();
             $('#agregarProductosModal').modal('hide');
+            $('#productoModal').modal('hide');
+            $('.modal-backdrop').remove();
             cantidadInput.val('');
             precioInput.val('');
             subtotalInput.val('');
@@ -334,6 +348,7 @@ $(document).ready(function() {
             'numero_factura': NFactura.val(),
             'fecha_emision': $('#fecha_emision').val(),
             'estado': $('#estado').val(),
+            'tipo_factura':tipofactura.val(),
             'metodo_pago': metodoPagoSelect.val(),
             'impuestos': impuestosInput.val(),
             'descuento': descuentoInput.val(),
@@ -352,8 +367,7 @@ $(document).ready(function() {
             success: function(response) {
                 alert('Factura registrada exitosamente');
                 // Opcional: Limpiar los campos y tabla después de éxito
-                $('#tablaDetalles tbody').empty();
-                totalInput.val('');
+                window.location.href = "{% url 'facturas_list' %}";
             },
             error: function(xhr, status, error) {
                 try {
@@ -367,5 +381,4 @@ $(document).ready(function() {
     });
 });
     </script>
-</body>
-</html>
+{% endblock %}

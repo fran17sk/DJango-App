@@ -90,7 +90,7 @@ class OrdenCompra (models.Model):
     condiciones = models.TextField(blank=True,null=True)
     estado = models.TextField(blank=True,default="Activo")
     def __str__(self):
-        return f"Orden N°: 000000{self.nordenCompra} | Proveedor: {self.proveedor}"
+        return f"Orden N°: {self.nordenCompra}"
 
 class DetalleOrden (models.Model):
     producto = models.ForeignKey(Producto,on_delete=models.CASCADE)

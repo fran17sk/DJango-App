@@ -36,14 +36,13 @@
     <div class="campo"><strong>Tipo de Factura:</strong> {{ factura.tipo_factura }}</div>
     <div class="campo"><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"Y-m-d H:i" }}</div>
     <div class="campo"><strong>Proveedor:</strong> {{ factura.proveedor.nombre }}</div>
-    <div class="campo"><strong>Total:</strong> ${{ factura.total }}</div>
-    <div class="campo"><strong>Descuento:</strong> ${{ factura.descuento|default:"0.00" }}</div>
-    <div class="campo"><strong>Impuestos:</strong> ${{ factura.impuestos }}</div>
+    <div class="campo"><strong>Descuento:</strong> %{{ factura.descuento|default:"0.00" }}</div>
+    <div class="campo"><strong>Impuestos:</strong> %{{ factura.impuestos }}</div>
     <div class="campo"><strong>Estado:</strong> {{ factura.estado }}</div>
     <div class="campo"><strong>Método de Pago:</strong> {{ factura.metodo_pago }}</div>
-    <div class="campo"><strong>Detalles:</strong> {{ factura.detalles|default:"Sin detalles" }}</div>
-    <div class="campo"><strong>Vendedor:</strong> {{ factura.vendedor.get_full_name|default:"No asignado" }}</div>
-    <div class="campo"><strong>Notas:</strong> {{ factura.notas|default:"Sin notas adicionales" }}</div>
+    <div class="campo"><strong>Observaciones:</strong> {{ factura.notas|default:"Sin notas adicionales" }}</div>
+    <div class="campo"><strong>Total:</strong> ${{ factura.total }}</div>
+
 </div>
 
 </body>

@@ -38,9 +38,9 @@
                         <td>{{ factura.estado }}</td>
                         <td>{{ factura.proveedor }}</td>
                         <td>{{ factura.total }}</td>
-                        <td>{{ factura.reference_order }}</td>
+                        <td>{{ factura.reference_orden }}</td>
                         <td><a href=""><i class="bi bi-pencil-square"></i></a>
-                          <a href=""><i class="bi bi-eye"></i></a>
+                          <a href="{% url 'facturas_detail' factura.pk %}"><i class="bi bi-eye"></i></a>
                           <a href=""><i class="bi bi-trash"></i></a></td>
                     </tr>
                     
@@ -68,19 +68,7 @@
 
 
     <script>
-        new DataTable('#example');
 
-        function cargarDatosOrden(id) {
-            $.ajax({
-                url: "{% url 'get_orden' %}",
-                data: {
-                    'orden_id': id
-                },
-                success: function(data) {
-                    console.log(data)
-                }
-            });
-        }
 
     </script>
 

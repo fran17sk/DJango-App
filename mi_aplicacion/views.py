@@ -4,7 +4,7 @@ from django.forms import inlineformset_factory
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 import json
 from .models import *
 from .forms import *
@@ -236,7 +236,7 @@ def confirmar_orden_compra(request):
                 )
                 detalle_orden.save()
 
-            return JsonResponse({'status': 'success'})
+            return redirect(reverse('orden_list'))
         except KeyError as e:
             # Capturar errores de clave y proporcionar respuesta adecuada
             return JsonResponse({'status': 'error', 'message': f'Falta el campo: {str(e)}'}, status=400)
@@ -416,6 +416,7 @@ def registrar_factura(request):
             numero_factura = data.get('numero_factura')
             fecha_emision = data.get('fecha_emision')
             estado = data.get('estado')
+            tipofactura=data.get('tipo_factura')
             metodo_pago = data.get('metodo_pago')
             impuestos = data.get('impuestos')
             descuento = data.get('descuento')
@@ -444,6 +445,7 @@ def registrar_factura(request):
                 numero_factura=numero_factura,
                 fecha_emision=fecha_emision,
                 estado=estado,
+                tipo_factura=tipofactura,
                 metodo_pago=metodo_pago,
                 impuestos=impuestos,
                 descuento=descuento,
