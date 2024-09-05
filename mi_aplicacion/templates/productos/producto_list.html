@@ -12,7 +12,6 @@
                         <th>Id</th>
                         <th>Nombre</th>
                         <th>Descripcion</th>
-                        <th>Precio</th>
                         <th>Estado</th>
                         <th>Iconos</th>
                     </tr>
@@ -23,7 +22,6 @@
                         <td>{{producto.id}}</td>
                         <td>{{producto.nombre}}</td>
                         <td>{{producto.descripcion}}</td>
-                        <td>{{producto.precio}}</td>
                         <td>{{producto.estado}}</td>
                         <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
                           <a href="{% url 'producto_detail' producto.pk %}"><i class="bi bi-eye"></i></a>
@@ -38,7 +36,6 @@
                         <th>Id</th>
                         <th>Nombre</th>
                         <th>Descripcion</th>
-                        <th>Precio</th>
                         <th>Estado</th>
                     </tr>
                 </tfoot>

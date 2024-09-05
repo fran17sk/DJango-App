@@ -10,10 +10,9 @@ from .models import *
 from .forms import *
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django import forms
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
-
+from django.contrib import messages
 
 @login_required
 def home(request):
@@ -43,14 +42,14 @@ class ProductoDetailView(DetailView):
 class ProductoCreateView(CreateView):
     model = Producto
     template_name = 'productos/producto_form.html'
-    fields = ['nombre', 'descripcion', 'precio','categoria','estado','proveedor']
+    fields = ['nombre', 'descripcion','categoria','estado','proveedor']
     success_url = reverse_lazy('producto_list')
     
 
 class ProductoUpdateView(UpdateView):
     model = Producto
     template_name = 'productos/producto_form.html'
-    fields = ['nombre', 'descripcion', 'precio','categoria','estado']
+    fields = ['nombre', 'descripcion','categoria','estado']
     success_url = reverse_lazy('producto_list')
 
 class ProductoDeleteView(DeleteView):
@@ -132,10 +131,19 @@ class DepositoDeleteView(DeleteView):
     template_name = 'depositos/deposito_confirm_delete.html'
     success_url = reverse_lazy('depositos_list')
 
+##################################ORDEN DE COMPRA#############################################
+
 class OrdenCompraView (CreateView):
     model=OrdenCompra
     template_name='compras/compras_orden.html'
-    fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones','total']
+    fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones']
+    success_url=reverse_lazy('orden_list')
+
+class OrdenCompraListView (LoginRequiredMixin,ListView):
+    model = OrdenCompra
+    template_name='compras/compras_listaorden.html'
+    context_object_name='ordenes'
+    login_url='../accounts/login'
 
 class ProveedorListView(LoginRequiredMixin,ListView):
     model=Proveedor
@@ -209,32 +217,24 @@ def confirmar_orden_compra(request):
             
             # Crear una nueva OrdenCompra
             orden_compra = OrdenCompra(
+                nordenCompra=data['nordenCompra'],
                 proveedor_id=data['proveedor_id'],
                 fecha=data['fecha'],
                 fechaentrega=data.get('fechaentrega', None),
                 lugarentrega_id=data.get('lugarentrega', None),
                 condiciones=data.get('condiciones', ''),
-                total=0  # Este valor se actualizará después
             )
             orden_compra.save()
             
             # Procesar productos
             productos = data.get('productos', [])
-            total_orden = 0
             for producto in productos:
                 detalle_orden = DetalleOrden(
                     producto_id=producto['productoId'],
-                    ordecompra=orden_compra,
-                    precio_unitario=producto['precioUnitario'],
+                    ordencompra=orden_compra,
                     cantidad=producto['cantidad'],
-                    subtotal=producto['subtotal']
                 )
                 detalle_orden.save()
-                total_orden += float(producto['subtotal'])
-            
-            # Actualizar el total en OrdenCompra
-            orden_compra.total = total_orden
-            orden_compra.save()
 
             return JsonResponse({'status': 'success'})
         except KeyError as e:
@@ -253,11 +253,14 @@ def get_proveedores(request):
     proveedores = Proveedor.objects.all().values('id', 'nombre')  # Ajusta los campos según tu modelo
     return JsonResponse({'proveedores': list(proveedores)})
 
+
 def get_depositos(request):
     depositos = Deposito.objects.all().values('id', 'nombre')  # Ajusta los campos según tu modelo
     return JsonResponse({'depositos': list(depositos)})
 
-
+def get_ordenes(request):
+    ordenes = OrdenCompra.objects.filter(estado="Activo").select_related('proveedor').values('id','nordenCompra','proveedor__nombre')
+    return JsonResponse({'ordenes':list(ordenes)})
 
 class ProductoXDepositoListView(LoginRequiredMixin,ListView):
     model = ProductoPorDeposito
@@ -388,19 +391,94 @@ def detalleFactura(request,pk):
     return render (request,'compras/detail_factura.html',{'factura':factura})
 
 class createFactura(CreateView):
-    model=FacturasCompras
+    model = FacturasCompras
     template_name = 'compras/registrar_factura.html'
-    fields = '__all__'
+    fields = ['reference_orden','proveedor','numero_factura','tipo_factura','fecha_emision','descuento','impuestos','estado','metodo_pago','notas','total']
     success_url = reverse_lazy('facturas_list')
+    
+
 
 def getDetalleOrden(request):
-    id = request.GET.get('orden_id')
-    orden = Proveedor.objects.get(id=id)  # Ajusta los campos según tu modelo
-    return JsonResponse({'orden':orden})
+    orden_id = request.GET.get('orden_id')
+    try:
+        detalle_orden = DetalleOrden.objects.filter(ordencompra_id=orden_id)
+        productos = [{'id': d.producto.id, 'nombre': d.producto.nombre, 'cantidad': d.cantidad} for d in detalle_orden]
+        return JsonResponse({'productos': productos})
+    except OrdenCompra.DoesNotExist:
+        return JsonResponse({'error': 'Orden no encontrada'}, status=404)
 
+def registrar_factura(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            referencia_orden = data.get('reference_orden')
+            proveedor_id = data.get('proveedor_id')
+            numero_factura = data.get('numero_factura')
+            fecha_emision = data.get('fecha_emision')
+            estado = data.get('estado')
+            metodo_pago = data.get('metodo_pago')
+            impuestos = data.get('impuestos')
+            descuento = data.get('descuento')
+            total = data.get('total')
+            productos = data.get('productos')
 
+            # Obtener y actualizar la orden de compra
+            try:
+                orden = OrdenCompra.objects.get(id=referencia_orden)
+                orden.estado = 'Baja'
+                orden.save()
+            except OrdenCompra.DoesNotExist:
+                return JsonResponse({'message': f'Orden de compra con ID "{referencia_orden}" no encontrada'}, status=400)
 
+            # Obtener el proveedor
+            try:
+                proveedor_obj = Proveedor.objects.get(nombre=proveedor_id)
+                proveedor_id = proveedor_obj.id
+            except Proveedor.DoesNotExist:
+                return JsonResponse({'message': f'Proveedor con nombre "{proveedor_id}" no encontrado'}, status=400)
 
+            # Crear la factura
+            factura = FacturasCompras.objects.create(
+                reference_orden=orden,
+                proveedor_id=proveedor_id,
+                numero_factura=numero_factura,
+                fecha_emision=fecha_emision,
+                estado=estado,
+                metodo_pago=metodo_pago,
+                impuestos=impuestos,
+                descuento=descuento,
+                total=total
+            )
 
+            # Procesar los productos
+            for producto in productos:
+                producto_nombre = producto.get('productoNombre', '').strip()
+                cantidad = producto.get('cantidad')
+                precio = producto.get('precio')
+                subtotal = producto.get('subtotal')
 
+                # Validar campos de producto
+                if not producto_nombre or not cantidad or not precio or not subtotal:
+                    print('Datos de producto inválidos:', producto)  # Agregar impresión para depuración
+                    continue  # O puedes retornar un error si prefieres
 
+                try:
+                    producto_obj = Producto.objects.get(nombre=producto_nombre)
+                    DetalleFactura.objects.create(
+                        factura=factura,
+                        producto=producto_obj,
+                        cantidad=cantidad,
+                        preciounitario=precio,
+                        subtotal=subtotal
+                    )
+                except Producto.DoesNotExist:
+                    return JsonResponse({'message': f'Producto "{producto_nombre}" no encontrado'}, status=400)
+
+            return JsonResponse({'message': 'Factura registrada exitosamente'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Error al procesar los datos JSON'}, status=400)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+
+    return JsonResponse({'message': 'Método no permitido'}, status=405)

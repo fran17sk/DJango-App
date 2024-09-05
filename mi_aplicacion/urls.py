@@ -28,8 +28,12 @@ urlpatterns = [
     path('get_orden/',views.getDetalleOrden,name='get_orden'),
     path('facturas/new',views.createFactura.as_view(),name='factura_new'),
     path('facturas/detail/<int:pk>',views.detalleFactura,name='facturas_detail'),
+    path('registrar_factura',views.registrar_factura,name='registrar_factura'),
 
     path('compras/OrdenCompra',OrdenCompraView.as_view(),name='orden_compra'),
+    path('compras/',OrdenCompraListView.as_view(),name='orden_list'),
+    path('get_ordenes/',views.get_ordenes,name='get_ordenes'),
+
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
     path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),
     path('proveedores/eliminar/<int:pk>',ProveedorDeleteView.as_view(),name='proveedor_delete'),

@@ -3,33 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Registrar Factura</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .modal-dialog {
+            max-width: 800px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-row .form-group:last-child {
+            margin-right: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        #total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #tablaDetalles {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-
-    <form method="post" class="form-container">
-        {% csrf_token %}
-        {{ form.as_p }}
+    <div class="container mt-4">
+        <h1>Registrar Factura</h1>
+        <form method="POST" id="csrfForm" action="{% url 'registrar_factura' %}">
+            {% csrf_token %}
+        </form>
+        <!-- Selección de Orden de Compra, Proveedor, N°Factura -->
+        <div class="form-row mb-3">
+            <div class="form-group">
+                <label for="reference_orden" class="form-label">Orden de Compra</label>
+                <select id="reference_orden" class="form-select" required>
+                    <!-- Opciones de Orden de Compra serán cargadas desde Django -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="proveedor_id" class="form-label">Proveedor</label>
+                <input id="proveedor_id" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label for="numero_factura" class="form-label">N°Factura</label>
+                <input id="numero_factura" class="form-control" readonly />
+            </div>
+        </div>
+        <!-- Fecha, Descuento, Impuestos, Estado -->
+        <div class="form-row mb-3">
+            <div class="form-group">
+                <label for="fecha_emision" class="form-label">Fecha</label>
+                <input id="fecha_emision" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" class="form-select">
+                    <option>Seleccione un Estado</option>
+                    <option>Activo</option>
+                    <option>Baja</option>
+                </select>
+            </div>
+        </div>
         
-        <button type="submit">Guardar Producto</button>
-    </form>
-    <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
-    
+        <!-- Tabla de Productos -->
+        <h2 class="mt-4">Detalles de Productos</h2>        <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#agregarProductosModal">Agregar Producto</button>
+        <table id="tablaDetalles" class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+
+                </tr>            
+            </tbody>
+        </table>
+        <div class="form-row mb-3">
+            <div class="form-group">
+                <label for="metodo_pago" class="form-label">Método de Pago</label>
+                <select id="metodo_pago" class="form-select">
+                    <option>Seleccione un Método</option>
+                    <option>Efectivo</option>
+                    <option>Tarjeta de Crédito</option>
+                    <option>Transferencia Bancaria</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="descuento" class="form-label">Descuento</label>
+                <input id="descuento" class="form-control" type="number" />
+            </div>
+            <div class="form-group">
+                <label for="impuesto" class="form-label">Impuesto</label>
+                <input id="impuesto" class="form-control" type="number" />
+            </div>
+        </div>
+        <!-- Total -->
+        <div id="total-section" class="mb-3">
+            <div>
+                <label for="total" class="form-label">Total</label>
+                <input id="total" class="form-control" type="number" readonly />
+            </div>
+        </div>
+        
+        <button class="btn btn-success" id="confirmarFacturaBtn">Guardar Factura</button>
+        <button type="button" id="mostrarAtributosBtn" class="btn btn-info mt-3">Mostrar Atributos</button>
+        <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="agregarProductosModal" tabindex="-1" aria-labelledby="agregarProductosModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="agregarProductosModalLabel">Agregar Productos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formAgregarProductos">
+                            <div class="mb-3">
+                                <label for="producto" class="form-label">Producto</label>
+                                <select id="producto" class="form-select">
+                                    <!-- Opciones llenadas con JavaScript -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cantidad" class="form-label">Cantidad</label>
+                                <input type="number" id="cantidad" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="precio" class="form-label">Precio</label>
+                                <input type="number" id="precio" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="subtotal" class="form-label">Subtotal</label>
+                                <input type="number" id="subtotal" class="form-control" readonly>
+                            </div>
+                            <button type="button" id="agregarProductoBtn" class="btn btn-primary">Agregar a la tabla</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        new DataTable('#example');
-    
-        function cargarDatosOrden(id) {
+$(document).ready(function() {
+    const proveedorInput = $('#proveedor_id');
+    const OrdenSelect = $('#reference_orden');
+    const NFactura = $('#numero_factura');
+    const productoSelect = $('#producto');
+    const cantidadInput = $('#cantidad');
+    const precioInput = $('#precio');
+    const subtotalInput = $('#subtotal');
+    const totalInput = $('#total');
+    const descuentoInput = $('#descuento');
+    const impuestosInput = $('#impuesto');
+    const metodoPagoSelect = $('#metodo_pago');
+    let ordenesData = []; // Variable para almacenar los datos de las órdenes
+
+    // Función para cargar órdenes
+    function cargarOrden() {
+        $.ajax({
+            url: "{% url 'get_ordenes' %}",
+            success: function(data) {
+                ordenesData = data.ordenes; // Almacena los datos de las órdenes en la variable global
+                OrdenSelect.empty();
+                OrdenSelect.append(new Option('Seleccione una Orden', ''));
+                ordenesData.forEach(function(orden) {
+                    OrdenSelect.append(new Option(orden.nordenCompra, orden.id));
+                });
+            },
+            error: function(xhr, status, error) {
+                console.error('Error al cargar las órdenes:', error);
+            }
+        });
+    }
+
+    cargarOrden();
+
+    // Manejar el cambio de selección en el menú desplegable de órdenes
+    OrdenSelect.on('change', function() {
+        const ordenId = $(this).val();
+        const orden = ordenesData.find(o => o.id == ordenId);
+        if (orden) {
+            proveedorInput.val(orden.proveedor__nombre); // Muestra el nombre del proveedor
+
+            // Formatear el número de factura
+            const ordenNumero = orden.nordenCompra;
+            const numeroFactura = `000${ordenNumero}`;
+            NFactura.val(numeroFactura);
+        }
+    });
+
+    $('#agregarProductosModal').on('show.bs.modal', function() {
+        const ordenId = OrdenSelect.val();
+        if (ordenId) {
             $.ajax({
                 url: "{% url 'get_orden' %}",
-                data: {
-                    'orden_id': id
-                },
+                data: { orden_id: ordenId },
                 success: function(data) {
-                    console.log(data)
+                    if (data.productos) {
+                        productoSelect.empty();
+                        productoSelect.append(new Option('Seleccione un Producto', ''));
+                        data.productos.forEach(function(producto) {
+                            productoSelect.append(new Option(producto.nombre, producto.id));
+                        });
+                    } else {
+                        console.error('No se encontraron productos para la orden seleccionada.');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error al cargar los productos:', error);
                 }
             });
+        } else {
+            console.error('No se ha seleccionado ninguna orden.');
         }
-    
+    });
+
+    $('#producto, #cantidad, #precio').on('input', function() {
+        const cantidad = parseFloat(cantidadInput.val()) || 0;
+        const precio = parseFloat(precioInput.val()) || 0;
+        const subtotal = cantidad * precio;
+        subtotalInput.val(subtotal.toFixed(2));
+    });
+
+    $('#agregarProductoBtn').on('click', function() {
+        const productoId = productoSelect.val();
+        const productoNombre = productoSelect.find('option:selected').text();
+        const cantidad = cantidadInput.val();
+        const precio = precioInput.val();
+        const subtotal = subtotalInput.val();
+
+        if (productoId && cantidad && precio && subtotal) {
+            const row = `<tr>
+                <td>${productoNombre}</td>
+                <td>${cantidad}</td>
+                <td>${precio}</td>
+                <td>${subtotal}</td>
+                <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
+            </tr>`;
+            $('#tablaDetalles tbody').append(row);
+            calcularTotal();
+            $('#agregarProductosModal').modal('hide');
+            cantidadInput.val('');
+            precioInput.val('');
+            subtotalInput.val('');
+        } else {
+            alert('Por favor complete todos los campos.');
+        }
+    });
+
+    $('#tablaDetalles tbody').on('click', '.eliminarProductoBtn', function() {
+        $(this).closest('tr').remove();
+        calcularTotal(); // Recalcular el total después de eliminar un producto
+    });
+
+    function calcularTotal() {
+        let total = 0;
+        $('#tablaDetalles tbody tr').each(function() {
+            const subtotal = parseFloat($(this).find('td').eq(3).text()) || 0;
+            total += subtotal;
+        });
+
+        const descuento = parseFloat(descuentoInput.val()) || 0;
+        const impuestos = parseFloat(impuestosInput.val()) || 0;
+
+        total = total * (1 - descuento / 100); // Aplicar descuento
+        total = total * (1 + impuestos / 100); // Aplicar impuestos
+
+        totalInput.val(total.toFixed(2));
+    }
+
+    // Recalcular total al cambiar descuento o impuestos
+    descuentoInput.on('input', calcularTotal);
+    impuestosInput.on('input', calcularTotal);
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    $('#confirmarFacturaBtn').click(function(event) {
+        const productosAgregados = [];
+        $('#tablaDetalles tbody tr').each(function() {
+            const productoNombre = $(this).find('td').eq(0).text();
+            const cantidad = $(this).find('td').eq(1).text();
+            const precio = $(this).find('td').eq(2).text();
+            const subtotal = $(this).find('td').eq(3).text();
+
+            productosAgregados.push({
+                productoNombre: productoNombre,
+                cantidad: cantidad,
+                precio: precio,
+                subtotal: subtotal
+            });
+        });
+
+        const ordenFactura = {
+            'reference_orden': OrdenSelect.val(),
+            'proveedor_id': proveedorInput.val(),
+            'numero_factura': NFactura.val(),
+            'fecha_emision': $('#fecha_emision').val(),
+            'estado': $('#estado').val(),
+            'metodo_pago': metodoPagoSelect.val(),
+            'impuestos': impuestosInput.val(),
+            'descuento': descuentoInput.val(),
+            'total': totalInput.val(),
+            'productos': productosAgregados
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'registrar_factura' %}",
+            data: JSON.stringify(ordenFactura),
+            contentType: "application/json",
+            headers: {
+                "X-CSRFToken": csrftoken // Enviar el token CSRF en los headers
+            },
+            success: function(response) {
+                alert('Factura registrada exitosamente');
+                // Opcional: Limpiar los campos y tabla después de éxito
+                $('#tablaDetalles tbody').empty();
+                totalInput.val('');
+            },
+            error: function(xhr, status, error) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    alert('Error: ' + response.message || 'Error al registrar la factura');
+                } catch (e) {
+                    alert('Error desconocido');
+                }
+            }
+        });
+    });
+});
     </script>
 </body>
 </html>

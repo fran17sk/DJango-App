@@ -1,6 +1,7 @@
 
 # Create your models here.
 from django.db import models
+
 class Provincia(models.Model):
     nombre = models.CharField(max_length=255,blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
@@ -62,7 +63,6 @@ class Categoria (models.Model):
 class Producto(models.Model):
     nombre = models.CharField(max_length=255,blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
-    precio = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
     proveedor = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria,on_delete=models.CASCADE)
@@ -88,16 +88,14 @@ class OrdenCompra (models.Model):
     fechaentrega=models.DateField(blank=True,null=True)
     lugarentrega=models.ForeignKey(Deposito,on_delete=models.CASCADE,null=True)
     condiciones = models.TextField(blank=True,null=True)
-    total = models.DecimalField(max_digits=15,decimal_places=2,blank=True,null=True)
+    estado = models.TextField(blank=True,default="Activo")
     def __str__(self):
         return f"Orden N°: 000000{self.nordenCompra} | Proveedor: {self.proveedor}"
 
 class DetalleOrden (models.Model):
     producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
-    ordecompra=models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
-    precio_unitario=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
+    ordencompra=models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     cantidad=models.IntegerField(blank=True,null=True)
-    subtotal=models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
 
 class FacturasCompras (models.Model):
     reference_orden = models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
@@ -105,20 +103,25 @@ class FacturasCompras (models.Model):
     numero_factura = models.CharField(max_length=20, unique=True,default='0000000000',blank=True, null=True)
     tipo_factura = models.CharField(max_length=20,choices=[('A','A'),('B','B'),('C','C')],blank=True, null=True)
     fecha_emision = models.DateTimeField(blank=True, null=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     impuestos = models.DecimalField(max_digits=10, decimal_places=2 , default=0.21,blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
     metodo_pago = models.CharField(max_length=50,choices=[('Efectivo', 'Efectivo'), ('Credito', 'Credito'), ('Debito', 'Debito')],blank=True, null=True)
-    detalles = models.TextField(null=True, blank=True)
     vendedor = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     notas = models.TextField(null=True, blank=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
+
 
     def __str__(self):
         return f"Factura {self.numero_factura} - {self.proveedor.nombre}"
 
 
-
+class DetalleFactura (models.Model):
+    factura = models.ForeignKey(FacturasCompras,on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
+    cantidad = models.DecimalField(max_digits=3,decimal_places=0,null=True,blank=True)
+    preciounitario=models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+    subtotal=models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
 
 class Movement(models.Model):
     nMov = models.IntegerField(blank=True,null=True)
@@ -136,4 +139,3 @@ class DetalleMovement(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.product.name} in {self.movement}"
-
