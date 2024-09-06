@@ -90,7 +90,7 @@ class OrdenCompra (models.Model):
     condiciones = models.TextField(blank=True,null=True)
     estado = models.TextField(blank=True,default="Activo")
     def __str__(self):
-        return f"Orden N°: 000000{self.nordenCompra} | Proveedor: {self.proveedor}"
+        return f"Orden N°: {self.nordenCompra}"
 
 class DetalleOrden (models.Model):
     producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
@@ -101,12 +101,11 @@ class FacturasCompras (models.Model):
     reference_orden = models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     numero_factura = models.CharField(max_length=20, unique=True,default='0000000000',blank=True, null=True)
-    tipo_factura = models.CharField(max_length=20,choices=[('A','A'),('B','B'),('C','C')],blank=True, null=True)
-    fecha_emision = models.DateTimeField(blank=True, null=True)
+    tipo_factura = models.CharField(max_length=20,blank=True, null=True)
+    fecha_emision = models.DateField(blank=True, null=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     impuestos = models.DecimalField(max_digits=10, decimal_places=2 , default=0.21,blank=True, null=True)
-    estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
-    metodo_pago = models.CharField(max_length=50,choices=[('Efectivo', 'Efectivo'), ('Credito', 'Credito'), ('Debito', 'Debito')],blank=True, null=True)
+    estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='Activo')
     vendedor = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     notas = models.TextField(null=True, blank=True)
     total = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
@@ -122,6 +121,21 @@ class DetalleFactura (models.Model):
     cantidad = models.DecimalField(max_digits=3,decimal_places=0,null=True,blank=True)
     preciounitario=models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
     subtotal=models.DecimalField(max_digits=10,decimal_places=2,null=True,blank=True)
+
+class OrdenPago (models.Model):
+    proveedor = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
+    nordenPago = models.CharField(max_length=20,unique=True,blank=True,null=True)
+    fecha = models.DateField(blank=True,null=True)
+    estado = models.CharField(max_length=20,default='activo')
+    metodo_pago=models.CharField(max_length=20,blank=True,null=True)
+    observaciones=models.TextField(blank=True,null=True)
+    total = models.DecimalField(max_digits=15,decimal_places=2,blank=True,null=True)
+
+class detalleOrdenPago(models.Model):
+    ordenpago = models.ForeignKey(OrdenPago,on_delete=models.CASCADE)
+    factura = models.ForeignKey(FacturasCompras,on_delete=models.CASCADE)
+    costoenvio = models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
+    subtotal = models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
 
 class Movement(models.Model):
 

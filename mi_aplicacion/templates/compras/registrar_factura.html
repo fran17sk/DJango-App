@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 {% block extra_head %}
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .container{
+            width: 60%;
+        }
         .modal-dialog {
-            max-width: 800px;
+            max-width: 500px;
         }
         .form-row {
             display: flex;
@@ -34,7 +36,9 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container mt-4">
+<body>
+    <div class="container">
+
         <h1>Registrar Factura</h1>
         <form method="POST" id="csrfForm" action="{% url 'registrar_factura' %}">
             {% csrf_token %}
@@ -64,12 +68,22 @@
                 </select>
             </div>
         </div>
-        <!-- Fecha, Descuento, Impuestos, Estado -->
+        <!-- Fecha, Descuento, Impuestos -->
         <div class="form-row mb-3">
-            <div class="form-group">
+            <div class="mb-3" style="margin-right: 10px;">
+                <label for="tipo_factura" class="form-label">Tipo de Factura</label>
+                <select id="tipo_factura" class="form-select">
+                    <option>Seleccione un Tipo de Factura</option>
+                    <option>Factura A</option>
+                    <option>Factura B</option>
+                    <option>Factura C</option>
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="fecha_emision" class="form-label">Fecha</label>
                 <input id="fecha_emision" class="form-control" type="date" />
             </div>
+
             <div class="form-group">
                 <label for="estado" class="form-label">Estado</label>
                 <select id="estado" class="form-select">
@@ -78,6 +92,7 @@
                     <option>Pagada</option>
                 </select>
             </div>
+
         </div>
         
         <!-- Tabla de Productos -->
@@ -94,25 +109,22 @@
             </thead>
             <tbody>
                 <tr>
-
                 </tr>            
             </tbody>
         </table>
         <div class="form-row mb-3">
             <div class="form-group">
-                <label for="metodo_pago" class="form-label">Método de Pago</label>
-                <select id="metodo_pago" class="form-select">
-                    <option>Seleccione un Método</option>
-                    <option>Efectivo</option>
-                    <option>Tarjeta de Crédito</option>
-                    <option>Transferencia Bancaria</option>
-                </select>
+                <label for="notas" class="form-label">Observaciones</label>
+                <textarea id="notas" class="form-control" rows="3"></textarea>
             </div>
-            <div class="form-group">
+        </div>
+        <div class="form-row mb-3">
+
+            <div class="mb-3" style="margin-right: 10px;">
                 <label for="descuento" class="form-label">Descuento</label>
                 <input id="descuento" class="form-control" type="number" />
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="impuesto" class="form-label">Impuesto</label>
                 <input id="impuesto" class="form-control" type="number" />
             </div>
@@ -124,10 +136,13 @@
                 <input id="total" class="form-control" type="number" readonly />
             </div>
         </div>
-        
-        <button class="btn btn-success" id="confirmarFacturaBtn">Guardar Factura</button>
-        <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
 
+        <div class="form-row mb-3">
+            <div style="display: flex;flex-direction: row;">
+                <button class="btn btn-success" id="confirmarFacturaBtn" style="margin-right: 10px;">Guardar Factura</button>
+                <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>        
+            </div>
+        </div>
 
         <!-- Modal -->
         <div class="modal fade" id="agregarProductosModal" tabindex="-1" aria-labelledby="agregarProductosModalLabel" aria-hidden="true">
@@ -167,6 +182,7 @@
             </div>
         </div>
     </div>
+
 {% endblock %}
 {% block script %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -184,6 +200,7 @@
         const impuestosInput = $('#impuesto');
         const metodoPagoSelect = $('#metodo_pago');
         let ordenesData = []; // Variable para almacenar los datos de las órdenes
+
 
     // Función para cargar órdenes
     function cargarOrden() {
@@ -270,6 +287,8 @@
             $('#tablaDetalles tbody').append(row);
             calcularTotal();
             $('#agregarProductosModal').modal('hide');
+            $('#productoModal').modal('hide');
+            $('.modal-backdrop').remove();
             cantidadInput.val('');
             precioInput.val('');
             subtotalInput.val('');
@@ -343,8 +362,9 @@
             'tipo_factura' : $('#tipo_factura').val(),
             'numero_factura': NFactura.val(),
             'fecha_emision': $('#fecha_emision').val(),
-            'estado': $('#estado').val(),
+            'tipo_factura':tipofactura.val(),
             'metodo_pago': metodoPagoSelect.val(),
+            'notas':$('#notas').val(),
             'impuestos': impuestosInput.val(),
             'descuento': descuentoInput.val(),
             'total': totalInput.val(),
@@ -362,8 +382,7 @@
             success: function(response) {
                 alert('Factura registrada exitosamente');
                 // Opcional: Limpiar los campos y tabla después de éxito
-                $('#tablaDetalles tbody').empty();
-                totalInput.val('');
+                window.location.href = "{% url 'facturas_list' %}";
             },
             error: function(xhr, status, error) {
                 try {
@@ -377,6 +396,4 @@
     });
 });
     </script>
-
-
 {% endblock %}
