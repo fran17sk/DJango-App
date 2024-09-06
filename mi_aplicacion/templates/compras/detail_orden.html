@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+    <title>Detalle de Orden de Compra {{ orden.nordenCompra }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .orden-detalle {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            width: 50vw;
+            height: 80vh;
+            margin: auto;
+        }
+        .orden-detalle h2 {
+            text-align: center;
+        }
+        .orden-detalle .campo {
+            margin-bottom: 10px;
+        }
+        .orden-detalle .campo strong {
+            display: inline-block;
+            width: 150px;
+        }
+        .detalle-tabla {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detalle-tabla th, .detalle-tabla td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .detalle-tabla th {
+            background-color: #f2f2f2;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+<div class="orden-detalle">
+    <h2> Orden de Compra: N° {{ orden.nordenCompra }}</h2>
+    <div class="campo"><strong>Proveedor:</strong> {{ orden.proveedor }}</div>
+    <div class="campo"><strong>Fecha de Emisión:</strong> {{ orden.fecha }}</div>
+    <div class="campo"><strong>Fecha de Entrega:</strong> {{ orden.fechaentrega }}</div>
+    <div class="campo"><strong>Lugar de Entrega:</strong> {{ orden.lugarentrega }}</div>
+    <div class="campo"><strong>Condiciones:</strong> {{ orden.condiciones }}</div>
+    <div class="campo"><strong>Estado:</strong> {{ orden.estado }}</div>
+
+    <!-- Tabla para mostrar los detalles de los productos -->
+    <h3>Detalles de Orden de Compra </h3>
+    <table class="detalle-tabla">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.producto }}</td>
+                <td>{{ detalle.cantidad }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No hay productos asociados a esta orden de compra.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div style="text-align: end; margin-top: 20px;">
+        <button onclick="history.back()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Volver
+        </button>
+    </div>
+</div>
+
+{% endblock %}

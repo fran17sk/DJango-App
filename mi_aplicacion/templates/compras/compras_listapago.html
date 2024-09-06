@@ -2,8 +2,8 @@
 {% block content %}
 <div class="container">
     <div class="d-flex-sp">
-        <h1>Lista de Ordenes de Compra</h1>
-        <a href="{% url 'orden_compra' %}" class=" btn btn-outline-primary">Crear Orden de Compra</a>
+        <h1>Lista de Ordenes de Pago</h1>
+        <a href="{% url 'pago_new' %}" class=" btn btn-outline-primary">Crear Orden de Pago</a>
     </div>
     <div class="">
         <table id="example" class="display" style="width:100%">
@@ -11,10 +11,11 @@
                 <tr>
                     <th>Id</th>
                     <th>N°Orden</th>
-                    <th>Fecha Creación</th>
-                    <th>Fecha Entrega</th>
+                    <th>Proveedor</th>
+                    <th>Fecha</th>
                     <th>Estado</th>
-                    <th>Condiciones</th>
+                    <th>Metodo de Pago</th>
+                    <th>Total</th>
                     <th>Iconos</th>
                 </tr>
             </thead>
@@ -22,13 +23,14 @@
                 {% for orden in ordenes %}
                 <tr>
                     <td>{{orden.id}}</td>
-                    <td>{{orden.nordenCompra}}</td>
+                    <td>{{orden.nordenPago}}</td>
+                    <td>{{orden.proveedor}}</td>
                     <td>{{orden.fecha}}</td>
-                    <td>{{orden.fechaentrega}}</td>
                     <td>{{orden.estado}}</td>
-                    <td>{{orden.condiciones}}</td>
+                    <td>{{orden.metodo_pago}}</td>
+                    <td>{{orden.total}}</td>
                     <td><a href=""><i class="bi bi-pencil-square"></i></a>
-                      <a href="{% url 'orden_detail' orden.pk %}"><i class="bi bi-eye"></i></a>
+                      <a href="{% url 'pago_detail' orden.pk %}"><i class="bi bi-eye"></i></a>
                       <a href=""><i class="bi bi-trash"></i></a></td>
                 </tr>
                 {% empty %}
@@ -39,10 +41,11 @@
                 <tr>
                     <th>Id</th>
                     <th>N°Orden</th>
-                    <th>Fecha Creación</th>
-                    <th>Fecha Entrega</th>
-                    <th>Fecha Entrega</th>
-                    <th>Condiciones</th>
+                    <th>Proveedor</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                    <th>Metodo de Pago</th>
+                    <th>Total</th>
                 </tr>
             </tfoot>
         </table>

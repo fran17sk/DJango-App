@@ -1,19 +1,17 @@
 <!-- facturas/detalle_factura.html -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
+{% extends 'base.html' %}
+{% block extra_head %}
     <title>Detalle de Factura {{ factura.numero_factura }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
         }
         .factura-detalle {
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
-            max-width: 600px;
+            width: 50vw;
+            height: 80vh;
             margin: auto;
         }
         .factura-detalle h2 {
@@ -26,9 +24,22 @@
             display: inline-block;
             width: 150px;
         }
+        .detalle-tabla {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detalle-tabla th, .detalle-tabla td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .detalle-tabla th {
+            background-color: #f2f2f2;
+        }
     </style>
-</head>
-<body>
+{% endblock %}
+{% block content %}
 
 <div class="factura-detalle">
     <h2>Detalle de Factura {{ factura.numero_factura }}</h2>
@@ -36,15 +47,40 @@
     <div class="campo"><strong>Tipo de Factura:</strong> {{ factura.tipo_factura }}</div>
     <div class="campo"><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"Y-m-d H:i" }}</div>
     <div class="campo"><strong>Proveedor:</strong> {{ factura.proveedor.nombre }}</div>
-    <div class="campo"><strong>Total:</strong> ${{ factura.total }}</div>
-    <div class="campo"><strong>Descuento:</strong> ${{ factura.descuento|default:"0.00" }}</div>
-    <div class="campo"><strong>Impuestos:</strong> ${{ factura.impuestos }}</div>
+    <div class="campo"><strong>Descuento:</strong> %{{ factura.descuento|default:"0.00" }}</div>
+    <div class="campo"><strong>Impuestos:</strong> %{{ factura.impuestos }}</div>
     <div class="campo"><strong>Estado:</strong> {{ factura.estado }}</div>
     <div class="campo"><strong>Método de Pago:</strong> {{ factura.metodo_pago }}</div>
-    <div class="campo"><strong>Detalles:</strong> {{ factura.detalles|default:"Sin detalles" }}</div>
-    <div class="campo"><strong>Vendedor:</strong> {{ factura.vendedor.get_full_name|default:"No asignado" }}</div>
-    <div class="campo"><strong>Notas:</strong> {{ factura.notas|default:"Sin notas adicionales" }}</div>
+    <div class="campo"><strong>Observaciones:</strong> {{ factura.notas|default:"Sin notas adicionales" }}</div>
+    <div class="campo"><strong>Total:</strong> ${{ factura.total }}</div>
+    <table class="detalle-tabla">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>SubTotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.producto }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>{{ detalle.preciounitario }}</td>
+                <td>{{ detalle.subtotal }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2">No hay productos asociados a esta Factura.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        <div style="text-align: end; margin-top: 20px;">
+        <button onclick="history.back()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Volver
+        </button>
+    </div>
 </div>
-
-</body>
-</html>
+    {% endblock %}
