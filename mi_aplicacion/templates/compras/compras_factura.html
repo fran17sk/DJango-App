@@ -39,9 +39,8 @@
                         <td>{{ factura.proveedor }}</td>
                         <td>{{ factura.total }}</td>
                         <td>{{ factura.reference_order }}</td>
-                        <td><a href=""><i class="bi bi-pencil-square"></i></a>
-                          <a href=""><i class="bi bi-eye"></i></a>
-                          <a href=""><i class="bi bi-trash"></i></a></td>
+                        <td>
+                          <a href="{% url 'facturas_detail' factura.pk%}"><i class="bi bi-eye"></i></a></td>
                     </tr>
                     
                 {% endfor %}

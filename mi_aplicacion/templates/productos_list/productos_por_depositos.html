@@ -3,13 +3,16 @@
     <div class="container">
         <div class="d-flex-sp">
             <h1>Productos en {{ deposito.nombre }}</h1>
-            <a href="{% url 'registrar_movimiento'%}" class="btn btn-outline-primary">Registrar Movimiento</a>
+            
+            <a href="{% url 'movimientos_list' deposito_id=deposito.pk %}" class="btn btn-outline-primary">Historial de movimientos</a>
+            <a href="{% url 'registrar_movimiento' deposito_id=deposito.pk %}" class="btn btn-outline-primary">Registrar Movimiento</a>
         </div>
         <div class="">
             <table id="example" class="display" style="width:100%">
                 <thead>
                     <tr>
                         <th>Producto</th>
+                        <th>Proveedor</th>
                         <th>Descripción</th>
                         <th>Categoría</th>
                         <th>Stock Actual</th>
@@ -21,6 +24,7 @@
                     {% for relacion in productos_en_deposito %}
                         <tr>
                             <td>{{ relacion.producto.nombre }}</td>
+                            <td>{{ relacion.producto.proveedor.nombre }}</td>
                             <td>{{ relacion.producto.descripcion }}</td>
                             <td>{{ relacion.producto.categoria }}</td>
                             <td>{{ relacion.cantidad }}</td>
@@ -35,6 +39,7 @@
                 <tfoot>
                     <tr>
                       <th>Producto</th>
+                      <th>Proveedor</th>
                       <th>Descripción</th>
                       <th>Categoría</th>
                       <th>Stock Actual</th>

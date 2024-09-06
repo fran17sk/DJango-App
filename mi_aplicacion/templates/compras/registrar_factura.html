@@ -1,9 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Factura</title>
+{% extends 'base.html' %}
+{% block extra_head %}
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .modal-dialog {
@@ -32,9 +29,11 @@
             margin-top: 20px;
         }
     </style>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="container mt-4">
         <h1>Registrar Factura</h1>
         <form method="POST" id="csrfForm" action="{% url 'registrar_factura' %}">
@@ -56,6 +55,14 @@
                 <label for="numero_factura" class="form-label">N°Factura</label>
                 <input id="numero_factura" class="form-control" readonly />
             </div>
+            <div class="form-group">
+                <label for="tipo_factura" class="form-label">Tipo Factura</label>
+                <select id="tipo_factura" class="form-select">
+                    <option>A</option>
+                    <option>B</option>
+                    <option>C</option>
+                </select>
+            </div>
         </div>
         <!-- Fecha, Descuento, Impuestos, Estado -->
         <div class="form-row mb-3">
@@ -67,14 +74,15 @@
                 <label for="estado" class="form-label">Estado</label>
                 <select id="estado" class="form-select">
                     <option>Seleccione un Estado</option>
-                    <option>Activo</option>
-                    <option>Baja</option>
+                    <option>Pendiente</option>
+                    <option>Pagada</option>
                 </select>
             </div>
         </div>
         
         <!-- Tabla de Productos -->
-        <h2 class="mt-4">Detalles de Productos</h2>        <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#agregarProductosModal">Agregar Producto</button>
+        <h2 class="mt-4">Detalles de Productos</h2>        
+        <button type="button" class="btn btn-secondary mt-3" data-bs-toggle="modal" data-bs-target="#agregarProductosModal">Agregar Producto</button>
         <table id="tablaDetalles" class="table">
             <thead>
                 <tr>
@@ -118,7 +126,6 @@
         </div>
         
         <button class="btn btn-success" id="confirmarFacturaBtn">Guardar Factura</button>
-        <button type="button" id="mostrarAtributosBtn" class="btn btn-info mt-3">Mostrar Atributos</button>
         <a href="{% url 'facturas_list' %}" class="cancel-link">Cancelar</a>
 
 
@@ -160,22 +167,23 @@
             </div>
         </div>
     </div>
-
+{% endblock %}
+{% block script %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-$(document).ready(function() {
-    const proveedorInput = $('#proveedor_id');
-    const OrdenSelect = $('#reference_orden');
-    const NFactura = $('#numero_factura');
-    const productoSelect = $('#producto');
-    const cantidadInput = $('#cantidad');
-    const precioInput = $('#precio');
-    const subtotalInput = $('#subtotal');
-    const totalInput = $('#total');
-    const descuentoInput = $('#descuento');
-    const impuestosInput = $('#impuesto');
-    const metodoPagoSelect = $('#metodo_pago');
-    let ordenesData = []; // Variable para almacenar los datos de las órdenes
+    $(document).ready(function() {
+        const proveedorInput = $('#proveedor_id');
+        const OrdenSelect = $('#reference_orden');
+        const NFactura = $('#numero_factura');
+        const productoSelect = $('#producto');
+        const cantidadInput = $('#cantidad');
+        const precioInput = $('#precio');
+        const subtotalInput = $('#subtotal');
+        const totalInput = $('#total');
+        const descuentoInput = $('#descuento');
+        const impuestosInput = $('#impuesto');
+        const metodoPagoSelect = $('#metodo_pago');
+        let ordenesData = []; // Variable para almacenar los datos de las órdenes
 
     // Función para cargar órdenes
     function cargarOrden() {
@@ -265,6 +273,7 @@ $(document).ready(function() {
             cantidadInput.val('');
             precioInput.val('');
             subtotalInput.val('');
+            $('.modal-backdrop').remove();
         } else {
             alert('Por favor complete todos los campos.');
         }
@@ -331,6 +340,7 @@ $(document).ready(function() {
         const ordenFactura = {
             'reference_orden': OrdenSelect.val(),
             'proveedor_id': proveedorInput.val(),
+            'tipo_factura' : $('#tipo_factura').val(),
             'numero_factura': NFactura.val(),
             'fecha_emision': $('#fecha_emision').val(),
             'estado': $('#estado').val(),
@@ -367,5 +377,6 @@ $(document).ready(function() {
     });
 });
     </script>
-</body>
-</html>
+
+
+{% endblock %}

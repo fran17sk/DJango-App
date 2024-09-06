@@ -70,25 +70,29 @@
             <h1>{% if producto %}Editar{% else %}Crear{% endif %} Producto</h1>
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="id_nombre">Nombre</label>
-                    {{ form.nombre }}
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_nombre">Nombre</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_categoria">Categoría</label>
+                        {{ form.categoria }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_estado">Estado</label>
+                        {{ form.estado }}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_descripcion">Descripción</label>
-                    {{ form.descripcion }}
-                </div>
-                <div class="form-group">
-                    <label for="id_categoria">Categoría</label>
-                    {{ form.categoria }}
-                </div>
-                <div class="form-group">
-                    <label for="id_estado">Estado</label>
-                    {{ form.estado }}
-                </div>
-                <div class="form-group">
-                    <label for="id_proveedor">Proveedor</label>
-                    {{ form.proveedor }}
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_descripcion">Descripción</label>
+                        {{ form.descripcion }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_proveedor">Proveedor</label>
+                        {{ form.proveedor }}
+                    </div>
                 </div>
                 <button type="submit">Guardar Producto</button>
             </form>

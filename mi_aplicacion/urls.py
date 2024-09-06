@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('productos/', ProductoListView.as_view(), name='producto_list'),
+    path('productos/', views.ProductoListView, name='producto_list'),
     path('productos/nuevo/', ProductoCreateView.as_view(), name='producto_create'),
     path('producto/detail/<int:pk>/',ProductoDetailView.as_view(), name='producto_detail'),
     path('productos/editar/<int:pk>/', ProductoUpdateView.as_view(), name='producto_update'),
@@ -39,6 +39,8 @@ urlpatterns = [
     path('proveedores/eliminar/<int:pk>',ProveedorDeleteView.as_view(),name='proveedor_delete'),
     path('proveedores/editar/<int:pk>',ProveedorUpdateView.as_view(),name='proveedor_update'),
     path('get_productos/',views.get_productos,name='get_productos'),
+    path('get_productos_deposito/',views.get_productos_por_deposito,name='get_productos_deposito'),
+    
     path('get_precio/',views.get_precio,name='get_precio'),
     path('confirmar_orden/',views.confirmar_orden_compra,name='confirmar_orden_compra'),
     path('get_proveedores/',views.get_proveedores,name='get_proveedores'),
@@ -60,9 +62,10 @@ urlpatterns = [
     path('depositos/<int:deposito_id>/productos/', views.productos_por_deposito, name='productos_por_deposito'),
     path('sucursales/<int:sucursal_id>/productos/', views.productos_por_sucursal, name='productos_por_sucursal'),
 
-
-  
-    path('registrar_movimiento/', views.registrar_movimiento, name='registrar_movimiento'),
+    path('movimiento/<int:movimiento_id>' , views.movimientos_detail_view,name='movimiento_detail'),
+    path('depositos/<int:deposito_id>/list',views.movimientos_list_view,name='movimientos_list'),
+    path('depositos/<int:deposito_id>/registar-movimiento/', views.registrar_movimiento_form, name='registrar_movimiento'),
+    path('depositos/registar-movimiento/', views.registrar_movimiento, name='registrar_mov'),
     path('exito/', views.exito, name='exito'),  # Vista para la página de éxito
 
 

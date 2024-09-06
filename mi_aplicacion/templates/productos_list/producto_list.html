@@ -15,7 +15,6 @@
                         <th>Categoría</th>
                         <th>Estado</th>
                         <th>Depósito</th>
-                        <th>Stock Actual</th>
                         <th>Fecha de Ingreso</th>
                         <th>Estado en Depósito</th>
                         <th>Acciones</th>
@@ -30,7 +29,6 @@
                         <td>{{ producto_por_deposito.producto.categoria }}</td>
                         <td>{{ producto_por_deposito.producto.estado }}</td>
                         <td>{{ producto_por_deposito.deposito.nombre }}</td>
-                        <td>{{ producto_por_deposito.cantidad }}</td>
                         <td>{{ producto_por_deposito.fecha_ingreso }}</td>
                         <td>{{ producto_por_deposito.estado }}</td>
                         <td><a href="{% url 'producto_list_update' producto_por_deposito.pk %}"><i class="bi bi-pencil-square"></i></a>
@@ -49,7 +47,6 @@
                       <th>Categoría</th>
                       <th>Estado</th>
                       <th>Depósito</th>
-                      <th>Stock Actual</th>
                       <th>Fecha de Ingreso</th>
                       <th>Estado en Depósito</th>
                       <th>Acciones</th>

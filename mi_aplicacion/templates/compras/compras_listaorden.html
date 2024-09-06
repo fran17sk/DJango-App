@@ -9,7 +9,7 @@
         <table id="example" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>Id</th>
+                    <th>Cod</th>
                     <th>N°Orden</th>
                     <th>Fecha Creación</th>
                     <th>Fecha Entrega</th>
@@ -21,30 +21,21 @@
             <tbody>
                 {% for orden in ordenes %}
                 <tr>
-                    <td>{{orden.id}}</td>
+                    <td>00{{orden.id}}</td>
                     <td>{{orden.nordenCompra}}</td>
                     <td>{{orden.fecha}}</td>
                     <td>{{orden.fechaentrega}}</td>
                     <td>{{orden.estado}}</td>
                     <td>{{orden.condiciones}}</td>
-                    <td><a href=""><i class="bi bi-pencil-square"></i></a>
+                    <td>
                       <a href=""><i class="bi bi-eye"></i></a>
-                      <a href=""><i class="bi bi-trash"></i></a></td>
+                      </td>
                 </tr>
                 {% empty %}
             <p>No hay Ordenes disponibles.</p>
             {% endfor %}
             </tbody>
-            <tfoot>
-                <tr>
-                    <th>Id</th>
-                    <th>N°Orden</th>
-                    <th>Fecha Creación</th>
-                    <th>Fecha Entrega</th>
-                    <th>Fecha Entrega</th>
-                    <th>Condiciones</th>
-                </tr>
-            </tfoot>
+            
         </table>
     </div>
     

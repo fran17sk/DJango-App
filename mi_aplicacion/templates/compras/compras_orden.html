@@ -27,35 +27,40 @@
         <h2>Orden de Compra</h2>
     
         <!-- Selección de proveedor -->
-        <div class="mb-3">
-            <label for="id_proveedor" class="form-label">Proveedor</label>
-            <select id="id_proveedor" class="form-select" required>
-                <!-- Opciones de proveedores serán cargadas desde Django -->
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="nordenCompra" class="form-label">N°Orden Compra</label>
-            <input type="number" class="form-control" id="nordenCompra">
-        </div>
-        <!-- Fecha de la orden -->
-        <div class="mb-3">
-            <label for="fecha" class="form-label">Fecha de la Orden</label>
-            <input type="date" class="form-control" id="fecha" required>
-        </div>
-    
-        <!-- Fecha de entrega -->
-        <div class="mb-3">
-            <label for="fechaentrega" class="form-label">Fecha de Entrega</label>
-            <input type="date" class="form-control" id="fechaentrega">
-        </div>
-    
-        <!-- Lugar de entrega -->
-        <div class="mb-3">
-            <label for="lugarentrega" class="form-label">Lugar de Entrega</label>
-            <select id="lugarentrega" class="form-select">
-                <!-- Opciones de depósitos serán cargadas desde Django -->
-            </select>
-        </div>
+         <div class="flex">
+             <div class="form-group mb-3">
+                 <label for="id_proveedor" class="form-label">Proveedor</label>
+                 <select id="id_proveedor" class="form-select" required>
+                     <!-- Opciones de proveedores serán cargadas desde Django -->
+                 </select>
+             </div>
+             <div class="form-group mb-3">
+                 <label for="nordenCompra" class="form-label">N°Orden Compra</label>
+                 {{form.nordenCompra}}
+             </div>
+         </div>
+         <div class="flex">
+
+             <!-- Fecha de la orden -->
+             <div class="form-group mb-3">
+                 <label for="fecha" class="form-label">Fecha de la Orden</label>
+                 <input type="date" class="form-control" id="fecha" required>
+             </div>
+         
+             <!-- Fecha de entrega -->
+             <div class="form-group mb-3">
+                 <label for="fechaentrega" class="form-label">Fecha de Entrega</label>
+                 <input type="date" class="form-control" id="fechaentrega">
+             </div>
+         
+             <!-- Lugar de entrega -->
+             <div class="form-group mb-3">
+                 <label for="lugarentrega" class="form-label">Lugar de Entrega</label>
+                 <select id="lugarentrega" class="form-select">
+                     <!-- Opciones de depósitos serán cargadas desde Django -->
+                 </select>
+             </div>
+         </div>
     
         <!-- Condiciones -->
         <div class="mb-3">
@@ -206,7 +211,6 @@
                 agregarProductoATabla(productoNombre, cantidad);
                 $('#productoModal').modal('hide');
                 $('.modal-backdrop').remove();
-                // Mostrar la tabla de productos después de agregar un producto
                 detalleOrden.show();
             }
         });
@@ -254,7 +258,7 @@ const csrftoken = getCookie('csrftoken');
 
 $('#confirmarOrdenBtn').click(function() {
     const ordenData = {
-        'nordenCompra':$('#nordenCompra').val(),
+        'nordenCompra':$('#id_nordenCompra').val(),
         'proveedor_id': $('#id_proveedor').val(),
         'fecha': $('#fecha').val(),
         'fechaentrega': $('#fechaentrega').val(),

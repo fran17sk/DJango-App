@@ -5,30 +5,35 @@
             <h1>{% if sucursal %}Editar{% else %}Crear{% endif %} Sucursal</h1>
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="id_nombre">Nombre</label>
-                    {{ form.nombre }}
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_nombre">Nombre</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_estado">Estado</label>
+                        {{ form.estado }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_localidad">Localidad</label>
+                        {{ form.localidad }}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_estado">Estado</label>
-                    {{ form.estado }}
-                </div>
-                <div class="form-group">
-                    <label for="id_localidad">Localidad</label>
-                    {{ form.localidad }}
-                </div>
+                
                 <div class="form-group">
                     <div id="map" style="height: 400px;"></div>
                 </div>
-                <div class="form-group">
-                    <label for="id_ubicacion">Coordenadas (latitud, Longitud):</label>
-                    <input type="text" id="coordenadas" readonly>
-                    <input type="hidden" name="ubicacion" id="ubicacion">
-                </div>
-                <div class="form-group">
-                    <label for="id_descripcion">Calle:</label>
-                    <input type="text" id="street" readonly>
-                    <input type="hidden" name="descripcion" id="descripcion">
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_ubicacion">Coordenadas (latitud, Longitud):</label>
+                        <input type="text" id="coordenadas" readonly>
+                        <input type="hidden" name="ubicacion" id="ubicacion">
+                    </div>
+                    <div class="form-group">
+                        <label for="id_descripcion">Calle:</label>
+                        <input type="text" id="street" readonly>
+                        <input type="hidden" name="descripcion" id="descripcion">
+                    </div>
                 </div>
                 <button type="submit">Guardar Sucursal</button>
             </form>

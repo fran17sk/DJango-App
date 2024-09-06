@@ -18,20 +18,15 @@ from django.contrib import messages
 def home(request):
     return render(request, 'base.html')
 
-class ProductoListView(LoginRequiredMixin,ListView):
-    model = ProductoPorDeposito
-    template_name = 'productos/producto_list.html'
-    context_object_name = 'productos_por_deposito'
-    login_url = '../accounts/login/'
-    def get_context_data(self, **kwargs):
-        # Llama al método base para obtener el contexto inicial
-        context = super().get_context_data(**kwargs)
-        
-        # Agrega la lista de objetos del modelo Deposito al contexto
-        context['user'] = self.request.user
-        context['depositos'] = Deposito.objects.all()
-        context['productos'] = Producto.objects.all()
-        return context
+def ProductoListView(request):
+    cat = request.GET.get('category')
+    user = request.user
+    if cat:
+        category = Categoria.objects.get(id=cat)
+        productos = Producto.objects.filter(categoria=category)
+    else: 
+        productos = Producto.objects.all()
+    return render(request,'productos/producto_list.html',{'productos':productos,'user': user})
  
 
 class ProductoDetailView(DetailView):
@@ -79,7 +74,7 @@ class SucursalDeleteView (DeleteView):
 class SucursalUpdateView (UpdateView):
     model=Sucursal
     template_name='sucursales/sucursal_form.html'
-    fields=['nombre','ubicacion','descripcion','estado']
+    fields=['nombre','ubicacion','descripcion','estado','localidad']
     success_url=reverse_lazy('sucursal_list')
 
 class SucursalDetailView(DetailView):
@@ -138,7 +133,22 @@ class OrdenCompraView (CreateView):
     template_name='compras/compras_orden.html'
     fields =['nordenCompra','fecha','proveedor','fechaentrega','lugarentrega','condiciones']
     success_url=reverse_lazy('orden_list')
-
+    def get_initial(self):
+        # Llamar al método original
+        initial = super().get_initial()
+        # Obtener el último ID de la orden de compra y agregar 1
+        ultimo_orden = OrdenCompra.objects.order_by('id').last()
+        siguiente_id = (ultimo_orden.id + 1) if ultimo_orden else 1
+        # Establecer el valor inicial para 'nordenCompra'
+        initial['nordenCompra'] = siguiente_id
+        
+        return initial
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Asegurar que el campo 'nordenCompra' se establezca como readonly
+        form.fields['nordenCompra'].widget.attrs['readonly'] = True
+        return form
+    
 class OrdenCompraListView (LoginRequiredMixin,ListView):
     model = OrdenCompra
     template_name='compras/compras_listaorden.html'
@@ -200,6 +210,13 @@ def get_productos(request):
     proveedor_id = request.GET.get('proveedor_id')
     productos = Producto.objects.filter(proveedor_id=proveedor_id)
     productos_list = [{'id': p.id, 'nombre': p.nombre} for p in productos]
+    return JsonResponse({'productos': productos_list})
+
+def get_productos_por_deposito(request):
+    deposito_id = request.GET.get('deposito_id')
+    print(deposito_id)
+    productos = ProductoPorDeposito.objects.filter(deposito_id=deposito_id)
+    productos_list = [{'id': p.id, 'nombre': p.producto.nombre ,'stock' : p.cantidad} for p in productos]
     return JsonResponse({'productos': productos_list})
 
 def get_precio(request):
@@ -295,7 +312,7 @@ class ProductoXDepositoDetailView(DetailView):
 class ProductoXDepositoCreateView(CreateView):
     model = ProductoPorDeposito
     template_name = 'productos_list/producto_form.html'
-    fields = '__all__'
+    fields = ['deposito','producto','estado','fecha_ingreso']
     success_url = reverse_lazy('productos_list')
     
     def get_context_data(self, **kwargs):
@@ -312,7 +329,7 @@ class ProductoXDepositoCreateView(CreateView):
 class ProductoXDepositoUpdateView(UpdateView):
     model = ProductoPorDeposito
     template_name = 'productos_list/producto_form.html'
-    fields = '__all__'
+    fields = ['deposito','producto','estado','fecha_ingreso']
     success_url = reverse_lazy('productos_list')
     
 
@@ -344,37 +361,111 @@ def productos_por_sucursal(request,sucursal_id):
 
 
 
+def movimientos_list_view(request,deposito_id):
+    movimientos = Movement.objects.filter(from_deposito_id = deposito_id)
+    deposito = Deposito.objects.get(id=deposito_id)
+    return render(request, 'movimientos_list.html',{'movimientos':movimientos,'deposito':deposito})
+
+def movimientos_detail_view(request,movimiento_id):
+    movimiento = Movement.objects.get(id=movimiento_id)
+    print(movimiento)
+    detalles = DetalleMovement.objects.filter(movimiento_id=movimiento.id)
+    deposito = Deposito.objects.get(id=movimiento.from_deposito.id)
+    print(detalles)
+    return render(request,'movimiento_detail.html',{'movimiento':movimiento,'detalles':detalles,'deposito':deposito})
 
 
+def registrar_movimiento_form(request,deposito_id):
+    form = MovimientoForm()
+    deposito = get_object_or_404(Deposito, id=deposito_id)
+    productos_en_deposito = ProductoPorDeposito.objects.filter(deposito=deposito)
+    nro_movimiento = Movement.objects.all().order_by('id').last()
+    
+    if nro_movimiento:
+        nro_movimiento = nro_movimiento.id + 1
+    else:
+        nro_movimiento = 1
+    return render(request, 'registrar_movimiento.html', {
+        'deposito': deposito,
+        'nro_mov': nro_movimiento,
+        'productos': productos_en_deposito,
+        'form':form
+    })
+    
 
 
 def registrar_movimiento(request):
     if request.method == 'POST':
-        form = MovimientoForm(request.POST)
-        if form.is_valid():
-            producto_por_deposito = form.cleaned_data['producto_por_deposito']
-            tipo_movimiento = form.cleaned_data['tipo_movimiento']
-            cantidad = form.cleaned_data['cantidad']
+        try:
+            data = json.loads(request.body)
+            print(data)
+            
+            nroMovimiento = data.get('nroMovimiento')
+            referenceDeposito = data.get('referenceDeposito')
+            fecha_emision = data.get('fecha_emision')
+            estado = data.get('estado')
+            tipo_movimiento = data.get('tipo_movimiento')
+            motivo = data.get('motivo')
+            condiciones = data.get('condiciones')
+            productos = data.get('productos')
 
-            # Actualizar la cantidad en el modelo
-            if tipo_movimiento == 'ingreso':
-                producto_por_deposito.cantidad += cantidad
-            elif tipo_movimiento == 'egreso':
-                if producto_por_deposito.cantidad >= cantidad:
-                    producto_por_deposito.cantidad -= cantidad
-                else:
-                    form.add_error('cantidad', 'No hay suficiente stock para este egreso.')
-                    return render(request, 'registrar_movimiento.html', {'form': form})
+            # Obtener el deposito
+            try:
+                deposito_obj = Deposito.objects.get(nombre=referenceDeposito)
+                deposito_id = deposito_obj.id
+            except deposito_obj.DoesNotExist:
+                return JsonResponse({'message': f'deposito con nombre "{deposito_id}" no encontrado'}, status=400)
+            deposito = Deposito.objects.get(nombre=referenceDeposito)
+            movimiento = Movement.objects.create(
+                nro_movimiento=nroMovimiento, 
+                from_deposito=deposito, 
+                fecha=fecha_emision, 
+                estado=estado,
+                tipo_movimiento=tipo_movimiento, 
+                motivo=motivo, 
+                condiciones=condiciones, 
+            )
+            for producto in productos:
+                producto_nombre = producto.get('productoNombre', '').strip()
+                cantidad = producto.get('cantidad')
 
-            producto_por_deposito.save()
-            return redirect('exito')  # Redirige a una página de éxito o a otra vista
+                # Validar campos de producto
+                if not producto_nombre or not cantidad:
+                    print('Datos de producto inválidos:', producto)  # Agregar impresión para depuración
+                    continue  # O puedes retornar un error si prefieres
 
-    else:
-        form = MovimientoForm()
-    
-    return render(request, 'registrar_movimiento.html', {'form': form})
+                try:
+                    producto_obj = Producto.objects.get(nombre=producto_nombre)
+                    producto_deposito = ProductoPorDeposito.objects.filter(producto=producto_obj)
+                    if producto_deposito.exists():
+                        # Obtén el objeto individual
+                        producto = producto_deposito.first()  # o usa .get() si estás seguro de que solo hay uno
 
+                        if tipo_movimiento == 'ING':
+                            # Incrementar la cantidad actual
+                            producto.cantidad += int(cantidad)
+                        else:
+                            # Calcular la nueva cantidad asegurando que no sea negativa
+                            nueva_cantidad = producto.cantidad - int(cantidad)
+                            if nueva_cantidad < 0:
+                                raise ValueError("La cantidad no puede ser negativa.")
+                            producto.cantidad = nueva_cantidad
 
+                        # Guarda los cambios en la base de datos
+                        producto.save()
+                    else:
+                        print("No se encontró el producto en el depósito.")
+                    DetalleMovement.objects.create(
+                        movimiento=movimiento,
+                        producto=producto_obj,
+                        cantidad=cantidad
+                    )
+                except Producto.DoesNotExist:
+                    return JsonResponse({'message': f'Producto "{producto_nombre}" no encontrado'}, status=400)  
+                
+            return JsonResponse({'message': 'Movimiento registrado exitosamente'})
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
 
 def exito(request):
     return render(request, 'exito.html')
@@ -388,7 +479,8 @@ def Facturas_list(request):
 
 def detalleFactura(request,pk):
     factura = FacturasCompras.objects.get(pk=pk)
-    return render (request,'compras/detail_factura.html',{'factura':factura})
+    detalles = DetalleFactura.objects.filter(factura=factura)
+    return render (request,'compras/detail_factura.html',{'factura':factura,'detalles':detalles})
 
 class createFactura(CreateView):
     model = FacturasCompras
@@ -412,6 +504,7 @@ def registrar_factura(request):
         try:
             data = json.loads(request.body)
             referencia_orden = data.get('reference_orden')
+            tipo_factura = data.get('tipo_factura')
             proveedor_id = data.get('proveedor_id')
             numero_factura = data.get('numero_factura')
             fecha_emision = data.get('fecha_emision')
@@ -441,6 +534,7 @@ def registrar_factura(request):
             factura = FacturasCompras.objects.create(
                 reference_orden=orden,
                 proveedor_id=proveedor_id,
+                tipo_factura=tipo_factura,
                 numero_factura=numero_factura,
                 fecha_emision=fecha_emision,
                 estado=estado,
