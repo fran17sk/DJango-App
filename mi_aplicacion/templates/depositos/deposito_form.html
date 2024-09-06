@@ -5,33 +5,40 @@
             <h1>{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</h1>
             <form method="post">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="id_nombre">Sucursal</label>
-                    {{ form.sucursal }}
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_nombre">Sucursal</label>
+                        {{ form.sucursal }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_nombre">Nombre</label>
+                        {{ form.nombre }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_direccion">Direccion</label>
+                        {{ form.direccion }}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_nombre">Nombre</label>
-                    {{ form.nombre }}
+                <div class="flex">
+                    <div class="form-group">
+                        <label for="id_telefono">Telefono</label>
+                        {{ form.telefono }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">Correo electronico</label>
+                        {{ form.email }}
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="id_direccion">Direccion</label>
-                    {{ form.direccion }}
-                </div>
-                <div class="form-group">
-                    <label for="id_telefono">Telefono</label>
-                    {{ form.telefono }}
-                </div>
-                <div class="form-group">
-                    <label for="id_email">Correo electronico</label>
-                    {{ form.email }}
-                </div>
-                <div class="form-group">
-                    <label for="id_estado">Estado</label>
-                    {{ form.estado }}
-                </div>
-                <div class="form-group">
-                    <label for="id_capacidad_maxima">Capacidad Maxima</label>
-                    {{ form.capacidad_maxima }}
+                <div class="flex">
+
+                    <div class="form-group">
+                        <label for="id_estado">Estado</label>
+                        {{ form.estado }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_capacidad_maxima">Capacidad Maxima</label>
+                        {{ form.capacidad_maxima }}
+                    </div>
                 </div>
 
                 <button type="submit">{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</button>

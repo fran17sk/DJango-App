@@ -11,6 +11,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Nombre</th>
+                        <th>Categoria</th>
                         <th>Descripcion</th>
                         <th>Estado</th>
                         <th>Iconos</th>
@@ -21,6 +22,7 @@
                     <tr>
                         <td>{{producto.id}}</td>
                         <td>{{producto.nombre}}</td>
+                        <td>{{producto.categoria.nombre}}</td>
                         <td>{{producto.descripcion}}</td>
                         <td>{{producto.estado}}</td>
                         <td><a href="{% url 'producto_update' producto.pk %}"><i class="bi bi-pencil-square"></i></a>
@@ -31,14 +33,7 @@
                 <p>No hay productos disponibles.</p>
                 {% endfor %}
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th>Id</th>
-                        <th>Nombre</th>
-                        <th>Descripcion</th>
-                        <th>Estado</th>
-                    </tr>
-                </tfoot>
+                
             </table>
         </div>
         

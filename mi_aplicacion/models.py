@@ -36,6 +36,7 @@ class Deposito(models.Model):
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
     capacidad_maxima = models.IntegerField(blank=True, null=True)
     sucursal = models.ForeignKey(Sucursal,on_delete=models.SET_NULL,null=True,blank=True,related_name='depositos')
+
     def __str__(self):
         return self.nombre
     
@@ -50,7 +51,7 @@ class Proveedor (models.Model):
     fecha_registro = models.DateTimeField(null=True,blank=True)  
     descripcion = models.TextField(null=True, blank=True)  
     categoria = models.CharField(max_length=50, null=True, blank=True)  
-
+    
     def __str__(self):
         return self.nombre
     
@@ -76,7 +77,6 @@ class ProductoPorDeposito(models.Model):
     cantidad = models.PositiveIntegerField(default=0,blank=True, null=True)  
     fecha_ingreso = models.DateField(blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
-    stock_actual = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.producto.nombre} en {self.deposito.nombre}"
@@ -138,18 +138,64 @@ class detalleOrdenPago(models.Model):
     subtotal = models.DecimalField(max_digits=10,decimal_places=2,blank=True,null=True)
 
 class Movement(models.Model):
-    nMov = models.IntegerField(blank=True,null=True)
+
+    TIPO_MOVIMIENTO_CHOICES = [
+        ('ING', 'Ingreso'),
+        ('EGR', 'Egreso'),
+    ]
+
+    MOTIVOS_INGRESO_CHOICES = [
+        ('COMPRA', 'Compra de Productos'),
+        ('DEV_CLIENTE', 'Devoluciones de Clientes'),
+        ('TRANS_INT', 'Transferencias Internas'),
+        ('PROD_INT', 'Producción Interna'),
+        ('CORR_INV', 'Corrección de Inventario'),
+        ('PROMO', 'Promociones o Muestras Gratis'),
+        ('REPARACION', 'Retornos por Reparación'),
+    ]
+
+    MOTIVOS_EGRESO_CHOICES = [
+        ('VENTA', 'Venta a Clientes'),
+        ('DEV_PROV', 'Devoluciones a Proveedores'),
+        ('TRANS_INT', 'Transferencias Internas'),
+        ('MERMA', 'Mermas o Desperdicio'),
+        ('PRESTAMO', 'Préstamos'),
+        ('CONSIGN', 'Consignaciones'),
+        ('DEMO', 'Muestras para Demostración'),
+        ('CORR_INV', 'Corrección de Inventario'),
+    ]
+
+    tipo_movimiento = models.CharField(
+        max_length=3,
+        choices=TIPO_MOVIMIENTO_CHOICES,
+        default='ING',
+    )
+
+    motivo = models.CharField(
+        max_length=20,
+        choices=MOTIVOS_INGRESO_CHOICES + MOTIVOS_EGRESO_CHOICES,
+    )
+    nro_movimiento =models.CharField(max_length=20,blank=True,null=True)
     from_deposito = models.ForeignKey(Deposito, on_delete=models.CASCADE, related_name='movements_out')
-    date = models.DateTimeField(blank=True, null=True)
-    fecha = models.DateField(blank=True,null=True)
+    fecha = models.CharField(max_length=20,blank=True,null=True)
+    estado = models.CharField(max_length=20,blank=True,null=True)
     condiciones = models.TextField(blank=True,null=True)
+
     def __str__(self):
-        return f"Movement from {self.from_deposito} on {self.date}"
+        return f'{self.get_tipo_movimiento_display()} - {self.get_motivo_display()}'
+
+    def save(self, *args, **kwargs):
+        if self.tipo_movimiento == 'ING' and self.motivo not in dict(self.MOTIVOS_INGRESO_CHOICES):
+            raise ValueError("El motivo no es válido para un ingreso.")
+        elif self.tipo_movimiento == 'EGR' and self.motivo not in dict(self.MOTIVOS_EGRESO_CHOICES):
+            raise ValueError("El motivo no es válido para un egreso.")
+        super().save(*args, **kwargs)
+    
 
 class DetalleMovement(models.Model):
-    movement = models.ForeignKey(Movement, on_delete=models.CASCADE, related_name='movement_product')
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(blank=True, null=True)    
+    movimiento = models.ForeignKey(Movement, on_delete=models.CASCADE, related_name='movement_product')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(blank=True, null=True)    
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.name} in {self.movement}"
+        return f"{self.cantidad} x {self.producto.nombre} in {self.movimiento}"

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container">
+        <div class="d-flex-sp">
+            <h1>Historial de Movimientos en Deposito: {{deposito.nombre}}</h1>
+            <a href="{% url 'registrar_movimiento' deposito_id=deposito.pk %}" class="btn btn-outline-primary">Registrar Nuevo Movimiento</a>
+
+        </div>
+        <div class="">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Numero de Movimiento</th>
+                        <th>Fecha</th>
+                        <th>Deposito</th>
+                        <th>Iconos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movimientos %}
+                    <tr>
+                        <td>{{mov.id}}</td>
+                        <td>{{mov.nro_movimiento}}</td>
+                        <td>{{mov.fecha}}</td>
+                        <td>{{mov.from_deposito}}</td>
+                        <td><a href=""><i class="bi bi-pencil-square"></i></a>
+                          <a href="{% url 'movimiento_detail' movimiento_id=mov.pk %}"><i class="bi bi-eye"></i></a></td>
+                    </tr>
+                    {% empty %}
+                <p>No hay productos disponibles.</p>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+        </div>
+        
+    </div>
+
+{% endblock %}

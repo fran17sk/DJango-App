@@ -144,7 +144,6 @@
             <form method="post" class="form-container">
                 {% csrf_token %}
                 {{ form.as_p }}
-                
                 <button type="submit">Guardar Producto</button>
             </form>
             <a href="{% url 'productos_list' %}" class="cancel-link">Cancelar</a>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .modal-dialog {
+            max-width: 800px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-row .form-group:last-child {
+            margin-right: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        #total-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #tablaDetalles {
+            margin-top: 20px;
+        }
+        .footer-buttons{
+            width: 100%;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 100px;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Detalle de movimiento N°: {{movimiento.nro_movimiento}}</h1>
+        <h5>Numero de Deposito: {{movimiento.from_deposito.id}}</span></h5>
+        
+
+        <form method="POST" id="csrfForm" action="{% url 'registrar_factura' %}">
+            {% csrf_token %}
+        </form>
+        <!-- Selección de Orden de Compra, Proveedor, N°Factura -->
+        <div class="form-row mb-3">
+            <div class="form-group">
+                <label for="deposito_name" class="form-label">Deposito: {{movimiento.from_deposito.nombre}}</label>
+                    <!-- Opciones de Orden de Compra serán cargadas desde Django -->
+            </div>
+            <div class="form-group">
+                <label for="numero_movimiento" class="form-label">N° Movimiento: {{movimiento.nro_movimiento}}</label>
+            </div>
+            <div class="form-group">
+                <label for="fecha_emision" class="form-label">Fecha: {{movimiento.fecha}}</label>
+            </div>
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado: {{movimiento.estado}}</label>
+            </div>
+        </div>
+        <!-- Fecha, Descuento, Impuestos, Estado -->
+        <div class="form-row mb-3">
+            
+            <div class="form-group">
+                <label for="tipo_movimiento" class="form-label">Tipo de Movimiento: {{movimiento.tipo_movimiento}}</label>
+            </div>
+            <div class="form-group">
+                <label id="motivo" for="motivo" class="form-label">Motivo de Movimiento: {{movimiento.motivo}}</label>
+            </div>
+        </div>
+        
+        <!-- Tabla de Productos -->
+        <h4 class="mt-4">Lista de Productos</h4>        
+        <table id="tablaDetalles" class="table">
+            <thead>
+                <tr>
+                    <th>Id Detalle</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    {% for detalle in detalles %}
+                    
+                    <tr>
+                        <td>{{detalle.id}}</td>
+                        <td>{{detalle.producto.nombre}}</td>
+                        <td>{{detalle.cantidad}}</td>
+                    </tr>
+                    {% endfor %}
+                </tr>            
+            </tbody>
+        </table>
+        <div class="footer-buttons">
+            <button class="btn btn-success" id="confirmarMovimiento">Imprimir</button>
+            <a href="{% url 'movimientos_list' deposito_id=deposito.pk %}" class="btn btn-danger btn-sm ">Volver atras</a>
+        </div>
+
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+{% endblock %}
