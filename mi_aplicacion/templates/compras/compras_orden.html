@@ -129,12 +129,13 @@
                     <!-- Los productos se agregarán aquí -->
                 </tbody>
             </table>
-                    <!-- Botón para enviar la orden -->
-            <button class="btn btn-success" id="confirmarOrdenBtn">Confirmar Orden</button>
-            <a href="{% url 'orden_list' %}" class="cancel-link">Cancelar</a>
-
         </div>
-
+        <div class="form-row mb-3">
+            <div style="display: flex;flex-direction: row;">
+                <button class="btn btn-success" id="confirmarOrdenBtn" style="margin-right: 10px;">Guardar Orden</button>
+                <a href="{% url 'orden_list' %}" class="cancel-link">Cancelar</a>        
+            </div>
+        </div>
     </div>
 {% endblock %}
 {% block script %} 

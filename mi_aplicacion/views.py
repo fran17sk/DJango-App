@@ -196,7 +196,24 @@ class CategoriaUpdateView (UpdateView):
     fields=['nombre','descripcion']
     success_url=reverse_lazy('categoria_list')
 
+##################################ORDEN DE PAGO#############################################
 
+class PagoCreateView (CreateView):
+    model = OrdenPago
+    template_name='compras/compras_pago.html'
+    context_object_name='ordenes'
+    fields=['proveedor','nordenPago','fecha','estado','metodo_pago','total']
+    success_url=reverse_lazy('pagos_list')
+
+def pagos_list(request):
+    ordenespago = OrdenPago.objects.all()
+    return render (request,'compras/compras_listapago.html',{'ordenes':ordenespago})
+
+
+def pago_detail(request,pk):
+    orden =OrdenPago.objects.get(pk=pk)
+    detallesorden = detalleOrdenPago.objects.filter(ordenpago=orden)
+    return render (request,'compras/detail_pago.html',{'orden':orden,'detalles':detallesorden})
 
 def get_productos(request):
     proveedor_id = request.GET.get('proveedor_id')
@@ -204,11 +221,59 @@ def get_productos(request):
     productos_list = [{'id': p.id, 'nombre': p.nombre} for p in productos]
     return JsonResponse({'productos': productos_list})
 
-def get_precio(request):
-    producto_id = request.GET.get('producto_id')
-    producto = Producto.objects.get(id=producto_id)
-    print(producto.precio)
-    return JsonResponse({'precio_unitario': str(producto.precio)})
+def get_facturas(request):
+    Proveedor_id=request.GET.get('proveedor_id')
+    facturas = FacturasCompras.objects.filter(proveedor=Proveedor_id,estado='Activo')
+    facturas_list=[{'id':f.id,'numero':f.numero_factura,'total':f.total} for f in facturas] 
+    return JsonResponse({'facturas':list(facturas_list)})
+
+def registrar_pago(request):
+    if request.method == "POST":
+        try:
+            # Parsear los datos enviados en formato JSON
+            data = json.loads(request.body)
+            print (data)
+
+            # Obtener proveedor
+            proveedor = Proveedor.objects.get(nombre=data['proveedor'])
+
+            # Crear la Orden de Pago
+            orden_pago = OrdenPago.objects.create(
+                proveedor=proveedor,
+                nordenPago=data.get('nordenPago', None),
+                fecha=data.get('fecha', None),
+                metodo_pago=data.get('metodo_pago', None),
+                observaciones=data.get('notas', None),
+                total=data.get('total', None)
+            )
+
+
+            # Crear los detalles de la orden
+            for factura in data['facturas']:
+                factura_obj = FacturasCompras.objects.get(numero_factura=factura['numero_factura'])
+                detalle_orden = detalleOrdenPago.objects.create(
+                    ordenpago=orden_pago,
+                    factura=factura_obj,
+                    costoenvio=factura.get('costoenvio', 0),
+                    subtotal=factura.get('subtotal', 0)
+
+                )
+                factura_obj.estado = "Baja"
+                factura_obj.save()
+
+
+            # Retornar una respuesta de éxito
+            return JsonResponse({'message': 'Orden de pago registrada exitosamente'})
+
+        except Proveedor.DoesNotExist:
+            return JsonResponse({'message': 'Proveedor no encontrado'}, status=400)
+        except FacturasCompras.DoesNotExist:
+            return JsonResponse({'message': 'Factura no encontrada'}, status=400)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, status=500)
+
+    # Si no es una solicitud POST, retornar un error 405
+    return HttpResponse(status=405)
 
 
 def confirmar_orden_compra(request):
@@ -263,6 +328,7 @@ def get_depositos(request):
 def get_ordenes(request):
     ordenes = OrdenCompra.objects.filter(estado="Activo").select_related('proveedor').values('id','nordenCompra','proveedor__nombre')
     return JsonResponse({'ordenes':list(ordenes)})
+
 
 class ProductoXDepositoListView(LoginRequiredMixin,ListView):
     model = ProductoPorDeposito
@@ -399,7 +465,7 @@ def detalleFactura(request,pk):
 class createFactura(CreateView):
     model = FacturasCompras
     template_name = 'compras/registrar_factura.html'
-    fields = ['reference_orden','proveedor','numero_factura','tipo_factura','fecha_emision','descuento','impuestos','estado','metodo_pago','notas','total']
+    fields = ['reference_orden','proveedor','numero_factura','tipo_factura','fecha_emision','descuento','impuestos','estado','notas','total']
     success_url = reverse_lazy('facturas_list')
     
 
@@ -421,9 +487,8 @@ def registrar_factura(request):
             proveedor_id = data.get('proveedor_id')
             numero_factura = data.get('numero_factura')
             fecha_emision = data.get('fecha_emision')
-            estado = data.get('estado')
             tipofactura=data.get('tipo_factura')
-            metodo_pago = data.get('metodo_pago')
+            notas = data.get('notas')
             impuestos = data.get('impuestos')
             descuento = data.get('descuento')
             total = data.get('total')
@@ -450,9 +515,8 @@ def registrar_factura(request):
                 proveedor_id=proveedor_id,
                 numero_factura=numero_factura,
                 fecha_emision=fecha_emision,
-                estado=estado,
                 tipo_factura=tipofactura,
-                metodo_pago=metodo_pago,
+                notas=notas,
                 impuestos=impuestos,
                 descuento=descuento,
                 total=total

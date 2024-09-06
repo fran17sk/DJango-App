@@ -35,12 +35,17 @@ urlpatterns = [
     path('compras/detail/<int:pk>',views.detalleorden,name='orden_detail'),
     path('get_ordenes/',views.get_ordenes,name='get_ordenes'),
 
+    path ('pagos/',views.pagos_list,name='pagos_list'),
+    path ('pagos/nuevo',PagoCreateView.as_view(),name='pago_new'),
+    path ('pagos/detail/<int:pk>',views.pago_detail,name='pago_detail'),
+    path ('get_facturas/',views.get_facturas,name='get_facturas'),
+    path('registrar_pago/',views.registrar_pago,name='registrar_pago'),
+
     path('proveedores/',ProveedorListView.as_view(),name='proveedor_list'),
     path('proveedores/nuevo/',ProveedorCreateView.as_view(),name='proveedor_create'),
     path('proveedores/eliminar/<int:pk>',ProveedorDeleteView.as_view(),name='proveedor_delete'),
     path('proveedores/editar/<int:pk>',ProveedorUpdateView.as_view(),name='proveedor_update'),
     path('get_productos/',views.get_productos,name='get_productos'),
-    path('get_precio/',views.get_precio,name='get_precio'),
     path('confirmar_orden/',views.confirmar_orden_compra,name='confirmar_orden_compra'),
     path('get_proveedores/',views.get_proveedores,name='get_proveedores'),
     path('get_depositos/',views.get_depositos,name='get_depositos'),
