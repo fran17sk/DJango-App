@@ -615,7 +615,6 @@ def registrar_factura(request):
                 tipo_factura=tipo_factura,
                 numero_factura=numero_factura,
                 fecha_emision=fecha_emision,
-                tipo_factura=tipofactura,
                 notas=notas,
                 impuestos=impuestos,
                 descuento=descuento,
