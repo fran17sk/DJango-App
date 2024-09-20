@@ -114,6 +114,10 @@
                                 <label for="cantidad" class="form-label">Cantidad</label>
                                 <input type="number" class="form-control" id="cantidad" required>
                             </div>
+                            <div class="mb-3">
+                                <label for="precioUnitario" class="form-label">Precio Unitario</label>
+                                <input type="number" class="form-control" id="precioUnitario" step="0.01" required>
+                            </div>
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -131,6 +135,8 @@
                     <tr>
                         <th>Producto</th>
                         <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -222,37 +228,44 @@
 
         // Agregar producto a la tabla
         $('#agregarProductoBtn').click(function() {
-            const productoId = $('#producto').val();
-            const productoNombre = $('#producto option:selected').text();
-            const cantidad = $('#cantidad').val();
-    
-            if (productoId && cantidad) {
-                productosAgregados.push({
-                    productoId: productoId,
-                    productoNombre: productoNombre,
-                    cantidad: cantidad,
-                });
-    
-                agregarProductoATabla(productoNombre, cantidad);
-                $('#productoModal').modal('hide');
-                $('.modal-backdrop').remove();
-                detalleOrden.show();
-                $('#producto').val('');
-                $('#producto option:selected').val('');
-                $('#cantidad').val('');
-            }
+    const productoId = $('#producto').val();
+    const productoNombre = $('#producto option:selected').text();
+    const cantidad = $('#cantidad').val();
+    const precioUnitario = $('#precioUnitario').val();
+    const subtotal = (cantidad * precioUnitario).toFixed(2); // Calcular subtotal
+ 
+    if (productoId && cantidad && precioUnitario) {
+        productosAgregados.push({
+            productoId: productoId,
+            productoNombre: productoNombre,
+            cantidad: cantidad,
+            precioUnitario: precioUnitario,
+            subtotal: subtotal
         });
-    
-        // Función para agregar productos a la tabla
-        function agregarProductoATabla(productoNombre, cantidad) {
-            $('#productosTableBody').append(`
-                <tr>
-                    <td>${productoNombre}</td>
-                    <td>${cantidad}</td>
-                    <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
-                </tr>
-            `);
-        }
+ 
+        agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
+        $('#productoModal').modal('hide');
+        $('.modal-backdrop').remove();
+        detalleOrden.show();
+        $('#producto').val('');
+        $('#producto option:selected').val('');
+        $('#cantidad').val('');
+        $('#precioUnitario').val('');
+    }
+});
+
+// Función para agregar productos a la tabla
+function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal) {
+    $('#productosTableBody').append(`
+        <tr>
+            <td>${productoNombre}</td>
+            <td>${cantidad}</td>
+            <td>${precioUnitario}</td>
+            <td>${subtotal}</td>
+            <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
+        </tr>
+    `);
+}
 
         // Manejar la eliminación de productos de la tabla
         $('#productosTableBody').on('click', '.eliminarProductoBtn', function() {

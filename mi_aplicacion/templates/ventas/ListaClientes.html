@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <div class="d-flex-sp">
+        <h1>Lista de Clientes</h1>
+        <!-- Botón que abrirá el modal -->
+        <button class="btn btn-primary" id="agregarCliente" data-bs-toggle="modal" data-bs-target="#modalAgregarCliente">Crear Cliente</button>
+    </div>
+    <div class="">
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>CUIT</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th>Iconos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{cliente.cuit}}</td>
+                    <td>{{cliente.nombre}}</td>
+                    <td>{{cliente.apellido}}</td>
+                    <td>{{cliente.email}}</td>
+                    <td>{{cliente.telefono}}</td>
+                    <td>
+                        <a ></a></i></a>
+                        <a ><i class="bi bi-eye"></i></a>
+                        <a href=""><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+                {% empty %}
+                <p>No hay Clientes disponibles.</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Modal para agregar cliente -->
+    <div class="modal fade" id="modalAgregarCliente" tabindex="-1" aria-labelledby="modalAgregarClienteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalAgregarClienteLabel">Crear Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCrearCliente" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="cuit" class="form-label">CUIT</label>
+                            <input type="text" class="form-control" id="cuit" name="cuit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre del Cliente</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellido" class="form-label">Apellido del Cliente</label>
+                            <input type="text" class="form-control" id="apellido" name="apellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email del Cliente</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono del Cliente</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="guardarCliente">Guardar Cliente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $('#guardarCliente').click(function() {
+        const form = $('#formCrearCliente');
+        const formData = form.serialize();
+
+        // Mostrar el estado "Cargando"
+        Swal.fire({
+            title: 'Guardando cliente...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        $.ajax({
+            url: "{% url 'cliente_new' %}",
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                Swal.close();  // Cierra el estado "Cargando"
+                if (response.status === 'success') {
+                    Swal.fire('Éxito', response.message, 'success').then(() => {
+                        location.reload();  // Recargar la página
+                    });
+                } else {
+                    Swal.fire('Error', response.message, 'error');
+                }
+            },
+            error: function(xhr) {
+                Swal.close();  // Cierra el estado "Cargando"
+                let errorMessage = xhr.responseJSON ? xhr.responseJSON.message : 'Ocurrió un error inesperado.';
+                Swal.fire('Error', errorMessage, 'error');
+            }
+        });
+    });
+</script>
+{% endblock %}

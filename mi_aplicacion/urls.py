@@ -52,6 +52,8 @@ urlpatterns = [
     path('get_precio/',views.get_precio,name='get_precio'),
 
     path('confirmar_orden/',views.confirmar_orden_compra,name='confirmar_orden_compra'),
+    path('get_orden_detalles/', views.get_orden_detalles, name='get_orden_detalles'),
+
     path('get_proveedores/',views.get_proveedores,name='get_proveedores'),
     path('get_depositos/',views.get_depositos,name='get_depositos'),
 
@@ -77,8 +79,11 @@ urlpatterns = [
     path('depositos/registar-movimiento/', views.registrar_movimiento, name='registrar_mov'),
     path('exito/', views.exito, name='exito'),  # Vista para la página de éxito
 
+    path ('clientes/',ClientesListaView.as_view(),name='clientes_list'),
+    path ('clientes/new',views.guardar_cliente,name='cliente_new'),
 
-
+    path ('ventas/',VentasListView.as_view(),name='ventas_list'),
+    path ('ventas/new',VentasCreateView.as_view(),name='ventas_new')
     ]
 
 

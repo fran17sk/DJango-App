@@ -28,7 +28,6 @@ class Sucursal (models.Model):
         return self.nombre
 
 class Deposito(models.Model):
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=255,blank=True, null=True)
     direccion = models.CharField(max_length=255,blank=True, null=True)
     telefono = models.CharField(max_length=255, blank=True, null=True)
@@ -96,6 +95,8 @@ class DetalleOrden (models.Model):
     producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
     ordencompra=models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     cantidad=models.IntegerField(blank=True,null=True)
+    precioUnitario = models.FloatField(blank=False,null=False)
+    subtotal = models.FloatField(blank=False,null=False)
 
 class FacturasCompras (models.Model):
     reference_orden = models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
@@ -199,3 +200,33 @@ class DetalleMovement(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre} in {self.movimiento}"
+    
+
+class Cliente (models.Model):
+    cuit = models.PositiveIntegerField(unique=True,blank=False,null=False)
+    nombre = models.CharField(max_length=50,blank=False,null=False)
+    apellido = models.CharField(max_length=50,blank=False,null=False)
+    email=models.EmailField(blank=False,null=False)
+    telefono = models.PositiveIntegerField(blank=True,null=True)
+    def __str__(self):
+        return f"{self.nombre} - {self.apellido}" 
+
+
+class FacturaVenta(models.Model):
+    numeroFactura = models.PositiveBigIntegerField(unique=True,blank=False,null=False)
+    fecha = models.DateField(blank=False,null=False)
+    sucursal = models.ForeignKey(Sucursal,on_delete=models.CASCADE)
+    metodo_pago = models.CharField(max_length=50,choices=[('Efectivo','Efectivo'),('Tarjeta de Credito','Tarjeta de Credito'),('Transferencia Bancaria','Transferencia Bancaria')])
+    total = models.FloatField(blank=False,null=False)
+    observaciones = models.TextField(blank=True,null=True)
+    descuento = models.PositiveIntegerField(blank=True,null=True)
+    cliente = models.ForeignKey(Cliente,on_delete=models.CASCADE,blank=True,null=True)
+    def __str__(self):
+        return self.numeroFactura
+
+class DetalleVenta(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    facturaventa = models.ForeignKey(FacturaVenta, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(blank=False, null=False)
+    precio = models.FloatField(blank=False, null=False)
+    subtotal = models.FloatField(blank=False, null=False)

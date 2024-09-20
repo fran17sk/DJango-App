@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <form id="csrfForm">
+        {% csrf_token %}
+    </form>
+    <h2>Registrar Venta</h2>
+
+    <div class="flex">
+        <div class="form-group mb-3">
+            <label for="numeroFactura" class="form-label">N° Factura</label>
+            <input type="number" class="form-control" id="numeroFactura" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="sucursal" class="form-label">Sucursal</label>
+            {{form.sucursal}}
+        </div>
+        <div class="form-group mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" required>
+        </div>
+    </div>
+
+    <div class="flex">
+        <div class="form-group mb-3">
+            <label for="cliente" class="form-label">Cliente</label>
+            {{form.cliente}}
+        </div>
+        <div class="form-group mb-3">
+            <label for="metodo_pago" class="form-label">Método de Pago</label>
+            {{form.metodo_pago}}
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="condiciones" class="form-label">Condiciones</label>
+        <textarea id="condiciones" class="form-control" rows="3"></textarea>
+    </div>
+
+    <!-- Botón para abrir el modal -->
+    <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal">Agregar Producto</button>
+
+<!-- Modal de Bootstrap para agregar productos -->
+<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productoModal">Agregar Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Buscador de productos -->
+                <div class="mb-3">
+                    <label for="buscarProducto" class="form-label">Buscar Producto</label>
+                    <input type="text" class="form-control" id="buscarProducto" placeholder="Buscar por nombre o ID">
+                </div>
+                <!-- Tabla de productos -->
+                <table class="table table-striped mt-4" id="productosTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Precio Unitario</th>
+                            <th>Cantidad Disponible</th>
+                            <th>Seleccionar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productosTableBody">
+                        <!-- Los productos se agregarán aquí vía AJAX -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar Selección</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Tabla de detalle de venta -->
+    <div id="DetalleOrden">
+        <table class="table table-striped mt-4" id="productosTable">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productosTableBody">
+                <!-- Productos seleccionados para la venta -->
+            </tbody>
+        </table>
+    </div>
+
+    <button class="btn btn-success" id="guardarVentaBtn">Guardar Venta</button>
+</div>
+
+<!-- SweetAlert CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    const productosSeleccionados = [];
+
+// Cargar productos cuando se abre el modal
+$('#productoModal').on('show.bs.modal', function () {
+    const sucursalId = $('#id_sucursal').val();  // Obtener el ID de la sucursal seleccionada
+    fetch(`/sucursales/${sucursalId}/productos/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const productos = data.productos;
+        let productosHtml = '';
+        productos.forEach(producto => {
+            productosHtml += `
+                <tr>
+                    <td>${producto.id}</td>
+                    <td>${producto.nombre}</td>
+                    <td>${producto.precio_unitario}</td>
+                    <td>${producto.cantidad_disponible}</td>
+                    <td><input type="checkbox" class="seleccionarProducto" data-id="${producto.id}" data-nombre="${producto.nombre}" data-precio="${producto.precio_unitario}"></td>
+                </tr>
+            `;
+        });
+        $('#productosTableBody').html(productosHtml);
+    });
+});
+
+// Filtrar productos en la tabla
+$('#buscarProducto').on('input', function() {
+    const filtro = $(this).val().toLowerCase();
+    $('#productosTableBody tr').filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(filtro) > -1);
+    });
+});
+
+// Al hacer clic en "Agregar Selección"
+$('#agregarProductoBtn').click(function () {
+    $('#productosTableBody .seleccionarProducto:checked').each(function () {
+        const id = $(this).data('id');
+        const nombre = $(this).data('nombre');
+        const precio = $(this).data('precio');
+        const cantidad = prompt(`Ingrese la cantidad para el producto ${nombre}`);
+        
+        if (cantidad && !isNaN(cantidad)) {
+            const subtotal = (cantidad * precio).toFixed(2);
+            productosSeleccionados.push({ id, nombre, precio, cantidad, subtotal });
+
+            // Agregar a la tabla de productos seleccionados en el formulario
+            $('#productosTableBody').append(`
+                <tr>
+                    <td>${nombre}</td>
+                    <td>${cantidad}</td>
+                    <td>${precio}</td>
+                    <td>${subtotal}</td>
+                    <td><button class="btn btn-danger eliminarProducto">Eliminar</button></td>
+                </tr>
+            `);
+        }
+    });
+
+    // Cerrar el modal
+    $('#productoModal').modal('hide');
+});
+
+// Enviar los productos seleccionados a la API al guardar la orden
+$('#confirmarOrdenBtn').click(function () {
+    const numeroFactura = $('#numeroFactura').val();
+    const fecha = $('#fecha').val();
+    const cliente = $('#id_cliente').val();
+    const metodoPago = $('#id_metodo_pago').val();
+    const condiciones = $('#condiciones').val();
+
+    const ordenData = {
+        numero_factura: numeroFactura,
+        fecha: fecha,
+        cliente: cliente,
+        metodo_pago: metodoPago,
+        condiciones: condiciones,
+        productos: productosSeleccionados
+    };
+
+    Swal.fire({
+        title: '¿Estás seguro de guardar esta orden?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, guardar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: '/api/guardar_venta/',  // Cambiar por tu ruta de API
+                type: 'POST',
+                data: JSON.stringify(ordenData),
+                contentType: 'application/json',
+                success: function (response) {
+                    Swal.fire('Éxito', 'La orden ha sido guardada', 'success');
+                },
+                error: function () {
+                    Swal.fire('Error', 'Ocurrió un error al guardar la orden', 'error');
+                }
+            });
+        }
+    });
+});
+</script>
+</script>
+
+{% endblock %}

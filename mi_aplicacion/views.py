@@ -324,6 +324,8 @@ def confirmar_orden_compra(request):
                     producto_id=producto['productoId'],
                     ordencompra=orden_compra,
                     cantidad=producto['cantidad'],
+                    precioUnitario=producto['precioUnitario'],
+                    subtotal=producto['subtotal']
                 )
                 detalle_orden.save()
 
@@ -414,9 +416,22 @@ class ProductoXDepositoDeleteView(DeleteView):
     success_url = reverse_lazy('productos_list')
 
 
-def  productos_por_deposito(request,deposito_id):
+def productos_por_deposito(request, deposito_id):
     deposito = get_object_or_404(Deposito, id=deposito_id)
     productos_en_deposito = ProductoPorDeposito.objects.filter(deposito=deposito)
+
+    # Verificar si la petición es AJAX para devolver JSON
+    if request.is_ajax():
+        productos_data = [
+            {
+                'id': producto.producto.id,
+                'nombre': producto.producto.nombre,
+                'precio_unitario': producto.precio_unitario,
+                'cantidad_disponible': producto.cantidad_disponible,
+            }
+            for producto in productos_en_deposito
+        ]
+        return JsonResponse({'productos': productos_data})
 
     return render(request, 'productos_list/productos_por_depositos.html', {
         'deposito': deposito,
@@ -424,10 +439,23 @@ def  productos_por_deposito(request,deposito_id):
     })
 
 
-def productos_por_sucursal(request,sucursal_id):
+def productos_por_sucursal(request, sucursal_id):
     sucursal = get_object_or_404(Sucursal, id=sucursal_id)
     depositos = sucursal.depositos.all()
     productos_en_sucursal = ProductoPorDeposito.objects.filter(deposito__in=depositos)
+
+    # Verificar si la petición es AJAX para devolver JSON
+    if request.is_ajax():
+        productos_data = [
+            {
+                'id': producto.producto.id,
+                'nombre': producto.producto.nombre,
+                'precio_unitario': producto.precio_unitario,
+                'cantidad_disponible': producto.cantidad_disponible,
+            }
+            for producto in productos_en_sucursal
+        ]
+        return JsonResponse({'productos': productos_data})
 
     return render(request, 'productos_list/productos_por_sucursal.html', {
         'sucursal': sucursal,
@@ -550,6 +578,31 @@ def detalleorden(request,pk):
     detalles = DetalleOrden.objects.filter(ordencompra=orden)
     return render (request,'compras/detail_orden.html',{'orden':orden,'detalles':detalles})
 
+def get_orden_detalles(request):
+    orden_id = request.GET.get('orden_id')
+    
+    # Si 'orden_id' no está presente, retorna un error o un mensaje adecuado
+    if not orden_id:
+        return JsonResponse({'error': 'orden_id no proporcionado'}, status=400)
+    
+    # Obtén la orden con 'get' en lugar de 'filter' para un único resultado
+    try:
+        orden = OrdenCompra.objects.get(id=orden_id)
+    except OrdenCompra.DoesNotExist:
+        return JsonResponse({'error': 'Orden no encontrada'}, status=404)
+
+    # Filtra los detalles usando el objeto 'orden'
+    detalles = DetalleOrden.objects.filter(ordencompra=orden)
+    detalles_data = [{
+        'producto_nombre': detalle.producto.nombre,
+        'cantidad': detalle.cantidad,
+        'precio_unitario': detalle.precioUnitario,  # Corrige el nombre a 'precio_unitario'
+        'subtotal': detalle.subtotal
+    } for detalle in detalles]
+
+    return JsonResponse({'detallesOrden': detalles_data})
+
+
 def Facturas_list(request):
     facturas = FacturasCompras.objects.all()
     return render (request,'compras/compras_factura.html',{'facturas':facturas})
@@ -653,3 +706,43 @@ def registrar_factura(request):
             return JsonResponse({'message': str(e)}, status=500)
 
     return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+###################### Clientes #####################
+class ClientesListaView(LoginRequiredMixin,ListView):
+    model = Cliente
+    template_name="ventas/ListaClientes.html"
+    context_object_name='clientes'
+    login_url='../accounts/login/'
+
+def guardar_cliente(request):
+    if request.method=='POST':
+        cuit = request.POST.get('cuit')
+        nombre = request.POST.get('nombre')
+        apellido = request.POST.get('apellido')
+        email = request.POST.get('email')
+        telefono = request.POST.get('telefono')
+
+        if not all ([cuit,nombre,apellido,email,telefono]):
+            return JsonResponse({'status':'error','message':'Por favor, complete todos los campos del formulario'})
+        try:
+            cliente = Cliente(cuit=cuit,nombre=nombre,apellido=apellido,email=email,telefono=telefono)
+            cliente.save()
+            return JsonResponse({'status':'success','message':'Cliente guardado exitosamente'})
+        except Exception as e:
+            return JsonResponse({'status':'error','message':'Ocurrio un error al guardar el cliente'})
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido.'}, status=405)
+
+
+###################### Ventas #####################
+
+class VentasListView (LoginRequiredMixin,ListView):
+    model = FacturaVenta
+    template_name='ventas/ListaVentas.html'
+    context_object_name='ventas'
+    login_url='../accounts/login/'
+
+class VentasCreateView (CreateView):
+    model= FacturaVenta
+    template_name='ventas/registrar_Venta.html'
+    fields='__all__'
+    success_url='ventas_list'
