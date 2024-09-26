@@ -1,0 +1,46 @@
+{% extends 'ecommerce/home.html' %}
+{% block content %}
+<div class="espacioenblanco"></div>
+<main id="gridAreas">
+    <section class="titulo">
+        {% if cat %}
+        <h1 class="tituloprod">{{cat.nombre}}</h1>
+        {% else %}
+        <h1 class="tituloprod">Todos los productos disponibles</h1>
+        {% endif %}
+    </section>
+    <section id="filtros" class="colum-filtros">
+        <article id="bicicletas" class="grid">
+            <div>
+                <h2 class="titulofiltros">CATEGORIAS</h2>
+            </div>
+            {% for cat in categorias %}
+            <div class="filtroFlex categoria">
+                <a href="{% url 'productos' %}?category={{cat.nombre}}">{{cat.nombre}}</a>
+            </div>
+            {% endfor %}
+
+        </article>
+    </section>
+    <section id="productos">
+        <div class="prodFlex carou" id="listado">
+            {% for prod in productos %}
+            <div id="" class="producto card">
+                <img src="https://www.muycomputer.com/wp-content/uploads/2016/12/66e37912bb19.jpg" alt="Producto"
+                    class="img-prod">
+                <h5 class="product-price">$500.000</h5>
+                <div class="c">
+                    <h6 class="titleProd">{{prod.nombre}}</h6>
+                </div>
+                <button onclick="addToCart({{ prod.id }},1,500000)" class="add-to-cart">COMPRAR</button>
+                <p>Stock Disponible: {{prod.total_stock}}</p>
+            </div>
+            {% empty %}
+            <p>No hay productos disponibles.</p>
+            {% endfor %}
+
+        </div>
+
+    </section>
+</main>
+{% endblock %}

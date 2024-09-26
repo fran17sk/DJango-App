@@ -79,6 +79,15 @@ urlpatterns = [
 
 
 
+    path('tienda/', views.EcommerceHome, name='tienda'),
+    path('tienda/articulos', views.ListProducts , name='productos'),
+    path('tienda/contacto',ContactView.as_view() , name='contact'),
+    path('tienda/login',EcommerceLoginView, name='ecommerce_login'),
+    path('logout_ecomerce/', views.custom_logout_view, name='logout_ecommerce'),
+    path('tienda/mi_cuenta/', views.mi_cuenta, name='mi_cuenta'),
+
+
+    path('api/products/', views.get_products_json, name='get_products_json'),
     ]
 
 

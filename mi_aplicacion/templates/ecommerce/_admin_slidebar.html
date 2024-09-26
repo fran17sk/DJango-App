@@ -1,0 +1,19 @@
+<div class="sidebar-lat" style="width:60px;display:flex;flex-flow:column;justify-content:space-between">
+    <ul>
+        <li><a href=""><i class="fa fa-comments" aria-hidden="true"></i><span class="tooltip">Chats</span></a></li>
+        <li><a href=""><i class="fa fa-users" aria-hidden="true"></i><span class="tooltip">Clientes</span></a></li>
+        <li><a href=""><i class="fa fa-tachometer" aria-hidden="true"></i><span class="tooltip">Dashboard</span></a>
+        </li>
+        <li><a href="#"><i class="fa fa-address-book" aria-hidden="true"></i><span
+                    class="tooltip">Respondents</span></a></li>
+        <li><a href="#"><i class="fa fa-cog"></i><span class="tooltip">Settings</span></a></li>
+    </ul>
+    <div class="div-user">
+        <a href="#"><i class="fa fa-user" aria-hidden="true"></i></i><span class="tooltip">Usuario</span></a>
+        <p>{{user.username|slice:":8"}}</p>
+        <form method="post" action="">
+            {% csrf_token %}
+            <button type="submit" class="btn-logout">Salir</button>
+        </form>
+    </div>
+</div>

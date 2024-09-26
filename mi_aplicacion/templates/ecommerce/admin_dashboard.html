@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administrador</title>
+    <!-- Si tienes estilos -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        h2 {
+            color: #2980b9;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 5px;
+        }
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        td[colspan="6"] {
+            text-align: center;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+
+            table,
+            thead,
+            tbody,
+            th,
+            td,
+            tr {
+                display: block;
+            }
+
+            th {
+                display: none;
+                /* Ocultar encabezados en móviles */
+            }
+
+            tr {
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+            }
+
+            td {
+                text-align: right;
+                padding-left: 50%;
+                /* Espaciado para que se vea bien en móviles */
+                position: relative;
+            }
+
+            td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                /* Evitar saltos de línea */
+                text-align: left;
+            }
+        }
+
+        .sidebar-lat {
+            height: 100vh;
+            background-color: #333;
+            position: fixed;
+            display: flex;
+            flex-flow: column;
+            justify-content: space-between;
+            justify-content: center;
+            padding-top: 0px;
+            margin-top: -21px;
+        }
+
+        .sidebar-lat ul {
+            list-style-type: none;
+            margin-top: 60px;
+            padding: 0;
+            width: 100%;
+        }
+
+        .sidebar-lat ul li {
+            width: 100%;
+            margin: 30px 0;
+
+            position: relative;
+        }
+
+        .sidebar-lat ul li a {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+
+        /* Tooltip oculto por defecto */
+        .sidebar-lat ul li a .tooltip {
+            display: none;
+            position: absolute;
+            left: 60px;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        /* Muestra el tooltip cuando el mouse está sobre el ícono */
+        .sidebar-lat ul li a:hover .tooltip {
+            display: inline-block;
+        }
+
+        /* Estilo del ícono cuando está centrado */
+        .sidebar-lat ul li a i {
+            font-size: 24px;
+        }
+
+        .div-user {
+            margin: 10px;
+            display: flex;
+            flex-flow: column;
+            align-items: center;
+        }
+
+        .div-user a {
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .div-user a .tooltip {
+            display: none;
+            position: absolute;
+            left: 50px;
+            background-color: #333;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 14px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .div-user a:hover .tooltip {
+            display: inline-block;
+        }
+
+        .btn-logout {
+            background-color: #ff4b4b;
+            color: white;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: #ff1a1a;
+        }
+
+        .content {
+            margin-left: 150px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    {% include 'ecommerce/_admin_slidebar.html'%}
+    <div class="content">
+        <h1>Panel de Administrador</h1>
+
+        <h2>Órdenes de Venta</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orden in ordenes_venta %}
+                <tr>
+                    <td>{{ orden.id }}</td>
+                    <td>{{ orden.cliente.username }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ orden.producto.nombre }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ orden.cantidad }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ orden.fecha }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ orden.estado }}</td> <!-- Ajusta según tu modelo -->
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No hay órdenes de venta disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Clientes</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre de Usuario</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td>{{ cliente.id }}</td>
+                    <td>{{ cliente.username }}</td>
+                    <td>{{ cliente.email }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No hay clientes registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Productos</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.id }}</td>
+                    <td>{{ producto.nombre }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ producto.precio }}</td> <!-- Ajusta según tu modelo -->
+                    <td>{{ producto.stock }}</td> <!-- Ajusta según tu modelo -->
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No hay productos disponibles.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>
