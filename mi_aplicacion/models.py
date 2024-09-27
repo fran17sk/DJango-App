@@ -70,6 +70,23 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+class ListaPrecio(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='precios')
+    precio = models.DecimalField(max_digits=10, decimal_places=2)  # Precio actual
+    fecha_creacion = models.DateField(null=False,blank=False)  # Fecha de creación del precio
+
+    def __str__(self):
+        return f"{self.producto.nombre} - {self.precio})"
+
+class HistorialPrecio(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='historial_precios')
+    precio_anterior = models.DecimalField(max_digits=10, decimal_places=2)  # Precio anterior
+    fecha_modificacion = models.DateField(null=False,blank=False)  # Fecha en la que se cambió el precio
+
+    def __str__(self):
+        return f"{self.producto.nombre} - {self.precio_anterior} ({self.fecha_modificacion})"
+
+
 class ProductoPorDeposito(models.Model):
     deposito = models.ForeignKey(Deposito, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)

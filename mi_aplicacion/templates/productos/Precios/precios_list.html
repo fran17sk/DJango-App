@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block content %}
+    <div class="container">
+        <div class="d-flex-sp">
+            <h1>Lista de Precios</h1>
+            <a href="{% url 'precios_create' %}" class=" btn btn-outline-primary">Agregar Precio a un Producto</a>
+        </div>
+        <div class="">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Producto</th>
+                        <th>Precio</th>
+                        <th>Fecha Creación</th>
+                        <th>Iconos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for listap in listaprecio %}
+                    <tr>
+                        <td>{{listap.id}}</td>
+                        <td>{{listap.producto}}</td>
+                        <td>{{ listap.precio|floatformat:2|intcomma }}</td>
+                        <td>{{ listap.fecha_creacion|date:"d-m-Y" }}</td>
+                        <td><a href="{% url 'precios_update' listap.pk %}"><i class="bi bi-pencil-square"></i></a>
+                          <a href="{% url 'precios_historial' listap.producto.id %}"><i class="bi bi-cash"></i></a>
+                    </tr>
+                    {% empty %}
+                <p>No hay Precios disponibles.</p>
+                {% endfor %}
+                </tbody>
+                
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

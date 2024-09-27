@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+<style>
+        .modal-dialog {
+            max-width: 500px;
+        }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-row .form-group:last-child {
+            margin-right: 0;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+
+</style>
+{% block content %}
+<div class="container">
+    <div class="form-wrapper">
+        <h1>Editar Precio</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="producto" class="form-label">Producto</label>
+                <select class="form-control" name="producto" id="producto" readonly>
+                    <option value="{{ object.producto.id }}">{{ object.producto.nombre }}</option>
+                </select>            
+            </div>
+
+            <div class="form-group">
+                <label for="precio" class="form-label">Precio</label>
+                <input type="number" class="form-control" id="precio" name="precio" value="{{object.precio}}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha_creacion" value="{{object.fecha_creacion}}" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Editar Precio</button>
+            <a href="{% url 'precios_list' %}" class="btn btn-danger">Cancelar</a>
+            {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle"></i> {{ form.errors }}
+            </div>
+            {% endif %}
+        </form>
+        
+    </div>
+</div>
+{% endblock %}

@@ -42,8 +42,8 @@
                 </div>
 
                 <button type="submit">{% if deposito %}Editar{% else %}Crear{% endif %} Deposito</button>
+                <a href="{% url 'depositos_list' %}" class="btn btn-danger">Cancelar</a>
             </form>
-            <a href="{% url 'depositos_list' %}" class="cancel-link">Cancelar</a>
         </div>
     </div>
 

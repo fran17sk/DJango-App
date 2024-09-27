@@ -56,6 +56,9 @@
             <tr>
                 <th>Producto</th>
                 <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+
             </tr>
         </thead>
         <tbody>
@@ -63,6 +66,9 @@
             <tr>
                 <td>{{ detalle.producto }}</td>
                 <td>{{ detalle.cantidad }}</td>
+                <td class="precio-unitario text-end">{{ detalle.precioUnitario|floatformat:2 }}</td>
+                <td class="subtotal text-end">{{ detalle.subtotal|floatformat:2 }}</td>
+
             </tr>
             {% empty %}
             <tr>
@@ -77,5 +83,19 @@
         </button>
     </div>
 </div>
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor.replace(',', '.'));
+        if (isNaN(num)) return '';
+        return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
+    // Obtener solo las celdas de Precio Unitario y Subtotal y aplicar el formato
+    document.querySelectorAll('.precio-unitario, .subtotal').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+</script>
 {% endblock %}

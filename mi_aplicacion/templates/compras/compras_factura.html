@@ -24,8 +24,8 @@
                         <th>Fecha Emision</th>
                         <th>Estado</th>
                         <th>Proveedor</th>
-                        <th>Total</th>
                         <th>Orden de Compra</th>
+                        <th>Total</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -33,15 +33,15 @@
                   {% for factura in facturas %}
                     <tr>
                         <td>{{ factura.numero_factura }}</td>
-                        <td>{{ factura.tipo_factura }}</td>
-                        <td>{{ factura.fecha_emision }}</td>
+                        <td>Factura Tipo: {{ factura.tipo_factura }}</td>
+                        <td>{{ factura.fecha_emision|date:"d-m-Y" }}</td>
                         <td>{{ factura.estado }}</td>
                         <td>{{ factura.proveedor }}</td>
-                        <td>{{ factura.total }}</td>
-
-                        <td>{{ factura.reference_order }}</td>
+                        <td>{{ factura.reference_orden }}</td>
+                        <td class="total">{{ factura.total }}</td>
                         <td>
-                          <a href="{% url 'facturas_detail' factura.pk%}"><i class="bi bi-eye"></i></a></td>
+                            <a href="{% url 'facturas_detail' factura.pk  %}" class="btn btn-primary"><i class="bi bi-eye" style="color:white"></i> Detalle</a>
+                        </td>
                     </tr>
                     
                 {% endfor %}
@@ -66,10 +66,19 @@
 {% endblock %}
 {% block script %}
 
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor);
+        return isNaN(num) ? '' : num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-    <script>
-
-
-    </script>
+    // Obtener solo las celdas de Total y aplicar el formato
+    document.querySelectorAll('.total').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+</script>
 
 {% endblock %}

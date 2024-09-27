@@ -7,11 +7,19 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+
     path('productos/', views.ProductoListView, name='producto_list'),
     path('productos/nuevo/', ProductoCreateView.as_view(), name='producto_create'),
     path('producto/detail/<int:pk>/',ProductoDetailView.as_view(), name='producto_detail'),
     path('productos/editar/<int:pk>/', ProductoUpdateView.as_view(), name='producto_update'),
     path('productos/eliminar/<int:pk>/', ProductoDeleteView.as_view(), name='producto_delete'),
+
+    path ('productos/listaprecios/',PreciosListView.as_view(),name='precios_list'),
+    path ('productos/listaprecios/nuevo/',PreciosCreateView.as_view(),name='precios_create'),
+    path ('productos/listaprecios/editar/<int:pk>/',PreciosEditView.as_view(),name='precios_update'),
+    path ('productos/listaprecios/historial/<int:producto_id>/',views.precios_por_productos,name='precios_historial'),
+
     path('sucursales/',SucursalListView.as_view(),name='sucursal_list'),
     path('sucursales/nuevo/',SucursalCreateView.as_view(),name='sucursal_create'),
     path('sucursales/eliminar/<int:pk>',SucursalDeleteView.as_view(),name='sucursal_delete'),
@@ -48,6 +56,7 @@ urlpatterns = [
     path('get_productos/',views.get_productos,name='get_productos'),
 
     path('get_productos_deposito/',views.get_productos_por_deposito,name='get_productos_deposito'),
+    path('get_productos_sucursal/',views.get_productos_por_sucursal,name='get_productos_sucursal'),
     
     path('get_precio/',views.get_precio,name='get_precio'),
 
@@ -83,7 +92,9 @@ urlpatterns = [
     path ('clientes/new',views.guardar_cliente,name='cliente_new'),
 
     path ('ventas/',VentasListView.as_view(),name='ventas_list'),
-    path ('ventas/new',VentasCreateView.as_view(),name='ventas_new')
+    path ('ventas/new',VentasCreateView.as_view(),name='ventas_new'),
+    path('guardar_ventas/',views.guardar_venta,name='guardar_venta'),
+    path('ventas/<int:pk>',views.ventas_detalle,name='ventas_detail')
     ]
 
 

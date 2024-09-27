@@ -28,7 +28,7 @@
                             <td>{{ relacion.producto.descripcion }}</td>
                             <td>{{ relacion.producto.categoria }}</td>
                             <td>{{ relacion.cantidad }}</td>
-                            <td>{{ relacion.fecha_ingreso }}</td>
+                            <td>{{ relacion.fecha_ingreso|date:"d-m-Y" }}</td>
                             <td>{{ relacion.estado }}</td>
                         </tr>
                     {% empty %}

@@ -78,8 +78,8 @@
                     {{ form.descripcion }}
                 </div>
                 <button type="submit">Guardar Categoria</button>
+                <a href="{% url 'categoria_list' %}" class="btn btn-danger">Cancelar</a>
             </form>
-            <a href="{% url 'categoria_list' %}" class="cancel-link">Cancelar</a>
         </div>
     </div>
 {% endblock %}

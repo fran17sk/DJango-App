@@ -9,26 +9,24 @@
         <table id="example" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>Cod</th>
                     <th>N°Orden</th>
                     <th>Fecha Creación</th>
                     <th>Fecha Entrega</th>
                     <th>Estado</th>
-                    <th>Condiciones</th>
+                    <th>Lugar de Entrega</th>
                     <th>Iconos</th>
                 </tr>
             </thead>
             <tbody>
                 {% for orden in ordenes %}
                 <tr>
-                    <td>00{{orden.id}}</td>
-                    <td>{{orden.nordenCompra}}</td>
-                    <td>{{orden.fecha}}</td>
-                    <td>{{orden.fechaentrega}}</td>
+                    <td>00{{orden.nordenCompra}}</td>
+                    <td>{{orden.fecha|date:"d-m-Y"}}</td>
+                    <td>{{orden.fechaentrega|date:"d-m-Y"}}</td>
                     <td>{{orden.estado}}</td>
-                    <td>{{orden.condiciones}}</td>
+                    <td>{{orden.lugarentrega}}</td>
                     <td>
-                      <a href=""><i class="bi bi-eye"></i></a>
+                        <a href="{% url 'orden_detail' orden.id  %}" class="btn btn-primary"><i class="bi bi-eye" style="color:white"></i> Detalle</a>
                       </td>
                 </tr>
                 {% empty %}

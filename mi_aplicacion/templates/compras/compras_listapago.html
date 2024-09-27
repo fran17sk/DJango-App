@@ -9,7 +9,6 @@
         <table id="example" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>Id</th>
                     <th>N°Orden</th>
                     <th>Proveedor</th>
                     <th>Fecha</th>
@@ -22,16 +21,15 @@
             <tbody>
                 {% for orden in ordenes %}
                 <tr>
-                    <td>{{orden.id}}</td>
                     <td>{{orden.nordenPago}}</td>
                     <td>{{orden.proveedor}}</td>
-                    <td>{{orden.fecha}}</td>
+                    <td>{{orden.fecha|date:"d-m-Y"}}</td>
                     <td>{{orden.estado}}</td>
                     <td>{{orden.metodo_pago}}</td>
-                    <td>{{orden.total}}</td>
-                    <td><a href=""><i class="bi bi-pencil-square"></i></a>
-                      <a href="{% url 'pago_detail' orden.pk %}"><i class="bi bi-eye"></i></a>
-                      <a href=""><i class="bi bi-trash"></i></a></td>
+                    <td class="total text-end">{{ orden.total }}</td>
+                    <td>                    
+                        <a href="{% url 'pago_detail' orden.pk  %}" class="btn btn-primary"><i class="bi bi-eye" style="color:white"></i> Detalle</a>
+                    </td>
                 </tr>
                 {% empty %}
             <p>No hay Ordenes disponibles.</p>
@@ -52,4 +50,18 @@
     </div>
     
 </div>
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor);
+        return isNaN(num) ? '' : num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Obtener solo las celdas de Total y aplicar el formato
+    document.querySelectorAll('.total').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+</script>
 {% endblock %}

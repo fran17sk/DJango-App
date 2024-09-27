@@ -29,6 +29,8 @@ def ProductoListView(request):
     return render(request,'productos/producto_list.html',{'productos':productos,'user': user})
  
 
+################################PRODUCTOS########################################
+
 class ProductoDetailView(DetailView):
     model = Producto
     template_name = 'productos/producto_detail.html'
@@ -51,6 +53,77 @@ class ProductoDeleteView(DeleteView):
     model = Producto
     template_name = 'productos/producto_confirm_delete.html'
     success_url = reverse_lazy('producto_list')
+
+
+################################LISTA DE PRECIOS########################################
+class PreciosListView(LoginRequiredMixin,ListView):
+    model = ListaPrecio
+    template_name='productos/Precios/precios_list.html'
+    context_object_name='listaprecio'
+    login_url='../accounts/login'
+
+class PreciosCreateView(CreateView):
+    model = ListaPrecio
+    fields = ['producto', 'precio', 'fecha_creacion']
+    template_name = 'productos/Precios/precios_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Consulta de productos que no están en ListaPrecio
+        productos_sin_precio = Producto.objects.exclude(id__in=ListaPrecio.objects.values('producto_id'))
+        context['productos_sin_precio'] = productos_sin_precio
+        return context
+    def form_valid(self, form):
+        # Guardar el nuevo precio y agregar la entrada en HistorialPrecio
+        response = super().form_valid(form)
+
+        # Crear la entrada en HistorialPrecio
+        HistorialPrecio.objects.create(
+            producto=form.instance.producto,
+            precio_anterior=form.instance.precio,
+            fecha_modificacion=form.instance.fecha_creacion
+        )
+        return response
+    success_url=reverse_lazy('precios_list')
+
+class PreciosEditView(UpdateView):
+    model = ListaPrecio
+    fields=['producto','precio','fecha_creacion']
+    template_name='productos/Precios/precios_update.html'
+    def form_valid(self, form):
+        # Guardar el nuevo precio y agregar la entrada en HistorialPrecio
+        response = super().form_valid(form)
+
+        # Crear la entrada en HistorialPrecio
+        HistorialPrecio.objects.create(
+            producto=form.instance.producto,
+            precio_anterior=form.instance.precio,
+            fecha_modificacion=form.instance.fecha_creacion
+        )
+        return response
+    success_url=reverse_lazy('precios_list')
+    
+def precios_por_productos(request, producto_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    precios_producto = HistorialPrecio.objects.filter(producto=producto)
+
+    # Verificar si la petición es AJAX para devolver JSON
+    if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        precios_data = [
+            {
+                'id': precio.id,
+                'nombre': precio.producto,
+                'precio': precio.precio_anterior,
+                'fecha': precio.fecha_modificacion,
+            }
+            for precio in precios_producto
+        ]
+        return JsonResponse({'precios': precios_data})
+
+    return render(request, 'productos/Precios/precios_historial.html', {
+        'producto': producto,
+        'precios_producto': precios_producto,
+    })
 
 
 ################################SUCURSALES########################################
@@ -214,6 +287,7 @@ class PagoCreateView (CreateView):
     context_object_name='ordenes'
     fields=['proveedor','nordenPago','fecha','estado','metodo_pago','total']
     success_url=reverse_lazy('pagos_list')
+    
 
 def pagos_list(request):
     ordenespago = OrdenPago.objects.all()
@@ -239,6 +313,32 @@ def get_productos_por_deposito(request):
     productos_list = [{'id': p.id, 'nombre': p.producto.nombre ,'stock' : p.cantidad} for p in productos]
     return JsonResponse({'productos': productos_list})
 
+def get_productos_por_sucursal(request):
+    sucursal_id = request.GET.get('sucursal_id')  # Obtener el ID de la sucursal desde la consulta
+    sucursal = get_object_or_404(Sucursal, id=sucursal_id)
+    depositos = sucursal.depositos.all()
+    productos_en_sucursal = ProductoPorDeposito.objects.filter(deposito__in=depositos)
+    
+    productos_list = []
+    productos_ids = set()  # Conjunto para rastrear IDs de productos únicos
+
+    for p in productos_en_sucursal:
+        # Verificar si el producto ya ha sido añadido
+        if p.producto.id not in productos_ids:
+            # Obtener el precio actual del producto
+            precio_actual = ListaPrecio.objects.filter(producto=p.producto).order_by('-fecha_creacion').first()  # Obtiene el último precio registrado
+            precio_unitario = precio_actual.precio if precio_actual else None  # Manejo de si no hay precio
+            
+            # Añadir producto a la lista y al conjunto
+            productos_list.append({
+                'id': p.producto.id,
+                'nombre': p.producto.nombre,
+                'precio_unitario': precio_unitario,
+            })
+            productos_ids.add(p.producto.id)  # Añadir ID al conjunto para evitar duplicados
+
+    print(productos_list)
+    return JsonResponse({'productos': productos_list})
 def get_precio(request):
     producto_id = request.GET.get('producto_id')
     producto = Producto.objects.get(id=producto_id)
@@ -421,7 +521,7 @@ def productos_por_deposito(request, deposito_id):
     productos_en_deposito = ProductoPorDeposito.objects.filter(deposito=deposito)
 
     # Verificar si la petición es AJAX para devolver JSON
-    if request.is_ajax():
+    if request.headers.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
         productos_data = [
             {
                 'id': producto.producto.id,
@@ -596,8 +696,8 @@ def get_orden_detalles(request):
     detalles_data = [{
         'producto_nombre': detalle.producto.nombre,
         'cantidad': detalle.cantidad,
-        'precio_unitario': detalle.precioUnitario,  # Corrige el nombre a 'precio_unitario'
-        'subtotal': detalle.subtotal
+        'precio':detalle.precioUnitario,
+        'subtotal':detalle.subtotal
     } for detalle in detalles]
 
     return JsonResponse({'detallesOrden': detalles_data})
@@ -746,3 +846,63 @@ class VentasCreateView (CreateView):
     template_name='ventas/registrar_Venta.html'
     fields='__all__'
     success_url='ventas_list'
+    def get_initial(self):
+        # Llamar al método original
+        initial = super().get_initial()
+        # Obtener el último ID de la orden de compra y agregar 1
+        ultimo_orden = FacturaVenta.objects.order_by('id').last()
+        siguiente_id = (ultimo_orden.id + 1) if ultimo_orden else 1
+        # Establecer el valor inicial para 'nordenCompra'
+        initial['numeroFactura'] = siguiente_id
+        
+        return initial
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Asegurar que el campo 'nordenCompra' se establezca como readonly
+        form.fields['numeroFactura'].widget.attrs['readonly'] = True
+        return form
+
+def ventas_detalle(request,pk):
+    facturaventa =FacturaVenta.objects.get(pk=pk)
+    detallesventa = DetalleVenta.objects.filter(facturaventa=facturaventa)
+    return render (request,'ventas/ventas_detail.html',{'ventas':facturaventa,'detalles':detallesventa})
+
+def guardar_venta (request):
+    if request.method=="POST":
+        data = json.loads(request.body)
+
+        numero_factura = data.get('numero_factura')
+        fecha = data.get('fecha')
+        sucursal_id = data.get('sucursal')
+        cliente_id = data.get('cliente')
+        metodo_pago = data.get('metodo_pago')
+        observaciones = data.get('condiciones', '')
+        total=data.get('total')
+
+        cliente=Cliente.objects.get(id=cliente_id)
+        sucursal=Sucursal.objects.get(id=sucursal_id)
+
+        factura = FacturaVenta.objects.create(
+            numeroFactura=numero_factura,
+            fecha=fecha,
+            sucursal=sucursal,
+            cliente=cliente,
+            metodo_pago=metodo_pago,
+            observaciones=observaciones,
+            total=total,
+        )
+        for producto_data in data['productos']:
+            producto_nombre = producto_data['productoNombre']
+            cantidad = producto_data['cantidad']
+            precio = producto_data['precio']
+            subtotal = producto_data['subtotal']
+            producto = Producto.objects.get(nombre=producto_nombre)
+            DetalleVenta.objects.create(
+                producto=producto,
+                facturaventa=factura,
+                cantidad=cantidad,
+                precio=precio,
+                subtotal=subtotal
+            )
+        return JsonResponse({'status': 'success', 'message': 'Venta guardada exitosamente'})
+    return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)

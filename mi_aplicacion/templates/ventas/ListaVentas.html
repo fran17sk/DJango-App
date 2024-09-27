@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block content %}
 <div class="container">
     <div class="d-flex-sp">
@@ -11,26 +12,24 @@
         <table id="example" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>CUIT</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Email</th>
-                    <th>Telefono</th>
+                    <th>N°Factura</th>
+                    <th>Sucursal</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
                     <th>Iconos</th>
                 </tr>
             </thead>
             <tbody>
-                {% for cliente in clientes %}
+                {% for venta in ventas %}
                 <tr>
-                    <td>{{cliente.cuit}}</td>
-                    <td>{{cliente.nombre}}</td>
-                    <td>{{cliente.apellido}}</td>
-                    <td>{{cliente.email}}</td>
-                    <td>{{cliente.telefono}}</td>
+                    <td>{{venta.numeroFactura}}</td>
+                    <td>{{venta.sucursal}}</td>
+                    <td>{{venta.fecha|date:"d-m-Y"}}</td>
+                    <td>{{venta.cliente}}</td>
+                    <td class="total text-end">{{ venta.total }}</td>
                     <td>
-                        <a ></a></i></a>
-                        <a ><i class="bi bi-eye"></i></a>
-                        <a href=""><i class="bi bi-trash"></i></a>
+                        <a href="{% url 'ventas_detail' venta.pk  %}" class="btn btn-primary"><i class="bi bi-eye" style="color: white;"></i> Detalle</a>
                     </td>
                 </tr>
                 {% empty %}
@@ -40,5 +39,18 @@
         </table>
     </div>
 </div>
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor);
+        return isNaN(num) ? '' : num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
+    // Obtener solo las celdas de Total y aplicar el formato
+    document.querySelectorAll('.total').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+</script>
 {% endblock %}
