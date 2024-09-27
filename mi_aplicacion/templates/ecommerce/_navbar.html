@@ -27,11 +27,7 @@
       <form class="d-flex">
         <input class="form-control me-2 busqueda" onclick="msj()" type="search" placeholder="¿Que estas buscando?"
           aria-label="Search">
-        <button class="btn" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-            fill="currentColor" class="bi bi-search colorLupa" viewBox="0 0 16 16">
-            <path
-              d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-          </svg></button>
+
       </form>
       <form class="d-flex iconos">
         <a href="https://api.whatsapp.com/send?phone=543874756154"><svg xmlns="http://www.w3.org/2000/svg" width="40"
@@ -123,12 +119,20 @@
   <div id="cartModal" class="cart-modal">
     <a href="javascript:void(0)" class="close-btn" onclick="closeCart()">&times;</a>
     <div class="cart-modal-content">
-      <h2>Tu Carrito</h2>
+      <h2 class="title_cart">Tu Carrito</h2>
+      <div id="cart-header" class="cart-header">
+        <div class="cart-header-item">Producto</div>
+        <div class="cart-header-item">Nombre</div>
+        <div class="cart-header-item">Cantidad</div>
+        <div class="cart-header-item">Precio</div>
+      </div>
       <div id="cart-items">
         <!-- Los productos añadidos al carrito aparecerán aquí -->
       </div>
       <button class="clear-cart-btn" onclick="clearCart()">Limpiar Carrito</button>
-      <button onclick="checkout()">Finalizar Compra</button>
+      <a href="{% url 'checkout' %}">
+        <button onclick="checkout()">Finalizar Compra</button>
+      </a>
     </div>
   </div>
 

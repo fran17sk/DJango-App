@@ -666,7 +666,12 @@ def registrar_factura(request):
 def EcommerceHome (request):
     sucursales = Sucursal.objects.all()
     if request.user.groups.filter(name='admin').exists():
-        return render(request, 'ecommerce/admin_dashboard.html')
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
+        categorias = Categoria.objects.all()
+        client_group = Group.objects.get(name='client')
+        clientes = User.objects.filter(groups=client_group)
+        consultas = Consulta.objects.all()
+        return render(request, 'ecommerce/admin_dashboard.html',{'productos':productos,'categorias':categorias,'clientes':clientes,'consultas':consultas})
     elif request.user.groups.filter(name='client').exists():
         return render (request,'ecommerce/main.html',{'sucursales':sucursales})
     else:
@@ -750,3 +755,11 @@ def get_products_json(request):
     print(productos_list)
     # Devolver la respuesta en JSON
     return JsonResponse({'productos': productos_list})
+
+@csrf_exempt
+def custom_logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/tienda')
+
+def checkout(request):
+    return render (request, 'ecommerce/checkout.html')

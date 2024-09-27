@@ -57,7 +57,7 @@
     }
 
     .fondogris {
-      background-color: rgba(186, 194, 184, 0.993);
+      background-color: #1e1e1e;
     }
 
     a {
@@ -1078,12 +1078,13 @@
     .cart-modal {
       height: 100vh;
       width: 38%;
-      background-color: rgb(76, 123, 50);
+      background-color: rgb(56, 56, 56);
       float: right;
       overflow: scroll;
       overflow-x: hidden;
       border-left: #fff solid 2px;
-      padding: 10px 20px 0 20px;
+      padding: 0px;
+
     }
 
     .cart-btn {
@@ -1365,7 +1366,7 @@
       top: 0;
       right: 0;
       display: none;
-      background-color: white;
+      background-color: rgb(32, 32, 32);
       overflow-x: hidden;
       transition: 0.5s;
       padding-top: 60px;
@@ -1373,8 +1374,12 @@
       z-index: 1000;
     }
 
+    .title_cart {
+      color: white;
+    }
+
     .cart-modal-content {
-      padding: 20px;
+      padding: 5px;
     }
 
     .cart-header {
@@ -1392,22 +1397,208 @@
       position: absolute;
       top: 10px;
       right: 25px;
-      color: black;
+      color: rgb(255, 255, 255);
     }
 
-    .cart-item {
+    /* Estilos del encabezado del carrito */
+    .cart-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 15px;
+      background-color: #343a40;
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: bold;
     }
 
-    .cart-item p {
-      margin: 0;
+    .cart-header-item {
+      flex: 1;
+      text-align: center;
     }
 
+    /* Primera columna (imagen) más pequeña */
+    .cart-header-item:first-child {
+      flex: 0.5;
+      /* Reduce el espacio para la columna de la imagen */
+    }
+
+    /* Contenedor general del carrito */
+    #cart-items {
+      width: 100%;
+      max-width: 400px;
+      padding: 5px;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cada item del carrito */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* Imagen del producto */
     .cart-item img {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 15px;
+      flex: 0.5;
+    }
+
+    /* Alinear la información del producto con el encabezado */
+    .cart-item-name,
+    .cart-item-quantity,
+    .cart-item-price {
+      flex: 1;
+      text-align: center;
+      font-size: 16px;
+      color: #333;
+    }
+
+    /* Precio en color verde */
+    .cart-item-price {
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    /* Estilos base para los botones */
+    button {
+      cursor: pointer;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      font-weight: bold;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Estilo para el botón "Limpiar Carrito" */
+    .clear-cart-btn {
+      background-color: #ff4d4d;
+      /* Rojo para indicar acción de borrado */
+      color: white;
+      margin-right: 10px;
+    }
+
+    .clear-cart-btn:hover {
+      background-color: #e60000;
+      /* Más oscuro al hacer hover */
+      box-shadow: 0px 4px 6px rgba(230, 0, 0, 0.3);
+      /* Sombra al hacer hover */
+    }
+
+    /* Estilo para el botón "Finalizar Compra" */
+    button:nth-child(2) {
+      background-color: #28a745;
+      /* Verde para finalizar compra */
+      color: white;
+    }
+
+    button:nth-child(2):hover {
+      background-color: #218838;
+      /* Más oscuro al hacer hover */
+      box-shadow: 0px 4px 6px rgba(33, 136, 56, 0.3);
+      /* Sombra al hacer hover */
+    }
+
+    /* Opcional: alineación de botones */
+    button {
+      margin: 10px 5px;
+    }
+
+
+    .colum-filtros {
+      padding: 15px;
+      /* Reduced padding */
+      background-color: #1e1e1e;
+      /* Darker background for the filter section */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      /* Subtle shadow */
+    }
+
+    /* Article Styling */
+    .grid {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Title Styling */
+    .titulofiltros {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+      /* Reduced margin */
+      color: #ffffff;
+      /* White title for better visibility */
+    }
+
+    /* Category Filter */
+    .filtroFlex {
+      margin: 5px 0;
+      /* Reduced space between categories */
+    }
+
+    .categoria a {
+      text-decoration: none;
+      /* Remove underline from links */
+      color: #00bfff;
+      /* Bright link color */
+      font-size: 1.1em;
+      /* Font size for categories */
+      padding: 8px 12px;
+      /* Adjusted padding for clickable area */
+      border: 1px solid transparent;
+      /* Border for hover effect */
+      border-radius: 5px;
+      /* Rounded corners for links */
+      transition: background-color 0.3s, border-color 0.3s;
+      /* Smooth transition for hover */
+      width: 100%;
+    }
+
+    /* Hover Effect */
+    .categoria a:hover {
+      background-color: #333;
+      /* Darker background on hover */
+      border-color: #00bfff;
+      /* Border color on hover */
+      color: #ffffff;
+      /* White text on hover */
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .colum-filtros {
+        padding: 10px;
+        /* Less padding on smaller screens */
+      }
+
+      .titulofiltros {
+        font-size: 1.4em;
+        /* Slightly smaller title */
+      }
+
+      .categoria a {
+        font-size: 1em;
+        /* Adjust font size for smaller screens */
+        padding: 6px 10px;
+        /* Less padding on smaller screens */
+      }
+    }
+
+    .op {
+      color: white;
+      margin-bottom: 2px;
     }
   </style>
   {% block extra-head %} {% endblock %}
@@ -1417,9 +1608,9 @@
   {% include 'ecommerce/_navbar.html' %}
   {% block content %}
   {% endblock %}
+  {% include 'ecommerce/_footer.html' %}
   {% block extra-scripts %}
   {% endblock %}
-  {% include 'ecommerce/_footer.html' %}
 
   <script>
     // Abrir y cerrar el carrito modal
@@ -1468,19 +1659,21 @@
 
           // Obtener el carrito del localStorage
           let cart = JSON.parse(localStorage.getItem('cart')) || [];
-
+          let total = 0;
           // Crear elementos del carrito en la interfaz
           cart.forEach(item => {
             // Buscar el producto por id en la lista de productos
             const prod = productos.find(p => p.id == item.name);
-
+            const itemTotal = item.cant * item.price; // Calculate total for this item
+            total += itemTotal; // Add to total
             if (prod) {
               const cartItem = document.createElement('div');
               cartItem.classList.add('cart-item');
-              cartItem.innerHTML = `<img src="https://www.muycomputer.com/wp-content/uploads/2016/12/66e37912bb19.jpg" alt="Producto"><p>${prod.nombre}</p><p>${item.cant}</p><p>$${item.price}</p>`;
+              cartItem.innerHTML = `<img  src="https://www.muycomputer.com/wp-content/uploads/2016/12/66e37912bb19.jpg" alt="Producto"><p class="cart-item-name">${prod.nombre}</p><p class="cart-item-quantity">${item.cant}</p><p class="cart-item-price">$${item.price}</p>`;
               cartItems.appendChild(cartItem);
             }
           });
+          updateCartTotal(total);
         })
         .catch(error => {
           console.error('Error:', error);
@@ -1489,6 +1682,37 @@
 
       // Actualizar el número de productos en el icono del carrito
       updateCartQuantity();
+    }
+    function formatCurrencyArgentina(amount) {
+      // Convert the amount to a fixed two decimal points string
+      let formattedAmount = amount.toFixed(2);
+
+      // Split the amount into whole and decimal parts
+      let parts = formattedAmount.split('.');
+      let wholePart = parts[0];
+      let decimalPart = parts[1];
+
+      // Add periods as thousand separators
+      wholePart = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+      // Combine whole part with decimal part, using comma for the decimal separator
+      return `$${wholePart},${decimalPart}`;
+    }
+    function updateCartTotal(total) {
+      const totalDisplay = document.createElement('div');
+      totalDisplay.classList.add('cart-total');
+      const formattedTotal = formatCurrencyArgentina(total);
+      totalDisplay.innerHTML = `<p>Total: ${formattedTotal}</p>`; // Display the total amount
+      const cartItems = document.getElementById("cart-items");
+
+      // Remove any existing total display to avoid duplicates
+      const existingTotal = document.querySelector('.cart-total');
+      if (existingTotal) {
+        existingTotal.remove();
+      }
+
+      // Append the new total display
+      cartItems.appendChild(totalDisplay);
     }
 
     // Actualizar la cantidad en el icono del carrito

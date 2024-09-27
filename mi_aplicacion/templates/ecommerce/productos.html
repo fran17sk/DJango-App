@@ -30,7 +30,7 @@
                     class="img-prod">
                 <h5 class="product-price">$500.000</h5>
                 <div class="c">
-                    <h6 class="titleProd">{{prod.nombre}}</h6>
+                    <h6 class="titleProd">{{prod.nombre|slice:"30"}}</h6>
                 </div>
                 <button onclick="addToCart({{ prod.id }},1,500000)" class="add-to-cart">COMPRAR</button>
                 <p>Stock Disponible: {{prod.total_stock}}</p>
@@ -43,4 +43,9 @@
 
     </section>
 </main>
+<div>
+    <a href="https://api.whatsapp.com/send?phone=543874756154"><img
+            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt=""
+            class="rounded-circle wapp-fixed wapp"></a>
+</div>
 {% endblock %}
