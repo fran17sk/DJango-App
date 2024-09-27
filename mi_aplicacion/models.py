@@ -199,3 +199,12 @@ class DetalleMovement(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre} in {self.movimiento}"
+
+class Consulta(models.Model):
+    nombre = models.CharField(max_length=255,blank=True,null=True)
+    correo = models.CharField(max_length=255,blank=True,null=True)
+    telefono = models.CharField(max_length=255,blank=True,null=True)
+    consulta = models.CharField(max_length=255,blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.correo}"

@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.contrib.auth.models import Group
 from .models import Producto
 from django.forms import inlineformset_factory
 from django.http import HttpResponse
@@ -13,6 +14,14 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
 from django.shortcuts import redirect,render,get_object_or_404
 from django.contrib import messages
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from .forms import CustomLoginForm
+from django.db.models import Sum
+from django.contrib.auth import logout
+from django.http import HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def home(request):
@@ -488,18 +497,17 @@ def registrar_movimiento(request):
             try:
                 deposito_obj = Deposito.objects.get(nombre=referenceDeposito)
                 deposito_id = deposito_obj.id
-            except deposito_obj.DoesNotExist:
-                return JsonResponse({'message': f'deposito con nombre "{deposito_id}" no encontrado'}, status=400)
-            deposito = Deposito.objects.get(nombre=referenceDeposito)
-            movimiento = Movement.objects.create(
+                movimiento = Movement.objects.create(
                 nro_movimiento=nroMovimiento, 
-                from_deposito=deposito, 
+                from_deposito=deposito_obj, 
                 fecha=fecha_emision, 
                 estado=estado,
                 tipo_movimiento=tipo_movimiento, 
                 motivo=motivo, 
                 condiciones=condiciones, 
             )
+            except deposito_obj.DoesNotExist:
+                return JsonResponse({'message': f'deposito con nombre "{deposito_id}" no encontrado'}, status=400)
             for producto in productos:
                 producto_nombre = producto.get('productoNombre', '').strip()
                 cantidad = producto.get('cantidad')
@@ -511,7 +519,7 @@ def registrar_movimiento(request):
 
                 try:
                     producto_obj = Producto.objects.get(nombre=producto_nombre)
-                    producto_deposito = ProductoPorDeposito.objects.filter(producto=producto_obj)
+                    producto_deposito = ProductoPorDeposito.objects.filter(producto=producto_obj,deposito=deposito_obj)
                     if producto_deposito.exists():
                         # Obtén el objeto individual
                         producto = producto_deposito.first()  # o usa .get() si estás seguro de que solo hay uno
@@ -653,3 +661,105 @@ def registrar_factura(request):
             return JsonResponse({'message': str(e)}, status=500)
 
     return JsonResponse({'message': 'Método no permitido'}, status=405)
+
+
+def EcommerceHome (request):
+    sucursales = Sucursal.objects.all()
+    if request.user.groups.filter(name='admin').exists():
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
+        categorias = Categoria.objects.all()
+        client_group = Group.objects.get(name='client')
+        clientes = User.objects.filter(groups=client_group)
+        consultas = Consulta.objects.all()
+        return render(request, 'ecommerce/admin_dashboard.html',{'productos':productos,'categorias':categorias,'clientes':clientes,'consultas':consultas})
+    elif request.user.groups.filter(name='client').exists():
+        return render (request,'ecommerce/main.html',{'sucursales':sucursales})
+    else:
+        return render (request,'ecommerce/main.html',{'sucursales':sucursales})
+    
+    
+
+def ListProducts (request):
+    cat = request.GET.get('category')
+    if cat :
+        category = Categoria.objects.get(nombre=cat)
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0, categoria=category)
+        categorias = Categoria.objects.all()
+        return render (request, 'ecommerce/productos.html',{'productos': productos,'categorias':categorias,'cat':category})
+
+    else:
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
+        categorias = Categoria.objects.all()
+        return render (request, 'ecommerce/productos.html',{'productos': productos,'categorias':categorias})
+
+def LoginView (request):
+    return render (request, 'ecommerce/login.html')
+
+class ContactView (CreateView):
+    model = Consulta
+    template_name = 'ecommerce/contact.html'
+    fields = '__all__'
+    success_url = reverse_lazy('contact')
+
+def EcommerceLoginView(request):
+
+    if request.method == 'POST':
+        form = CustomLoginForm(request, data=request.POST)
+        form_register = CustomUserCreationForm(request.POST)
+        if 'register' in request.POST and form_register.is_valid():
+            user = form_register.save()
+            client_group = Group.objects.get(name='client')
+            client_group.user_set.add(user)
+            login(request, user)  # Loguear automáticamente al usuario después de registrarse
+            messages.success(request, f"Cuenta creada con éxito para {user.username}")
+            return redirect('tienda')  # Redirigir a la página principal o donde desees
+        else:
+            messages.error(request, "Error al crear la cuenta. Verifica los datos.")
+
+        if 'login_form' in request.POST and form.is_valid():
+            print('login')
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('tienda')  # Redirige a la página principal o donde quieras
+            else:
+                messages.error(request, 'Nombre de usuario o contraseña incorrectos')
+        else:
+            messages.error(request, 'Error en la validación del formulario')
+    else:
+        form = CustomLoginForm()
+
+    return render(request, 'ecommerce/login.html', {'form': form})
+
+@csrf_exempt
+def custom_logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/tienda')
+
+def mi_cuenta(request):
+    return render(request,'ecommerce/mi_cuenta.html')
+
+def get_products_json(request):
+    # Obtener todos los productos (puedes añadir filtros si lo deseas)
+    productos = Producto.objects.all()
+
+    # Crear una lista de productos en formato JSON
+    productos_list = []
+    for producto in productos:
+        productos_list.append({
+            'id': producto.id,
+            'nombre': producto.nombre,
+        })
+    print(productos_list)
+    # Devolver la respuesta en JSON
+    return JsonResponse({'productos': productos_list})
+
+@csrf_exempt
+def custom_logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/tienda')
+
+def checkout(request):
+    return render (request, 'ecommerce/checkout.html')
