@@ -739,7 +739,9 @@ def custom_logout_view(request):
     return HttpResponseRedirect('/tienda')
 
 def mi_cuenta(request):
-    return render(request,'ecommerce/mi_cuenta.html')
+    username = request.user
+    user = User.objects.get(username=username)
+    return render(request,'ecommerce/mi_cuenta.html',{'user':user})
 
 def get_products_json(request):
     # Obtener todos los productos (puedes añadir filtros si lo deseas)
@@ -752,7 +754,6 @@ def get_products_json(request):
             'id': producto.id,
             'nombre': producto.nombre,
         })
-    print(productos_list)
     # Devolver la respuesta en JSON
     return JsonResponse({'productos': productos_list})
 
@@ -761,5 +762,8 @@ def custom_logout_view(request):
     logout(request)
     return HttpResponseRedirect('/tienda')
 
+
+@login_required
 def checkout(request):
     return render (request, 'ecommerce/checkout.html')
+
