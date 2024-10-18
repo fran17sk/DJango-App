@@ -11,5 +11,6 @@ admin.site.register(Provincia)
 admin.site.register(OrdenCompra)
 admin.site.register(Proveedor)
 admin.site.register(FacturasCompras)
+admin.site.register(Categoria)
 
 

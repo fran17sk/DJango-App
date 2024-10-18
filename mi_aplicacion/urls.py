@@ -102,6 +102,17 @@ path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
     path('generar-informe/', generar_informe, name='generar_informe'),
     path('generar-informe-facturas/', generar_informe_facturas, name='generar_informe_facturas'),
     path('generar-informe-ventas/', generar_informe_ventas, name='generar_informe_ventas'),
+    path('tienda/', views.EcommerceHome, name='tienda'),
+    path('tienda/articulos', views.ListProducts , name='productos'),
+    path('tienda/contacto',ContactView.as_view() , name='contact'),
+    path('tienda/login',EcommerceLoginView, name='ecommerce_login'),
+    path('logout_ecomerce/', views.custom_logout_view, name='logout_ecommerce'),
+    path('tienda/mi_cuenta/', views.mi_cuenta, name='mi_cuenta'),
+    path('tienda/logout' , views.custom_logout_view,name='logout_tienda'),
+
+
+    path('api/products/', views.get_products_json, name='get_products_json'),
+    path('checkout',views.checkout , name='checkout'),
     ]
 
 
