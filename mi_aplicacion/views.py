@@ -9,8 +9,6 @@ from django.urls import reverse_lazy,reverse
 import json
 from .models import *
 from .forms import *
-from django.db.models.functions import TruncDate
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
@@ -20,7 +18,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .forms import CustomLoginForm
-from django.db.models import Sum,Count
+from django.db.models import Sum,Count,F
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -37,6 +35,8 @@ import matplotlib.pyplot as plt
 import io
 from .utils import obtener_latitud_longitud  
 from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Cast
+from django.db import connection
 
 @login_required
 def home(request):
@@ -1737,19 +1737,20 @@ def ingresos_egresos_view(request):
 
     # Obtener los ingresos con fecha truncada
     ingresos = list(FacturaVenta.objects.filter(
-        fecha__date__range=[fecha_inicio, fecha_fin]
-    ).annotate(fecha_trunc=TruncDate('fecha'))
-     .values('fecha_trunc')
-     .annotate(total=Sum('total'))
-     .order_by('fecha_trunc'))
+        fecha__range=[fecha_inicio, fecha_fin]
+    ).annotate(
+        fecha_trunc=Cast(F('fecha'), output_field=models.DateField())  # Trunca la fecha
+    ).values('fecha_trunc')
+    .annotate(total=Sum('total'))
+    .order_by('fecha_trunc'))
 
-    # Obtener los egresos con fecha truncada
     egresos = list(FacturasCompras.objects.filter(
-        fecha_registro__date__range=[fecha_inicio, fecha_fin]
-    ).annotate(fecha_trunc=TruncDate('fecha_registro'))
-     .values('fecha_trunc')
-     .annotate(total=Sum('total'))
-     .order_by('fecha_trunc'))
+        fecha_emision__range=[fecha_inicio, fecha_fin]
+    ).annotate(
+        fecha_trunc=Cast(F('fecha_emision'), output_field=models.DateField())  # Trunca la fecha
+    ).values('fecha_trunc')
+    .annotate(total=Sum('total'))
+    .order_by('fecha_trunc'))
 
     # Generar un rango de fechas
     start_date = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
@@ -1781,11 +1782,11 @@ def marca_mas_vendida(request):
     fecha_fin = request.GET.get('fecha_fin')
 
     # Primero filtras las ventas en el rango de fechas
-    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__range=[fecha_inicio, fecha_fin])
 
     # Luego buscas los detalles de las ventas filtradas
     marcas = DetalleVenta.objects.filter(facturaventa__in=ventas_en_periodo)\
-        .values('producto__marca__nombreMarca')\
+        .values('producto__proveedor__nombre')\
         .annotate(cantidad_total=Sum('cantidad'))\
         .order_by('-cantidad_total')[:3]
 
@@ -1796,10 +1797,10 @@ def categoria_mas_vendida(request):
     fecha_fin = request.GET.get('fecha_fin')
 
     # Primero filtras las ventas en el rango de fechas
-    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__range=[fecha_inicio, fecha_fin])
         
         # Calcular la categoría más vendida
-    categorias = DetalleVenta.objects.filter(facturaventa__in=ventas_en_periodo).values('producto__tipo__categoria__nombreCategoria') \
+    categorias = DetalleVenta.objects.filter(facturaventa__in=ventas_en_periodo).values('producto__categoria__nombre') \
             .annotate(cantidad_total=Sum('cantidad')) \
             .order_by('-cantidad_total')
     return JsonResponse(list(categorias), safe=False)
@@ -1809,11 +1810,11 @@ def empleado_mas_vendio(request):
     fecha_fin = request.GET.get('fecha_fin')
 
         # Calcular el empleado que más vendió
-    empleados = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin]).values('usuario__username') \
+    sucursales = FacturaVenta.objects.filter(fecha__range=[fecha_inicio, fecha_fin]).values('sucursal__nombre') \
             .annotate(ventas_totales=Sum('total')) \
             .order_by('-ventas_totales')
-    print (empleados)
-    return JsonResponse(list(empleados), safe=False)
+    print (sucursales)
+    return JsonResponse(list(sucursales), safe=False)
 
 
 def ventas_online(request):
@@ -1829,11 +1830,11 @@ def ventas_online(request):
 def productos_mas_vendidos(request):
     fecha_inicio = request.GET.get('fecha_inicio')
     fecha_fin = request.GET.get('fecha_fin')
-    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__range=[fecha_inicio, fecha_fin])
 
     productos_vendidos = (
         DetalleVenta.objects.filter(facturaventa__in =ventas_en_periodo)
-        .values('producto__nombreProducto')
+        .values('producto__nombre')
         .annotate(total_vendido=Sum('cantidad'))
         .order_by('-total_vendido')[:5]
     )

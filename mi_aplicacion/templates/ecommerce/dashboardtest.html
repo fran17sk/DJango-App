@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
         }
 
         h1 {
@@ -91,6 +91,52 @@
             width: 100%;
             height: 200px;
         }
+        .date-form {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.date-form label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333; /* A juego con el resto del texto */
+}
+
+.date-input {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 14px;
+    width: 150px;
+    color: #333;
+}
+
+.date-input:focus {
+    border-color: #007bff; /* Color a juego con otros elementos */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.filter-button {
+    background-color: #007bff; /* Azul similar a otros botones del dashboard */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.filter-button:hover {
+    background-color: #0056b3; /* Color más oscuro para el hover */
+}
+
+.filter-button:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
     </style>
 </head>
 <body onload="setDefaultDates(); fetchData();">
@@ -121,10 +167,10 @@
         <!-- Formulario para seleccionar fechas -->
         <div class="date-form">
             <label for="fecha_inicio">Fecha Inicio:</label>
-            <input type="date" id="fecha_inicio">
+            <input type="date" id="fecha_inicio" class="date-input">
             <label for="fecha_fin">Fecha Fin:</label>
-            <input type="date" id="fecha_fin">
-            <button onclick="fetchData()" class="btn-outline-primary">Filtrar</button>
+            <input type="date" id="fecha_fin" class="date-input">
+            <button class="filter-button" onclick="fetchData()">Filtrar</button>
         </div>
 
         <!-- Gráfico de líneas para ingresos y egresos -->
@@ -142,7 +188,7 @@
         <!-- Gráficos de torta para las otras estadísticas -->
         <div class="charts">
             <div class="chart">
-                <h2>Marca Más Vendida</h2>
+                <h2>Proveedor Más Vendido</h2>
                 <canvas id="marcaMasVendidaChart"></canvas>
             </div>
             <div class="chart">
@@ -153,7 +199,7 @@
 
         <div class="charts">
             <div class="chart">
-                <h2>Empleado que Más Vendió</h2>
+                <h2>Sucursal que Más Vendió</h2>
                 <canvas id="empleadoMasVendioChart"></canvas>
             </div>
             <div class="chart">
@@ -232,17 +278,17 @@
             fetch(`/marca-mas-vendida/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
                 .then(response => response.json())
                 .then(data => {
-                    const labels = data.map(item => item.producto__marca__nombreMarca);
+                    const labels = data.map(item => item.producto__proveedor__nombre);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(marcaMasVendidaChart);
-                    marcaMasVendidaChart = renderPieChart('marcaMasVendidaChart', 'Marca Más Vendida', labels, cantidades);
+                    marcaMasVendidaChart = renderPieChart('marcaMasVendidaChart', 'Proveedor Más Vendido', labels, cantidades);
                 });
 
             // Fetch para categoría más vendida
             fetch(`/categoria-mas-vendida/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
                 .then(response => response.json())
                 .then(data => {
-                    const labels = data.map(item => item.producto__tipo__categoria__nombreCategoria);
+                    const labels = data.map(item => item.producto__categoria__nombre);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(categoriaMasVendidaChart);
                     categoriaMasVendidaChart = renderPieChart('categoriaMasVendidaChart', 'Categoría Más Vendida', labels, cantidades);
@@ -252,10 +298,10 @@
             fetch(`/empleado-mas-vendio/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
                 .then(response => response.json())
                 .then(data => {
-                    const labels = data.map(item => item.usuario__username);
+                    const labels = data.map(item => item.sucursal__nombre);
                     const cantidades = data.map(item => item.ventas_totales);
                     destroyChart(empleadoMasVendioChart);
-                    empleadoMasVendioChart = renderPieChart('empleadoMasVendioChart', 'Empleado que Más Vendió', labels, cantidades);
+                    empleadoMasVendioChart = renderPieChart('empleadoMasVendioChart', 'Sucursal que Más Vendió', labels, cantidades);
                 });
 
             // Fetch para ventas online
@@ -273,7 +319,7 @@
                 fetch(`/productos-mas-vendidos/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
                     .then(response => response.json())
                     .then(data => {
-                        const labels = data.map(item => item.producto__nombreProducto);
+                        const labels = data.map(item => item.producto__nombre);
                         const cantidades = data.map(item => item.total_vendido);
                         destroyChart(productosMasVendidosChart);
                         productosMasVendidosChart = renderBarChart('productosMasVendidosChart', '5 Productos Más Vendidos', labels, cantidades);

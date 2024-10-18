@@ -120,6 +120,12 @@ path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
     path('tienda/nosotros' ,views.nosotros , name='nosotros'),
     path('consulta/responder', views.responder_consultas, name='hola'),
     path('consultas',views.admin_consultas,name='admin_consultas'),
+    path('ingresos-egresos/', views.ingresos_egresos_view, name='ingresos_egresos'),
+    path('marca-mas-vendida/', views.marca_mas_vendida, name='marca_mas_vendida'),
+    path('categoria-mas-vendida/', views.categoria_mas_vendida, name='categoria_mas_vendida'),
+    path('empleado-mas-vendio/', views.empleado_mas_vendio, name='empleado_mas_vendio'),
+    path('ventas-online/',views.ventas_online,name='ventas_online'),
+    path('productos-mas-vendidos/',views.productos_mas_vendidos,name='producto_mas_vendido'),
 
 
     path('api/products/', views.get_products_json, name='get_products_json'),
