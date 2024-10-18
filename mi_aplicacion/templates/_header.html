@@ -1,90 +1,211 @@
-<div class="slidebar">
-  <div class="name_pagina">
-    <span>BlueDragon</span>
-  </div>
-  <nav class="barra-navegacion">
-    <div class="navbar">
-      <form class="form-serch" role="search">
-        <input
-          class="form-control me-2 searchinput"
-          type="search"
-          placeholder="Search"
-          aria-label="Search"
-        />
-        <button class="btn btn-outline-success" type="submit">
-          <i class="bi bi-search"></i>
-        </button>
-      </form>
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item active">
-          <a class="nav-link" href="{% url 'home' %}">Inicio</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="{% url 'sucursal_list' %}">Sucursales</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'depositos_list' %}">Depositos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'categoria_list' %}">Categorias</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'producto_list' %}">Productos</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'productos_list' %}"
-            >Productos/Depositos</a
-          >
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'proveedor_list' %}">Proveedores</a>
-        </li>
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            Compras
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="{% url 'orden_list' %}"
-                >Ordenes de Compra</a
-              >
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'facturas_list' %}"
-                >Registrar Factura</a
-              >
-            </li>
-            <li>
-              <a class="dropdown-item" href="{% url 'pagos_list' %}"
-                >Orden de Pago</a
-              >
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-    <div class="usercontent">
-      <div>
-        <i class="bi color-black bi-person-circle"></i>
-        <span class="color-black">Usuario: {{user.username}}</span>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  
+  ::after,
+  ::before {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+  }
+
+  a {
+      text-decoration: none;
+      color: white;
+  }
+
+  li {
+      list-style: none;
+  }
+
+  h1 {
+      font-weight: 600;
+      font-size: 1.5rem;
+  }
+
+  body {
+      font-family: 'Poppins', sans-serif;
+  }
+
+  .wrapper {
+      display: flex;
+  }
+
+  .main {
+      min-height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      background-color: #fafbfe;
+  }
+
+  #sidebar {
+      width: 260px;
+      min-width: 260px;
+      z-index: 1000;
+      background-color: #0a83c9;
+      display: flex;
+      flex-direction: column;
+      position: fixed; /* Fijar la barra lateral */
+      height: 100vh; /* Que ocupe toda la altura de la pantalla */
+  }
+
+  .sidebar-logo {
+      margin: auto 0;
+      padding: 1rem 1.5rem;
+  }
+
+  .sidebar-logo a {
+      color: #FFF;
+      font-size: 1.15rem;
+      font-weight: 600;
+  }
+
+  .sidebar-nav {
+      padding: 2rem 0;
+      flex: 1 1 auto;
+  }
+
+  a.sidebar-link {
+      padding: .625rem 1.625rem;
+      color: #FFF;
+      display: block;
+      font-size: 18px;
+      white-space: nowrap;
+      border-left: 3px solid transparent;
+  }
+
+  .sidebar-link i {
+      font-size: 1.1rem;
+      margin-right: .75rem;
+  }
+
+  a.sidebar-link:hover {
+      background-color: rgba(255, 255, 255, .075);
+      border-left: 2px solid #3b7ddd;
+  }
+
+  .sidebar-item {
+      position: relative;
+  }
+
+  .sidebar-footer {
+      margin-top: auto;
+      padding: 1rem 1.5rem;
+      background-color: #0a83c9;
+  }
+
+  .usercontent i {
+      margin-right: 0.5rem;
+  }
+</style>
+
+<div class="wrapper">
+  <aside id="sidebar">
+      <div class="d-flex">
+          <div class="sidebar-logo">
+              <a href="#">BlueDragon</a>
+          </div>
       </div>
-      {% if user.is_authenticated %}
-      <form action="{% url 'logout' %}" method="post" style="display: inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-outline-danger">
-          Cerrar Sesion
-        </button>
-      </form>
-      {% else %}
-      <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}"
-        >Login</a
-      >
-      {% endif %}
-    </div>
-  </nav>
+      <ul class="sidebar-nav">
+        <li class="sidebar-item">
+          <a href="{% url 'sucursal_list'%}" class="sidebar-link">
+              <i class="bi bi-house-fill" style="color:white"></i>
+              <span>Sucursales</span>
+          </a>
+      </li>
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+            data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
+            <i class="bi bi-buildings-fill" style="color:white"></i>
+            <span>Depositos</span>
+        </a>
+        <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+            <li class="sidebar-item">
+                <a href="{% url 'depositos_list'%}" class="sidebar-link">Depositos</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{% url 'productos_list'%}" class="sidebar-link">Productos en Depositos</a>
+            </li>
+        </ul>
+    </li>
+          <li class="sidebar-item">
+              <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                  data-bs-target="#registro" aria-expanded="false" aria-controls="registro">
+                  <i class="bi bi-people-fill" style="color:white"></i>
+                  <span>Registro</span>
+              </a>
+              <ul id="registro" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                      <a href="{% url 'proveedor_list'%}" class="sidebar-link">Proveedores</a>
+                  </li>
+                  <li class="sidebar-item">
+                      <a href="{% url 'clientes_list'%}" class="sidebar-link">Clientes</a>
+                  </li>
+              </ul>
+          </li>
+          <li class="sidebar-item">
+            <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                data-bs-target="#productos" aria-expanded="false" aria-controls="productos">
+                <i class="bi bi-pc-display" style="color:white"></i>
+                <span>Productos</span>
+            </a>
+            <ul id="productos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                <li class="sidebar-item">
+                    <a href="{% url 'producto_list'%}" class="sidebar-link">Productos</a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="{% url 'categoria_list'%}" class="sidebar-link">Categorias</a>
+                </li>
+                <li class="sidebar-item">
+                  <a href="{% url 'precios_list'%}" class="sidebar-link">Lista de Precios</a>
+              </li>
+            </ul>
+            <li class="sidebar-item">
+              <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                  data-bs-target="#documentos" aria-expanded="false" aria-controls="documentos">
+                  <i class="bi bi-file-earmark-fill" style="color:white"></i>
+                  <span>Documentación</span>
+              </a>
+              <ul id="documentos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                  <li class="sidebar-item">
+                      <a href="{% url 'orden_list'%}" class="sidebar-link">Ordenes de Compra</a>
+                  </li>
+                  <li class="sidebar-item">
+                      <a href="{% url 'facturas_list'%}" class="sidebar-link">Facturas</a>
+                  </li>
+                  <li class="sidebar-item">
+                    <a href="{% url 'pagos_list'%}" class="sidebar-link">Ordenes de Pago</a>
+                </li>
+              </ul>
+              <li class="sidebar-item">
+                <a href="{% url 'ventas_list'%}" class="sidebar-link">
+                    <i class="bi bi-wallet-fill" style="color:white"></i>
+                    <span>Ventas</span>
+                </a>
+            </li>
+        </li>
+
+        <div class="sidebar-footer" style="margin-top: 120%;">
+          <div class="usercontent">
+              <div>
+                  <i class="bi-person-circle" style="color:white"></i>
+                  <span style="color:white">Usuario: {{user.username}}</span>
+              </div>
+              {% if user.is_authenticated %}
+              <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">Cerrar Sesion</button>
+              </form>
+              {% else %}
+                  <a class="nav-link btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+              {% endif %}
+          </div>
+      </div>
+  </aside>
 </div>
+  <script>
+    const hamBurger = document.querySelector(".toggle-btn");
+
+hamBurger.addEventListener("click", function () {
+  document.querySelector("#sidebar").classList.toggle("expand");
+});
+  </script>

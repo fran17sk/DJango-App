@@ -1,39 +1,27 @@
-<!-- facturas/detalle_factura.html -->
 {% extends 'base.html' %}
 {% block extra_head %}
-
-
-<style>
-        
-
-        .factura-detalle {
+    <title>Detalle de Orden de Compra {{ orden.nordenCompra }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .orden-detalle {
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 5px;
-            max-width: 900px;
+            width: 50vw;
+            height: 80vh;
             margin: auto;
         }
-        .factura-detalle h2 {
+        .orden-detalle h2 {
             text-align: center;
         }
-        .factura-detalle .campo {
+        .orden-detalle .campo {
             margin-bottom: 10px;
         }
-        .factura-detalle .campo strong {
+        .orden-detalle .campo strong {
             display: inline-block;
-            width: 100%;
-        }
-        .flex{
-            display: flex;
-            flex-flow: row nowrap;
-            justify-content: space-around;
-        }
-        #tablaDetalles {
-            margin-top: 20px;
-        }
-        .totales{
-            margin-top: 200px;
-            margin-left: 550px;
+            width: 150px;
         }
         .detalle-tabla {
             margin-top: 20px;
@@ -48,47 +36,50 @@
         .detalle-tabla th {
             background-color: #f2f2f2;
         }
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-row .form-group {
+            flex: 1;
+            margin-right: 10px;
+        }
+        .form-row .form-group:last-child {
+            margin-right: 0;
+        }
+        .mb-3{
+            margin-right: 10%;
+        }
     </style>
-
 {% endblock %}
 {% block content %}
 
-
-    <h2>Factura: {{ factura.tipo_factura }}</h2> 
-    <h2>N°:{{ factura.numero_factura }}</h2>
-    <div class="flex">
-        <div class="campo"><strong>Orden de Compra: {{ factura.reference_orden.nordenCompra }}</strong> </div>
-        <div class="campo"><strong>Tipo de Factura: {{ factura.tipo_factura }}</strong> </div>
-        <div class="campo"><strong>Fecha de Emisión: {{ factura.fecha_emision|date:"Y-m-d H:i" }}</strong> </div>
+<div class="orden-detalle">
+    <h2 style="margin-bottom: 5%;"> Factura N° {{ factura.numero_factura }}</h2>
+    <div class="form-row mb-3">
+        <div class="mb-3"><strong>Orden de Compra:</strong> {{ factura.reference_orden.nordenCompra }}</div>
+        <div class="mb-3"><strong>Código Sucursal:</strong> {{ factura.codigo_factura }}</div>
+        <div class="mb-3"><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"d-m-Y" }}</div>
+        <div class="mb-3"><strong>Tipo de Factura:</strong> {{ factura.tipo_factura }}</div>
     </div>
-    <div class="flex">
-        <div class="campo"><strong>Proveedor: {{ factura.proveedor.nombre }}</strong> </div>
-        <div class="campo"><strong>Cuit: {{ factura.proveedor.cuit }}</strong> </div>
-        <div class="campo"><strong>categoria: {{ factura.proveedor.categoria }}</strong> </div>
+    <div class="form-row mb-3">
+        <div class="mb-3"><strong>Proveedor:</strong>{{ factura.proveedor.nombre }} </div>
+        <div class="mb-3"><strong>Cuit:</strong>{{ factura.proveedor.cuit }} </div>
+        <div class="mb-3"><strong>Domicilio:</strong>{{ factura.proveedor.domicilio }} </div>
     </div>
-    <div class="flex">
-        <div class="campo"><strong>Domicilio: {{ factura.proveedor.domicilio }}</strong> </div>
-        <div class="campo"><strong>Telefono: {{ factura.proveedor.telefono }}</strong> </div>
-        <div class="campo"><strong>Correo: {{ factura.proveedor.correo }}</strong> </div>
+    <div class="form-row mb-3">
+        <div class="mb-3"><strong>Telefono:</strong> {{ factura.proveedor.telefono }} </div>
+        <div class="mb-3"><strong>Correo:</strong>{{ factura.proveedor.correo }} </div>
     </div>
-    
-    <div class="flex">
-        <div class="campo"><strong>Método de Pago: {{ factura.metodo_pago }}</strong> </div>
-        <div class="campo"><strong>Estado: {{ factura.estado }}</strong> </div>
-    </div>
-    <div class="flex">
-        <div class="campo"><strong>Detalles: {{ factura.detalles|default:"Sin detalles" }}</strong> </div>
-        <div class="campo"><strong>Vendedor: {{ factura.vendedor.get_full_name|default:"No asignado" }}</strong> </div>
-        <div class="campo"><strong>Notas: {{ factura.notas|default:"Sin notas adicionales" }}</strong> </div>
-    </div>
-    <table id="tablaDetalles" class="table">
-        <thead>
+    <div class="mb-3"><strong>Estado:</strong> {{ factura.estado }}</div>
+    <table id="detalle-tabla" class="table" style="border:  2px solid #adab05;">
+        <thead style="border:  2px solid #adab05;">
             <tr>
-                <th>Cod Detalle</th>
-                <th>Producto</th>
-                <th>Cantidad</th> 
-                <th>Precio Unitario</th> 
-                <th>Subtotal</th> 
+                <th style="border:  2px solid #adab05;">Cod Detalle</th>
+                <th style="border:  2px solid #adab05;">Producto</th>
+                <th style="border:  2px solid #adab05;">Cantidad</th> 
+                <th style="border:  2px solid #adab05;">Precio Unitario</th> 
+                <th style="border:  2px solid #adab05;">Subtotal</th> 
 
             </tr>
         </thead>
@@ -97,22 +88,50 @@
                 {% for detalle in detalles %}
                 
                 <tr>
-                    <td>000{{detalle.id}}</td>
-                    <td>{{detalle.producto.nombre}}</td>
-                    <td>{{detalle.cantidad}}</td>
-                    <td>{{detalle.preciounitario}}</td>
-                    <td>{{detalle.subtotal}}</td>
+                    <td style="border:  2px solid #adab05;">000{{detalle.id}}</td>
+                    <td style="border:  2px solid #adab05;">{{detalle.producto}}</td>
+                    <td style="border:  2px solid #adab05;">{{detalle.cantidad}}</td>
+                    <td style="border:  2px solid #adab05;" class="precio-unitario text-end">{{detalle.preciounitario}}</td>
+                    <td style="border:  2px solid #adab05;" class="subtotal text-end">{{detalle.subtotal}}</td>
                 </tr>
                 {% endfor %}
             </tr>            
         </tbody>
     </table>
-    <div class="totales">
-        <div class="campo"><strong>Descuento: ${{ factura.descuento|default:"0.00" }}</strong> </div>
-        <div class="campo"><strong>Impuestos: ${{ factura.impuestos }}</strong> </div>
-        <div class="campo"><strong>Total: ${{ factura.total }}</strong> </div>
+    <div class="mb-3">
+        <strong>Observaciones:</strong>
+        <textarea rows="3" class="form-control" readonly style="width: 110%;">
+            {{ factura.notas }}
+        </textarea>
     </div>
-
+    <div class="form-row mb-3" style="width: 110%;">
+        <div class="mb-3"><strong>Descuento:</strong>%{{ factura.descuento|default:"0.00" }} </div>
+        <div class="mb-3"><strong>Impuestos:</strong>%{{ factura.impuestos }} </div>
+        <div class="mb-3" style="margin-left: 25%;"><strong>Total: $<span id="total">{{ factura.total }}</span></strong></div>
+    </div>
+    <div style="text-align: end; margin-top: 20px;">
+        <button onclick="history.back()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Volver
+        </button>
+    </div>
 </div>
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor.replace(',', '.'));
+        if (isNaN(num)) return '';
+        return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
+    // Obtener solo las celdas de Precio Unitario y Subtotal y aplicar el formato
+    document.querySelectorAll('.precio-unitario, .subtotal').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+    // Formatear el total
+    const totalElement = document.getElementById('total');
+    const totalValue = totalElement.innerText;
+    totalElement.innerText = formatearNumero(totalValue);
+</script>
 {% endblock %}

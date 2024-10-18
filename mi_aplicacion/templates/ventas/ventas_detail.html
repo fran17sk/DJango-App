@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block extra_head %}
-    <title>Detalle de Orden de Pago {{ orden.nordenPago }}</title>
+    <title>Detalle de Factura de Venta {{ ventas.numeroFactura }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -41,31 +42,34 @@
 {% block content %}
 
 <div class="orden-detalle">
-    <h2> Orden de Pago: N° {{ orden.nordenPago }}</h2>
-    <div class="campo"><strong>Proveedor:</strong> {{ orden.proveedor }}</div>
-    <div class="campo"><strong>Fecha de Emisión:</strong> {{ orden.fecha }}</div>
-    <div class="campo"><strong>Método de Pago:</strong> {{ orden.metodo_pago }}</div>
-    <div class="campo"><strong>Condiciones:</strong> {{ orden.observaciones }}</div>
-    <div class="campo"><strong>Estado:</strong> {{ orden.estado }}</div>
+    <h2> Factura de Venta: N° {{ ventas.numeroFactura }}</h2>
+    <div class="flex">
+        <div class="mb-3"><strong>Sucursal:</strong> {{ ventas.sucursal}}</div>
+        <div class="mb-3"><strong>Código Sucursal:</strong> {{ ventas.codigo_sucursal}}</div>
+    </div>
+    <div class="campo"><strong>Fecha:</strong> {{ ventas.fecha |date:"d-m-Y" }}</div>
+    <div class="campo"><strong>Método de Pago:</strong> {{ ventas.metodo_pago }}</div>
+    <div class="campo"><strong>Cliente:</strong> {{ ventas.cliente }}</div>
 
     <!-- Tabla para mostrar los detalles de los productos -->
     <h3>Detalles de Orden de Pago </h3>
     <table class="detalle-tabla">
         <thead>
             <tr>
-                <th>Factura</th>
-                <th>Total Factura</th>
-                <th>Costo de Envio</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
                 <th>Subtotal</th>
             </tr>
         </thead>
         <tbody>
             {% for detalle in detalles %}
             <tr>
-                <td>{{ detalle.factura }}</td>
-                <td class="total-factura text-end">{{ detalle.factura.total }}</td>
-                <td class="precio-unitario text-end">{{ detalle.costoenvio|floatformat:2 }}</td>
+                <td>{{ detalle.producto }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td class="precio-unitario text-end">{{ detalle.precio|floatformat:2 }}</td>
                 <td class="subtotal text-end">{{ detalle.subtotal|floatformat:2 }}</td>
+            </tr>
             {% empty %}
             <tr>
                 <td colspan="2">No hay facturas asociadas a esta orden de pago.</td>
@@ -73,8 +77,16 @@
             {% endfor %}
         </tbody>
     </table>
-    <div style="margin-top: 20px; text-decoration:solid;">
-        <div class="mb-3" style="margin-left: 75%;"><strong>Total: $<span id="total">{{ orden.total }}</span></strong></div>
+    <div class="mb-3" style=" margin-top: 20px;">
+        <strong>Observaciones:</strong>
+        <textarea rows="3" class="form-control" readonly style="width: 100%;">
+            {{ ventas.observaciones }}
+        </textarea>
+    </div>
+    <div style="margin-top: 20px; display: flex; align-items: end; justify-content: end;">
+        <div class="mb-3">
+            <div class="mb-3" ><strong>Total: $<span id="total">{{ ventas.total|floatformat:2 }}</span></strong></div>
+        </div>
     </div>
     <div style="text-align: end; margin-top: 20px;">
         <button onclick="history.back()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
@@ -91,7 +103,7 @@
     }
 
     // Obtener solo las celdas de Precio Unitario y Subtotal y aplicar el formato
-    document.querySelectorAll('.precio-unitario, .subtotal, .total-factura').forEach(td => {
+    document.querySelectorAll('.precio-unitario, .subtotal').forEach(td => {
         const originalValue = td.innerText;
         const formattedValue = formatearNumero(originalValue);
         td.innerText = formattedValue;

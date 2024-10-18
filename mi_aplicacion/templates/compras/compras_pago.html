@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 {% block extra_head %}
     <title>Registrar Orden de Pago</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .container{
-            width: 60%;
-        }
         .modal-dialog {
             max-width: 500px;
         }
@@ -78,8 +74,7 @@
             <thead>
                 <tr>
                     <th>Factura</th>
-                    <th>Costo de Envio</th>
-                    <th>Total Factura</th>
+                    <th>Total de Factura</th>
                     <th>Subtotal</th>
                 </tr>
             </thead>
@@ -87,6 +82,14 @@
                 <tr>
                 </tr>            
             </tbody>
+            <tfoot>
+                <tr>
+
+                    <td colspan="3"><strong>Total:</strong></td>
+                    <td id="total" class="text-end fw-bold"></td>
+                    <td></td>
+                </tr>
+            </tfoot>
         </table>
         <div class="form-row mb-3">
             <div class="form-group">
@@ -94,18 +97,10 @@
                 <textarea id="notas" class="form-control" rows="3"></textarea>
             </div>
         </div>
-
-        <!-- Total -->
-        <div id="total-section" class="mb-3">
-            <div>
-                <label for="total" class="form-label">Total</label>
-                <input id="total" class="form-control" type="number" readonly />
-            </div>
-        </div>
         <div class="form-row mb-3">
             <div style="display: flex;flex-direction: row;">
                 <button class="btn btn-success" id="confirmarOrdenbtn" style="margin-right: 10px;">Guardar Orden de Pago</button>
-                <a href="{% url 'pagos_list' %}" class="cancel-link">Cancelar</a>        
+                <a class="btn btn-danger" href="{% url 'pagos_list' %}" style="margin-top: 10px;">Cancelar</a>
             </div>
         </div>
 
@@ -130,10 +125,6 @@
                                 <input type="number" id="factura_total" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label for="costoenvio" class="form-label">Costo Envio</label>
-                                <input type="number" id="costoenvio" class="form-control">
-                            </div>
-                            <div class="mb-3">
                                 <label for="subtotal" class="form-label">Subtotal</label>
                                 <input type="number" id="subtotal" class="form-control" readonly>
                             </div>
@@ -156,7 +147,6 @@ $(document).ready(function() {
     const agregarProductoBtn = $('#AbrirF');
     const facturaSelect = $('#factura'); 
     const facturaTotalInput = $('#factura_total');
-    const costoenvioInput = $('#costoenvio');
     const subtotalInput = $('#subtotal');
 
     // Cargar Proveedores
@@ -222,64 +212,80 @@ $(document).ready(function() {
     });
 
     // Actualizar subtotal cuando se cambian los valores de factura o costo de envío
-    $('#factura_total, #costoenvio').on('input', actualizarSubtotal);
+    $('#factura_total').on('input', actualizarSubtotal);
 
     function actualizarSubtotal() {
         const facturaTotal = parseFloat(facturaTotalInput.val()) || 0;
-        const costoEnvio = parseFloat(costoenvioInput.val()) || 0;
-        const subtotal = facturaTotal + costoEnvio;
+        const subtotal = facturaTotal;
         subtotalInput.val(subtotal.toFixed(2));
     }
 
+function formatearPrecio(precio) {
+    return parseFloat(precio).toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-
-    // Agregar factura a la tabla
     $('#agregarFacturabtn').on('click', function() {
-        const facturaID = facturaSelect.find('option:selected').text();
-        const facturaTotal = facturaTotalInput.val();
-        const costoEnvio = costoenvioInput.val();
-        const subtotal = subtotalInput.val();
+    const facturaID = facturaSelect.find('option:selected').val(); // Usar .val() para obtener el ID
+    const facturaIDTexto = facturaSelect.find('option:selected').text(); // Obtener el texto de la opción seleccionada
+    const facturaTotal = facturaTotalInput.val();
+    const subtotal = subtotalInput.val();
 
-        if (facturaID && facturaTotal && costoEnvio && subtotal) {
-            const row = `
-                <tr>
-                    <td>${facturaID}</td>
-                    <td>${facturaTotal}</td>
-                    <td>${costoEnvio}</td>
-                    <td>${subtotal}</td>
-                    <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
-                </tr>`;
-            $('#tablaDetalles tbody').append(row);
-            calcularTotal();
-            $('#agregarProductosModal').modal('hide');
-            $('#productoModal').modal('hide');
-            $('.modal-backdrop').remove();
-            facturaSelect.val('');
-            facturaTotalInput.val('');
-            costoenvioInput.val('');
-            subtotalInput.val('');
-        } else {
-            alert('Por favor complete todos los campos.');
-        }
-    });
-    $('#AbrirF').on('click',function(){
-        $('.modal-backdrop').show();
-
-    })
-    // Eliminar factura de la tabla
-    $('#tablaDetalles tbody').on('click', '.eliminarProductoBtn', function() {
-        $(this).closest('tr').remove();
+    if (facturaID && facturaTotal && subtotal) {
+        const row = `
+            <tr>
+                <td>${facturaIDTexto}</td>
+                <td class='text-end'>${formatearPrecio(facturaTotal)}</td>
+                <td class='text-end'>${formatearPrecio(subtotal)}</td>
+                <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
+            </tr>`;
+        
+        $('#tablaDetalles tbody').append(row);
         calcularTotal();
-    });
+        $('#agregarProductosModal').modal('hide');
+        $('#productoModal').modal('hide');
+        $('.modal-backdrop').remove();
+        deshabilitarFactura(facturaID);
+        
+        // Limpiar los campos
+        facturaSelect.val('');
+        facturaTotalInput.val('');
+        subtotalInput.val('');
+    } else {
+        alert('Por favor complete todos los campos.');
+    }
+});
+
+$('#AbrirF').on('click', function() {
+    $('.modal-backdrop').show();
+});
+
+// Deshabilitar factura
+function deshabilitarFactura(facturaId) {
+    $('#factura option[value="' + facturaId + '"]').prop('disabled', true);
+}
+
+// Habilitar factura
+function habilitarFactura(facturaId) {
+    $('#factura option[value="' + facturaId + '"]').prop('disabled', false);
+}
+
+$('#tablaDetalles tbody').on('click', '.eliminarProductoBtn', function() {
+    const fila = $(this).closest('tr');
+    const facturaID = facturaSelect.find('option:contains("' + fila.find('td').eq(0).text() + '")').val(); // Obtener el ID basado en el texto
+    habilitarFactura(facturaID); // Habilitar la factura al eliminar la fila
+    fila.remove(); // Eliminar la fila
+    calcularTotal(); // Actualizar total
+});
 
     // Calcular total general
     function calcularTotal() {
         let total = 0;
         $('#tablaDetalles tbody tr').each(function() {
-            const subtotal = parseFloat($(this).find('td').eq(3).text()) || 0;
+            const subtotalText = $(this).find('td').eq(2).text().trim().replace(".", "").replace(",", ".");
+            const subtotal = parseFloat(subtotalText) || 0; // Convierte el texto en número
             total += subtotal;
         });
-        $('#total').val(total.toFixed(2));
+        $('#total').text(formatearPrecio(total)); // Formatea el total y lo muestra
     }
     function getCookie(name) {
         let cookieValue = null;
@@ -304,12 +310,10 @@ $(document).ready(function() {
             if (index===0) return;
              
             const numero_factura = $(this).find('td').eq(0).text();
-            const costoenvio = $(this).find('td').eq(2).text();
-            const subtotal = $(this).find('td').eq(3).text();
+            const subtotal = $(this).find('td').eq(3).text().replace(/\./g, '').replace(/,/g,'.');
 
             facturasagregadas.push({
                 numero_factura:numero_factura ,
-                costoenvio: costoenvio,
                 subtotal: subtotal
             });
         });
@@ -320,7 +324,7 @@ $(document).ready(function() {
             'fecha': $('#fecha_emision').val(),
             'metodo_pago': $('#metodo_pago').val(),
             'notas':$('#notas').val(),
-            'total': $('#total').val(),
+            'total': $('#total').text().replace(/\./g, '').replace(/,/g,'.'),
             'facturas': facturasagregadas
         };
         console.log("Datos que se envían:", ordenPago);
@@ -334,14 +338,14 @@ $(document).ready(function() {
                 "X-CSRFToken": csrftoken // Enviar el token CSRF en los headers
             },
             success: function(response) {
-                alert('Factura registrada exitosamente');
+                alert('Orden de Pago registrada exitosamente');
                 // Opcional: Limpiar los campos y tabla después de éxito
                 window.location.href = "{% url 'pagos_list' %}";
             },
             error: function(xhr, status, error) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    alert('Error: ' + response.message || 'Error al registrar la factura');
+                    alert('Error: ' + response.message || 'Error al registrar la Orden de Pago');
                 } catch (e) {
                     alert('Error desconocido');
                 }

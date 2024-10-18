@@ -29,7 +29,7 @@
                         <td>{{ producto_por_deposito.producto.categoria }}</td>
                         <td>{{ producto_por_deposito.producto.estado }}</td>
                         <td>{{ producto_por_deposito.deposito.nombre }}</td>
-                        <td>{{ producto_por_deposito.fecha_ingreso }}</td>
+                        <td>{{ producto_por_deposito.fecha_ingreso|date:"d-m-Y" }}</td>
                         <td>{{ producto_por_deposito.estado }}</td>
                         <td><a href="{% url 'producto_list_update' producto_por_deposito.pk %}"><i class="bi bi-pencil-square"></i></a>
                           <a href="{% url 'producto_list_detail' producto_por_deposito.pk %}"><i class="bi bi-eye"></i></a>

@@ -13,6 +13,7 @@
     <div class="container">
         <div class="d-flex-sp">
             <h1>Lista de Facturas</h1>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateReportModal">Generar Informe</button>
             <a href="{% url 'factura_new' %}" class=" btn btn-outline-primary">Registrar Factura</a>
         </div>
         <div class="">
@@ -24,8 +25,8 @@
                         <th>Fecha Emision</th>
                         <th>Estado</th>
                         <th>Proveedor</th>
-                        <th>Total</th>
                         <th>Orden de Compra</th>
+                        <th>Total</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -33,15 +34,15 @@
                   {% for factura in facturas %}
                     <tr>
                         <td>{{ factura.numero_factura }}</td>
-                        <td>{{ factura.tipo_factura }}</td>
-                        <td>{{ factura.fecha_emision }}</td>
+                        <td>Factura Tipo: {{ factura.tipo_factura }}</td>
+                        <td>{{ factura.fecha_emision|date:"d-m-Y" }}</td>
                         <td>{{ factura.estado }}</td>
                         <td>{{ factura.proveedor }}</td>
-                        <td>{{ factura.total }}</td>
-
-                        <td>{{ factura.reference_order }}</td>
+                        <td>{{ factura.reference_orden }}</td>
+                        <td class="total">{{ factura.total }}</td>
                         <td>
-                          <a href="{% url 'facturas_detail' factura.pk%}"><i class="bi bi-eye"></i></a></td>
+                            <a href="{% url 'facturas_detail' factura.pk  %}" class="btn btn-primary"><i class="bi bi-eye" style="color:white"></i> Detalle</a>
+                        </td>
                     </tr>
                     
                 {% endfor %}
@@ -62,14 +63,71 @@
         </div>
         
     </div>
-
+<!-- Modal para seleccionar tipo de informe -->
+<div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generateReportModalLabel">Generar Informe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Selecciona el tipo de informe:</h6>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="reportType" id="dailyReport" value="diario">
+                    <label class="form-check-label" for="dailyReport">Diario</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="reportType" id="weeklyReport" value="semanal">
+                    <label class="form-check-label" for="weeklyReport">Semanal</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="reportType" id="monthlyReport" value="mensual">
+                    <label class="form-check-label" for="monthlyReport">Mensual</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="downloadReport">Descargar</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 {% block script %}
 
+<script>
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor);
+        return isNaN(num) ? '' : num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-    <script>
-
-
-    </script>
+    // Obtener solo las celdas de Total y aplicar el formato
+    document.querySelectorAll('.total').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("downloadReport").addEventListener("click", function () {
+            // Obtener el tipo de informe seleccionado
+            const reportType = document.querySelector('input[name="reportType"]:checked');
+            if (reportType) {
+                const url = "{% url 'generar_informe_facturas' %}?tipo=" + reportType.value; // Usando la URL de Django
+                window.location.href = url;  // Redirigir para generar el informe
+                
+                // Si decides no usar jQuery, puedes cerrar el modal usando Bootstrap así:
+                var modalElement = document.getElementById('generateReportModal');
+                var modal = bootstrap.Modal.getInstance(modalElement); // O crear una nueva instancia
+                if (modal) {
+                    modal.hide(); // Cerrar modal
+                }
+            } else {
+                alert('Por favor, selecciona un tipo de informe.');
+            }
+        });
+    });
+</script>
 
 {% endblock %}

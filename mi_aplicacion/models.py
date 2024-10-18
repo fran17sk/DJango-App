@@ -23,12 +23,12 @@ class Sucursal (models.Model):
     descripcion=models.TextField(blank=True,null=True)
     localidad = models.ForeignKey(Localidad,on_delete=models.SET_NULL,null=True,blank=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
+    codigoAFIP=models.CharField(max_length=4,blank=False,null=False,default="ABCD")
 
     def __str__(self):
         return self.nombre
 
 class Deposito(models.Model):
-    sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=255,blank=True, null=True)
     direccion = models.CharField(max_length=255,blank=True, null=True)
     telefono = models.CharField(max_length=255, blank=True, null=True)
@@ -71,6 +71,23 @@ class Producto(models.Model):
     def __str__(self):
         return self.nombre
 
+class ListaPrecio(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='precios')
+    precio = models.DecimalField(max_digits=10, decimal_places=2)  # Precio actual
+    fecha_creacion = models.DateField(null=False,blank=False)  # Fecha de creación del precio
+
+    def __str__(self):
+        return f"{self.producto.nombre} - {self.precio})"
+
+class HistorialPrecio(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='historial_precios')
+    precio_anterior = models.DecimalField(max_digits=10, decimal_places=2)  # Precio anterior
+    fecha_modificacion = models.DateField(null=False,blank=False)  # Fecha en la que se cambió el precio
+
+    def __str__(self):
+        return f"{self.producto.nombre} - {self.precio_anterior} ({self.fecha_modificacion})"
+
+
 class ProductoPorDeposito(models.Model):
     deposito = models.ForeignKey(Deposito, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
@@ -89,6 +106,7 @@ class OrdenCompra (models.Model):
     lugarentrega=models.ForeignKey(Deposito,on_delete=models.CASCADE,null=True)
     condiciones = models.TextField(blank=True,null=True)
     estado = models.TextField(blank=True,default="Activo")
+    total = models.FloatField(blank=True,null=True)
     def __str__(self):
         return f"Orden N°: {self.nordenCompra}"
 
@@ -96,15 +114,18 @@ class DetalleOrden (models.Model):
     producto = models.ForeignKey(Producto,on_delete=models.CASCADE)
     ordencompra=models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     cantidad=models.IntegerField(blank=True,null=True)
+    precioUnitario = models.FloatField(blank=False,null=False)
+    subtotal = models.FloatField(blank=False,null=False)
 
 class FacturasCompras (models.Model):
     reference_orden = models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     numero_factura = models.CharField(max_length=20, unique=True,default='0000000000',blank=True, null=True)
+    codigo_factura=models.CharField(max_length=12,blank=True,null=True)
     tipo_factura = models.CharField(max_length=20,blank=True, null=True)
     fecha_emision = models.DateField(blank=True, null=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    impuestos = models.DecimalField(max_digits=10, decimal_places=2 , default=0.21,blank=True, null=True)
+    impuestos = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='Activo')
     vendedor = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     notas = models.TextField(null=True, blank=True)
@@ -208,3 +229,34 @@ class Consulta(models.Model):
 
     def __str__(self):
         return f"{self.correo}"
+    
+
+class Cliente (models.Model):
+    cuit = models.PositiveIntegerField(unique=True,blank=False,null=False)
+    nombre = models.CharField(max_length=50,blank=False,null=False)
+    apellido = models.CharField(max_length=50,blank=False,null=False)
+    email=models.EmailField(blank=False,null=False)
+    telefono = models.PositiveIntegerField(blank=True,null=True)
+    def __str__(self):
+        return f"{self.nombre} - {self.apellido}" 
+
+
+class FacturaVenta(models.Model):
+    numeroFactura = models.PositiveBigIntegerField(unique=True,blank=False,null=False)
+    fecha = models.DateField(blank=False,null=False)
+    sucursal = models.ForeignKey(Sucursal,on_delete=models.CASCADE)
+    metodo_pago = models.CharField(max_length=50,choices=[('Efectivo','Efectivo'),('Tarjeta de Credito','Tarjeta de Credito'),('Transferencia Bancaria','Transferencia Bancaria')])
+    total = models.FloatField(blank=False,null=False)
+    observaciones = models.TextField(blank=True,null=True)
+    descuento = models.PositiveIntegerField(blank=True,null=True)
+    cliente = models.ForeignKey(Cliente,on_delete=models.CASCADE,blank=True,null=True)
+    codigo_sucursal = models.CharField(max_length=10,null=True,blank=True)
+    def __str__(self):
+        return self.numeroFactura
+
+class DetalleVenta(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    facturaventa = models.ForeignKey(FacturaVenta, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(blank=False, null=False)
+    precio = models.FloatField(blank=False, null=False)
+    subtotal = models.FloatField(blank=False, null=False)

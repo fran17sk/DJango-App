@@ -1,43 +1,45 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block content %}
 <div class="container">
     <div class="d-flex-sp">
-        <h1>Lista de Ordenes de Compra</h1>
+        <h1>Lista de Ventas</h1>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateReportModal">Generar Informe</button>
-        <a href="{% url 'orden_compra' %}" class=" btn btn-outline-primary">Crear Orden de Compra</a>
+        <button class="btn btn-primary" id="agregarCliente">
+            <a href="{% url 'ventas_new' %}" style="color: white;">Registrar Venta</a>
+        </button>
     </div>
     <div class="">
         <table id="example" class="display" style="width:100%">
             <thead>
                 <tr>
-                    <th>N°Orden</th>
-                    <th>Fecha Creación</th>
-                    <th>Fecha Entrega</th>
-                    <th>Estado</th>
-                    <th>Lugar de Entrega</th>
+                    <th>N°Factura</th>
+                    <th>Sucursal</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
                     <th>Iconos</th>
                 </tr>
             </thead>
             <tbody>
-                {% for orden in ordenes %}
+                {% for venta in ventas %}
                 <tr>
-                    <td>00{{orden.nordenCompra}}</td>
-                    <td>{{orden.fecha|date:"d-m-Y"}}</td>
-                    <td>{{orden.fechaentrega|date:"d-m-Y"}}</td>
-                    <td>{{orden.estado}}</td>
-                    <td>{{orden.lugarentrega}}</td>
+                    <td>{{venta.numeroFactura}}</td>
+                    <td>{{venta.sucursal}}</td>
+                    <td>{{venta.fecha|date:"d-m-Y"}}</td>
+                    <td>{{venta.cliente}}</td>
+                    <td class="total text-end">{{ venta.total }}</td>
                     <td>
-                        <a href="{% url 'orden_detail' orden.id  %}" class="btn btn-primary"><i class="bi bi-eye" style="color:white"></i> Detalle</a>
-                      </td>
+                        <a href="{% url 'ventas_detail' venta.pk  %}" class="btn btn-primary"><i class="bi bi-eye" style="color: white;"></i> Detalle</a>
+                    </td>
                 </tr>
                 {% empty %}
-            <p>No hay Ordenes disponibles.</p>
-            {% endfor %}
+                <p>No hay Clientes disponibles.</p>
+                {% endfor %}
             </tbody>
-            
         </table>
     </div>
- <!-- Modal para seleccionar tipo de informe -->
+</div><!-- Modal para seleccionar tipo de informe -->
 <div class="modal fade" id="generateReportModal" tabindex="-1" aria-labelledby="generateReportModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -66,15 +68,26 @@
             </div>
         </div>
     </div>
-</div>   
 </div>
 <script>
-        document.addEventListener("DOMContentLoaded", function () {
+    // Función para formatear números con separadores
+    function formatearNumero(valor) {
+        const num = parseFloat(valor);
+        return isNaN(num) ? '' : num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Obtener solo las celdas de Total y aplicar el formato
+    document.querySelectorAll('.total').forEach(td => {
+        const originalValue = td.innerText;
+        const formattedValue = formatearNumero(originalValue);
+        td.innerText = formattedValue;
+    });
+    document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("downloadReport").addEventListener("click", function () {
             // Obtener el tipo de informe seleccionado
             const reportType = document.querySelector('input[name="reportType"]:checked');
             if (reportType) {
-                const url = "{% url 'generar_informe' %}?tipo=" + reportType.value; // Usando la URL de Django
+                const url = "{% url 'generar_informe_ventas' %}?tipo=" + reportType.value; // Usando la URL de Django
                 window.location.href = url;  // Redirigir para generar el informe
                 
                 // Si decides no usar jQuery, puedes cerrar el modal usando Bootstrap así:
