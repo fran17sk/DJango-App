@@ -58,6 +58,7 @@
     <h2 style="margin-bottom: 5%;"> Factura N° {{ factura.numero_factura }}</h2>
     <div class="form-row mb-3">
         <div class="mb-3"><strong>Orden de Compra:</strong> {{ factura.reference_orden.nordenCompra }}</div>
+        <div class="mb-3"><strong>Código Sucursal:</strong> {{ factura.codigo_factura }}</div>
         <div class="mb-3"><strong>Fecha de Emisión:</strong> {{ factura.fecha_emision|date:"d-m-Y" }}</div>
         <div class="mb-3"><strong>Tipo de Factura:</strong> {{ factura.tipo_factura }}</div>
     </div>

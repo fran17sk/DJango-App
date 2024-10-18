@@ -43,11 +43,13 @@
 
 <div class="orden-detalle">
     <h2> Factura de Venta: N° {{ ventas.numeroFactura }}</h2>
+    <div class="flex">
+        <div class="mb-3"><strong>Sucursal:</strong> {{ ventas.sucursal}}</div>
+        <div class="mb-3"><strong>Código Sucursal:</strong> {{ ventas.codigo_sucursal}}</div>
+    </div>
     <div class="campo"><strong>Fecha:</strong> {{ ventas.fecha |date:"d-m-Y" }}</div>
-    <div class="campo"><strong>Sucursal:</strong> {{ ventas.sucursal}}</div>
     <div class="campo"><strong>Método de Pago:</strong> {{ ventas.metodo_pago }}</div>
     <div class="campo"><strong>Cliente:</strong> {{ ventas.cliente }}</div>
-    <div class="campo"><strong>Condiciones:</strong> {{ ventas.observaciones }}</div>
 
     <!-- Tabla para mostrar los detalles de los productos -->
     <h3>Detalles de Orden de Pago </h3>
@@ -75,6 +77,12 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="mb-3" style=" margin-top: 20px;">
+        <strong>Observaciones:</strong>
+        <textarea rows="3" class="form-control" readonly style="width: 100%;">
+            {{ ventas.observaciones }}
+        </textarea>
+    </div>
     <div style="margin-top: 20px; display: flex; align-items: end; justify-content: end;">
         <div class="mb-3">
             <div class="mb-3" ><strong>Total: $<span id="total">{{ ventas.total|floatformat:2 }}</span></strong></div>

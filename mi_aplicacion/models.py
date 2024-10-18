@@ -23,6 +23,7 @@ class Sucursal (models.Model):
     descripcion=models.TextField(blank=True,null=True)
     localidad = models.ForeignKey(Localidad,on_delete=models.SET_NULL,null=True,blank=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
+    codigoAFIP=models.CharField(max_length=4,blank=False,null=False,default="ABCD")
 
     def __str__(self):
         return self.nombre
@@ -105,6 +106,7 @@ class OrdenCompra (models.Model):
     lugarentrega=models.ForeignKey(Deposito,on_delete=models.CASCADE,null=True)
     condiciones = models.TextField(blank=True,null=True)
     estado = models.TextField(blank=True,default="Activo")
+    total = models.FloatField(blank=True,null=True)
     def __str__(self):
         return f"Orden N°: {self.nordenCompra}"
 
@@ -119,10 +121,11 @@ class FacturasCompras (models.Model):
     reference_orden = models.ForeignKey(OrdenCompra,on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     numero_factura = models.CharField(max_length=20, unique=True,default='0000000000',blank=True, null=True)
+    codigo_factura=models.CharField(max_length=12,blank=True,null=True)
     tipo_factura = models.CharField(max_length=20,blank=True, null=True)
     fecha_emision = models.DateField(blank=True, null=True)
     descuento = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    impuestos = models.DecimalField(max_digits=10, decimal_places=2 , default=0.21,blank=True, null=True)
+    impuestos = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='Activo')
     vendedor = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     notas = models.TextField(null=True, blank=True)
@@ -238,6 +241,7 @@ class FacturaVenta(models.Model):
     observaciones = models.TextField(blank=True,null=True)
     descuento = models.PositiveIntegerField(blank=True,null=True)
     cliente = models.ForeignKey(Cliente,on_delete=models.CASCADE,blank=True,null=True)
+    codigo_sucursal = models.CharField(max_length=10,null=True,blank=True)
     def __str__(self):
         return self.numeroFactura
 

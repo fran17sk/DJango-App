@@ -94,7 +94,14 @@ urlpatterns = [
     path ('ventas/',VentasListView.as_view(),name='ventas_list'),
     path ('ventas/new',VentasCreateView.as_view(),name='ventas_new'),
     path('guardar_ventas/',views.guardar_venta,name='guardar_venta'),
-    path('ventas/<int:pk>',views.ventas_detalle,name='ventas_detail')
+    path('ventas/<int:pk>',views.ventas_detalle,name='ventas_detail'),
+path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
+
+    
+        ## INFORMES ##
+    path('generar-informe/', generar_informe, name='generar_informe'),
+    path('generar-informe-facturas/', generar_informe_facturas, name='generar_informe_facturas'),
+    path('generar-informe-ventas/', generar_informe_ventas, name='generar_informe_ventas'),
     ]
 
 

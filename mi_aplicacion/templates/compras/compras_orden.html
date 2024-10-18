@@ -135,6 +135,12 @@
                 <tbody id="productosTableBody">
                     <!-- Los productos se agregarán aquí -->
                 </tbody>
+                <tfoot>
+                    <tr >
+                        <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                        <td id="totalVenta" class="fw-bold"></td>
+                    </tr>
+                </tfoot> 
             </table>
         </div>
         <div class="form-row mb-3">
@@ -226,6 +232,7 @@ $('#agregarProductoBtn').click(function() {
         agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
         deshabilitarProducto(productoId);
         detalleOrden.show();
+        calcularTotal(); // Calcular total al agregar
 
         // Limpiar campos del modal
         $('#producto').val('');
@@ -238,7 +245,22 @@ $('#agregarProductoBtn').click(function() {
 $('#AbrirF').click(function() {
     $('#productoModal').modal('show'); // Asegúrate de mostrar el modal
 });
+function calcularTotal() {
+    let total = 0;
+    productosAgregados.forEach(function(producto) {
+        total += parseFloat(producto.subtotal);
+    });
 
+    // Actualizar el campo de total
+    $('#totalVenta').text(`$${formatearPrecio(total.toFixed(2))}`);
+
+    // Mostrar el contenedor del total si hay productos
+    if (productosAgregados.length > 0) {
+        $('#totalVenta').show();
+    } else {
+        $('#totalVenta').hide();
+    }
+}
 // Función para formatear precio
 function formatearPrecio(precio) {
     return parseFloat(precio).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -255,6 +277,8 @@ function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtota
             <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
         </tr>
     `);
+    calcularTotal(); // Calcular total al agregar
+
 }
 
     // Manejar la eliminación de productos de la tabla
@@ -265,6 +289,7 @@ function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtota
         productosAgregados.splice(index, 1);
         habilitarProducto(productoId);
         row.remove();
+        calcularTotal(); // Calcular total al agregar
 
         // Ocultar la tabla si no quedan productos
         if (productosAgregados.length === 0) {
@@ -334,9 +359,10 @@ function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtota
             'fechaentrega': $('#fechaentrega').val(),
             'lugarentrega': $('#lugarentrega').val(),
             'condiciones': $('#condiciones').val(),
+            'total': parseFloat($('#totalVenta').text().replace('$', '').replace('.', '').replace(',', '.')), // Convertir total formateado a float
             'productos': productosAgregados
         };
-
+        console.log(ordenData)
         $.ajax({
             type: "POST",
             url: "{% url 'confirmar_orden_compra' %}",

@@ -77,6 +77,7 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="mb-3" style="margin-left: 75%; margin-top: 20px;"><strong>Total: $<span id="total">{{ orden.total|floatformat:2 }}</span></strong></div>
     <div style="text-align: end; margin-top: 20px;">
         <button onclick="history.back()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
             Volver
@@ -92,10 +93,13 @@
     }
 
     // Obtener solo las celdas de Precio Unitario y Subtotal y aplicar el formato
-    document.querySelectorAll('.precio-unitario, .subtotal').forEach(td => {
+    document.querySelectorAll('.precio-unitario, .subtotal ').forEach(td => {
         const originalValue = td.innerText;
         const formattedValue = formatearNumero(originalValue);
         td.innerText = formattedValue;
     });
+    const totalElement = document.getElementById('total');
+    const totalValue = totalElement.innerText;
+    totalElement.innerText = formatearNumero(totalValue);
 </script>
 {% endblock %}

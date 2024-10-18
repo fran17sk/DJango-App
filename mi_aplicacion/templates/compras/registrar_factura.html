@@ -41,21 +41,23 @@
         <!-- Selección de Orden de Compra, Proveedor, N°Factura -->
         <div class="form-row mb-3">
             <div class="form-group">
+                <label for="proveedor_id" class="form-label">Proveedor</label>
+                <select id="proveedor_id" class="form-control">
+
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="reference_orden" class="form-label">Orden de Compra</label>
                 <select id="reference_orden" class="form-select" required>
                     <!-- Opciones de Orden de Compra serán cargadas desde Django -->
                 </select>
             </div>
-            <div class="form-group">
-                <label for="proveedor_id" class="form-label">Proveedor</label>
-                <input id="proveedor_id" class="form-control" readonly />
-            </div>
+
             <div class="form-group">
                 <label for="numero_factura" class="form-label">N°Factura</label>
-                <input id="numero_factura" class="form-control" />
+                <input id="numero_factura" class="form-control" type="number" />
             </div>
         </div>
-        <!-- Fecha, Descuento, Impuestos -->
         <div class="form-row mb-3">
             <div class="mb-3" style="margin-right: 10%;">
                 <label for="tipo_factura" class="form-label">Tipo de Factura</label>
@@ -78,7 +80,10 @@
                     <option>Pagada</option>
                 </select>
             </div>
-
+            <div class="mb-3" style="margin-right: 10%;">
+                <label for="fecha_emision" class="form-label">Código Sucursal</label>
+                <input id="codigo_sucursal" class="form-control" type="text" />
+            </div>
         </div>
         
         <!-- Tabla de Productos -->
@@ -98,10 +103,6 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="1"><strong>Descuento:</strong></td>
-                    <td> <input id="descuento" class="form-control form-control-sm" type="number" style="width: 45%;" /></td>
-                    <td colspan="1"><strong>Impuesto:</strong></td>
-                    <td> <input id="impuesto" class="form-control form-control-sm" type="number" style="width: 45%;" /></td>
                     <td colspan="2"><strong>Total:</strong></td>
                     <td id="total" class="text-end fw-bold"></td>
                     <td></td>
@@ -128,50 +129,89 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         $(document).ready(function() {
-            const proveedorInput = $('#proveedor_id');
-            const OrdenSelect = $('#reference_orden');
+            const proveedorSelect = $('#proveedor_id');
+            const ordenSelect = $('#reference_orden');
             const NFactura = $('#numero_factura');
             const productoSelect = $('#producto');
             const cantidadInput = $('#cantidad');
             const precioInput = $('#precio');
             const subtotalInput = $('#subtotal');
             const totalInput = $('#total');
-            const descuentoInput = $('#descuento');
-            const impuestosInput = $('#impuesto');
             const metodoPagoSelect = $('#metodo_pago');
+            const codigoSucursalInput = $('#codigo_sucursal'); // Referencia al input del código sucursal
             const tablaDetallesBody = $('#tablaDetalles tbody'); // Referencia al cuerpo de la tabla
             let ordenesData = []; // Variable para almacenar los datos de las órdenes
         
             // Función para cargar órdenes
-            function cargarOrden() {
+             // Cargar proveedores desde el servidor
+             function cargarProveedores() {
+                $.ajax({
+                    url: "{% url 'get_proveedores' %}",
+                    success: function(data) {
+                        proveedorSelect.empty();
+                        proveedorSelect.append(new Option('Seleccione un Proveedor', ''));
+                        data.proveedores.forEach(function(proveedor) {
+                            proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al cargar proveedores:', error);
+                    }
+                });
+            }
+            
+            
+
+            // Cargar órdenes asociadas al proveedor seleccionado
+            proveedorSelect.on('change', function() {
+                const proveedorId = $(this).val();
+                if (proveedorId) {
+                    cargarOrdenes(proveedorId);
+                } else {
+                    ordenSelect.empty();
+                    ordenSelect.append(new Option('Seleccione una Orden', ''));
+                    tablaDetallesBody.empty();
+                }
+            });
+            // Función para cargar las órdenes de compra basadas en el proveedor seleccionado
+            function cargarOrdenes(proveedorId) {
                 $.ajax({
                     url: "{% url 'get_ordenes' %}",
+                    data: { proveedor_id: proveedorId },
                     success: function(data) {
                         ordenesData = data.ordenes;
-                        OrdenSelect.empty();
-                        OrdenSelect.append(new Option('Seleccione una Orden', ''));
+                        ordenSelect.empty();
+                        ordenSelect.append(new Option('Seleccione una Orden', ''));
                         ordenesData.forEach(function(orden) {
-                            OrdenSelect.append(new Option(orden.nordenCompra, orden.id));
+                            ordenSelect.append(new Option(orden.nordenCompra, orden.id));
                         });
                     },
                     error: function(xhr, status, error) {
                         console.error('Error al cargar las órdenes:', error);
                     }
                 });
-            }
-            cargarOrden();
+            }            
+            cargarProveedores();
         
             // Manejar el cambio de selección en el menú desplegable de órdenes
-            OrdenSelect.on('change', function() {
+            ordenSelect.on('change', function() {
                 const ordenId = $(this).val();
                 const orden = ordenesData.find(o => o.id == ordenId);
                 if (orden) {
-                    proveedorInput.val(orden.proveedor__nombre);
-        
-                    // Formatear el número de factura
-                    const ordenNumero = orden.nordenCompra;
-        
-                    // Cargar los productos asociados a la orden seleccionada
+
+                     // Obtener el código AFIP de la sucursal
+                        const codigoAfip = orden.lugarentrega__sucursal__codigoAFIP || "";
+
+                    // Generar un número aleatorio de 4 dígitos
+                        const numeroAleatorio = Math.floor(1000 + Math.random() * 9000).toString();
+
+                    // Crear el nuevo código de sucursal: 4 dígitos de códigoAfip + 4 números autogenerados
+                    const codigoSucursal = `${codigoAfip.slice(0, 4)}-${numeroAleatorio}`;
+                    console.log(codigoSucursal)
+                    // Asignar el valor al campo código sucursal
+                    codigoSucursalInput.val(codigoSucursal);
+
+            // Cargar los productos asociados a la orden seleccionada
                     cargarProductosDeOrden(ordenId);
                 }
             });
@@ -233,24 +273,12 @@ function formatearPrecio(precio) {
             const subtotal = parseFloat(subtotalTexto) || 0;
             total += subtotal;
             });
-
-            // Obtener y convertir los valores de descuento e impuestos asegurando el formato
-            const descuento = parseFloat(descuentoInput.val().replace(",", ".")) || 0;
-            const impuestos = parseFloat(impuestosInput.val().replace(",", ".")) || 0;
-
-            // Aplicar descuento e impuestos
-            total = total * (1 - descuento / 100); // Aplicar descuento
-            total = total * (1 + impuestos / 100); // Aplicar impuestos
-
             // Formatear el total para mostrarlo visualmente
             const totalFormateado = formatearPrecio(total);
 
             // Mostrar el valor formateado en el campo `td` correspondiente al total
             $('#total').text(totalFormateado);
         }
-            // Recalcular total al cambiar descuento o impuestos
-            descuentoInput.on('input', calcularTotal);
-            impuestosInput.on('input', calcularTotal);
         
             // Obtener el token CSRF para la solicitud POST
             function getCookie(name) {
@@ -289,16 +317,15 @@ function formatearPrecio(precio) {
                 });
         
                 const ordenFactura = {
-                    'reference_orden': OrdenSelect.val(),
-                    'proveedor_id': proveedorInput.val(),
+                    'reference_orden': ordenSelect.val(),
+                    'proveedor_id': proveedorSelect.find("option:selected").text(),
                     'tipo_factura': $('#tipo_factura').val(),
                     'numero_factura': NFactura.val(),
                     'fecha_emision': $('#fecha_emision').val(),
                     'metodo_pago': metodoPagoSelect.val(),
                     'notas': $('#notas').val(),
-                    'impuestos': impuestosInput.val(),
-                    'descuento': descuentoInput.val(),
                     'total': total,
+                    'codigo_factura':codigoSucursalInput.val(),
                     'productos': productosAgregados
                 };
                 console.log(ordenFactura)

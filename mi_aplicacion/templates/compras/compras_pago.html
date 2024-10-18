@@ -75,7 +75,6 @@
                 <tr>
                     <th>Factura</th>
                     <th>Total de Factura</th>
-                    <th>Costo de Envio</th>
                     <th>Subtotal</th>
                 </tr>
             </thead>
@@ -126,10 +125,6 @@
                                 <input type="number" id="factura_total" class="form-control">
                             </div>
                             <div class="mb-3">
-                                <label for="costoenvio" class="form-label">Costo Envio</label>
-                                <input type="number" id="costoenvio" class="form-control">
-                            </div>
-                            <div class="mb-3">
                                 <label for="subtotal" class="form-label">Subtotal</label>
                                 <input type="number" id="subtotal" class="form-control" readonly>
                             </div>
@@ -152,7 +147,6 @@ $(document).ready(function() {
     const agregarProductoBtn = $('#AbrirF');
     const facturaSelect = $('#factura'); 
     const facturaTotalInput = $('#factura_total');
-    const costoenvioInput = $('#costoenvio');
     const subtotalInput = $('#subtotal');
 
     // Cargar Proveedores
@@ -218,12 +212,11 @@ $(document).ready(function() {
     });
 
     // Actualizar subtotal cuando se cambian los valores de factura o costo de envío
-    $('#factura_total, #costoenvio').on('input', actualizarSubtotal);
+    $('#factura_total').on('input', actualizarSubtotal);
 
     function actualizarSubtotal() {
         const facturaTotal = parseFloat(facturaTotalInput.val()) || 0;
-        const costoEnvio = parseFloat(costoenvioInput.val()) || 0;
-        const subtotal = facturaTotal + costoEnvio;
+        const subtotal = facturaTotal;
         subtotalInput.val(subtotal.toFixed(2));
     }
 
@@ -235,15 +228,13 @@ function formatearPrecio(precio) {
     const facturaID = facturaSelect.find('option:selected').val(); // Usar .val() para obtener el ID
     const facturaIDTexto = facturaSelect.find('option:selected').text(); // Obtener el texto de la opción seleccionada
     const facturaTotal = facturaTotalInput.val();
-    const costoEnvio = costoenvioInput.val();
     const subtotal = subtotalInput.val();
 
-    if (facturaID && facturaTotal && costoEnvio && subtotal) {
+    if (facturaID && facturaTotal && subtotal) {
         const row = `
             <tr>
                 <td>${facturaIDTexto}</td>
                 <td class='text-end'>${formatearPrecio(facturaTotal)}</td>
-                <td class='text-end'>${formatearPrecio(costoEnvio)}</td>
                 <td class='text-end'>${formatearPrecio(subtotal)}</td>
                 <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
             </tr>`;
@@ -258,7 +249,6 @@ function formatearPrecio(precio) {
         // Limpiar los campos
         facturaSelect.val('');
         facturaTotalInput.val('');
-        costoenvioInput.val('');
         subtotalInput.val('');
     } else {
         alert('Por favor complete todos los campos.');
@@ -291,7 +281,7 @@ $('#tablaDetalles tbody').on('click', '.eliminarProductoBtn', function() {
     function calcularTotal() {
         let total = 0;
         $('#tablaDetalles tbody tr').each(function() {
-            const subtotalText = $(this).find('td').eq(3).text().trim().replace(".", "").replace(",", ".");
+            const subtotalText = $(this).find('td').eq(2).text().trim().replace(".", "").replace(",", ".");
             const subtotal = parseFloat(subtotalText) || 0; // Convierte el texto en número
             total += subtotal;
         });
@@ -320,12 +310,10 @@ $('#tablaDetalles tbody').on('click', '.eliminarProductoBtn', function() {
             if (index===0) return;
              
             const numero_factura = $(this).find('td').eq(0).text();
-            const costoenvio = $(this).find('td').eq(2).text().replace(/\./g, '').replace(/,/g,'.');
             const subtotal = $(this).find('td').eq(3).text().replace(/\./g, '').replace(/,/g,'.');
 
             facturasagregadas.push({
                 numero_factura:numero_factura ,
-                costoenvio: costoenvio,
                 subtotal: subtotal
             });
         });

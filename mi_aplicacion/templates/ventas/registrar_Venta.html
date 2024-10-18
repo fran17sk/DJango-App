@@ -18,12 +18,17 @@
             {{form.sucursal}}
         </div>
         <div class="form-group mb-3">
-            <label for="fecha" class="form-label">Fecha</label>
-            <input type="date" class="form-control" id="fecha" required>
+            <label for="codigo_sucursal" class="form-label">Codigo Sucursal</label>
+            <input type="text" class="form-control" id="codigo_sucursal" required>
         </div>
+
     </div>
 
     <div class="flex">
+        <div class="form-group mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" required>
+        </div>
         <div class="form-group mb-3">
             <label for="cliente" class="form-label">Cliente</label>
             {{form.cliente}}
@@ -112,6 +117,42 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    function generarCodigoRandom() {
+        return Math.floor(1000 + Math.random() * 9000);  // Genera un número entre 1000 y 9999
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const sucursalSelect = document.getElementById('id_sucursal');
+        const codigoSucursalInput = document.getElementById('codigo_sucursal');
+            const fechaInput = document.getElementById('fecha');
+            const today = new Date().toISOString().split('T')[0];  // Obtener la fecha en formato yyyy-mm-dd
+            fechaInput.value = today;  // Establecer la fecha actual
+            sucursalSelect.addEventListener('change', function () {
+        // Obtener el valor de la sucursal seleccionada
+        const sucursalId = sucursalSelect.value;
+
+        if (sucursalId) {
+            // Realizar la petición AJAX para obtener el `codigoAFIP` de la sucursal seleccionada
+            fetch(`/get_codigo_afip/?sucursal_id=${sucursalId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.codigoAFIP) {
+                        // Generar el código con `codigoAFIP` + guión + 4 dígitos aleatorios
+                        const codigoRandom = generarCodigoRandom();
+                        const codigoSucursal = `${data.codigoAFIP}-${codigoRandom}`;
+
+                        // Asignar el código generado al input de `codigo_sucursal`
+                        codigoSucursalInput.value = codigoSucursal;
+                    } else {
+                        console.error("No se encontró el código AFIP para la sucursal seleccionada.");
+                    }
+                })
+                .catch(error => console.error('Error al obtener el código AFIP:', error));
+        } else {
+            // Limpiar el campo si no se selecciona una sucursal
+            codigoSucursalInput.value = '';
+        }
+    });
+        });
     const productosSeleccionados = new Set();  // Almacenar los IDs de productos seleccionados
 
     function formatearPrecio(precio) {
@@ -228,6 +269,7 @@
         const condiciones = $('#condiciones').val();
         const total = $('#totalVenta').text().replace(/\./g, '').replace(/,/g,'.');
         const sucursal = $('#id_sucursal').val();
+        const codigo_sucursal=$('#codigo_sucursal').val()
 
         const productosAgregados = [];
         $('#detalleOrdenTable tbody tr').each(function () {
@@ -252,6 +294,7 @@
             condiciones: condiciones,
             sucursal: sucursal,
             total,
+            codigo_sucursal,
             productos: productosAgregados
         };
 
