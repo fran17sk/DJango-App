@@ -62,12 +62,19 @@ class Categoria (models.Model):
     def __str__(self):
         return self.nombre
     
+class Media (models.Model):
+    content  = models.FileField(upload_to='media/')
+    mimetype = models.CharField(max_length=100)
+    name     = models.CharField(max_length=255)
+    
 class Producto(models.Model):
     nombre = models.CharField(max_length=255,blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
     estado = models.CharField(max_length=20,choices=[('activo','activo'),('baja','baja')],default='activo')
     proveedor = models.ForeignKey(Proveedor,on_delete=models.CASCADE)
     categoria = models.ForeignKey(Categoria,on_delete=models.CASCADE)
+    media = models.ManyToManyField(Media, blank=True)
+
 
     def __str__(self):
         return self.nombre
@@ -206,6 +213,10 @@ class Consulta(models.Model):
     correo = models.CharField(max_length=255,blank=True,null=True)
     telefono = models.CharField(max_length=255,blank=True,null=True)
     consulta = models.CharField(max_length=255,blank=True,null=True)
+    estado = models.CharField(max_length=20,choices=[('recived','recived'),('respondido','respondido')],default='recived',blank=True,null=True)
+    fecha = models.DateField(blank=True,null=True,auto_now_add=True)
+    respuesta = models.TextField(blank=True, null=True)
+    fecha_respuesta = models.CharField(max_length=255,blank=True,null=True)
 
     def __str__(self):
         return f"{self.correo}"
@@ -220,3 +231,37 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f'Perfil de {self.user.username}'
+
+class OrdenVentaOnline (models.Model):
+    nro_orden = models.CharField(max_length=255)
+    status = models.CharField(max_length=255)
+    fecha = models.DateField(blank=True,null=True)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    nombre_completo = models.CharField(max_length=255)
+    correo_electronico = models.EmailField()
+    telefono = models.PositiveIntegerField(blank=True,null=True)
+    direccion = models.CharField(max_length=255)
+    cuidad = models.CharField(max_length=255)
+    codigo_postal = models.PositiveBigIntegerField() 
+    titular_tarjeta = models.CharField(max_length=255)
+    dni_tarjeta = models.PositiveBigIntegerField()
+    numero_tarjeta = models.PositiveBigIntegerField()
+    exp_tarjeta = models.CharField(max_length=255)
+    cvv_tarjeta = models.PositiveBigIntegerField()
+
+    def get_status_color(self):
+            if self.status == "pendiente":
+                return "red"
+            elif self.status == "entregado":
+                return "green"
+            elif self.status == "despachado":
+                return "blue"
+            elif self.status == "cancelado":
+                return "red"
+            return "black"  # Por defecto si no coincide
+class DetalleVentaOnline (models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    OrdenVentaOnline = models.ForeignKey(OrdenVentaOnline, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(blank=False, null=False)
+    precio = models.FloatField(blank=False, null=False)
+    subtotal = models.FloatField(blank=False, null=False)

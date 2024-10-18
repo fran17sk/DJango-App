@@ -17,8 +17,8 @@
         display: flex;
         justify-content: space-between;
         /* Aligns form and cart side by side */
-        max-width: 1200px;
         /* Set a max width for the container */
+        width: 100%;
         margin: auto;
     }
 
@@ -27,7 +27,7 @@
         border-radius: 10px;
         padding: 20px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        width: 800px;
+        width: 100%;
         /* Fixed width for cart summary */
         margin-left: 20px;
         margin-bottom: 20px;
@@ -35,12 +35,12 @@
     }
 
     .cart-summary h2 {
-        border-bottom: 2px solid #00bcd4;
         padding-bottom: 10px;
     }
 
     .total-container {
         margin-top: 20px;
+        margin-left: 80%;
     }
 
     .total-text {
@@ -58,17 +58,17 @@
     h1 {
         text-align: center;
         margin-bottom: 20px;
-        color: #00bcd4;
+        color: #fbff00;
     }
 
     .section {
+        min-width: 400px;
         margin-bottom: 25px;
     }
 
     h2 {
         margin-bottom: 15px;
         font-weight: 600;
-        border-bottom: 2px solid #00bcd4;
         padding-bottom: 5px;
     }
 
@@ -98,7 +98,7 @@
     input[type="text"]:focus,
     input[type="email"]:focus,
     input[type="tel"]:focus {
-        border-color: #00bcd4;
+        border-color: #fbff00;
         outline: none;
     }
 
@@ -117,19 +117,22 @@
     }
 
     .submit-btn {
-        background-color: #00bcd4;
+        background-color: #000000;
         color: #ffffff;
         border: none;
         padding: 15px;
         border-radius: 5px;
         cursor: pointer;
-        width: 100%;
+        width: 250px;
         font-size: 16px;
         transition: background-color 0.3s ease;
+        margin-left: 40%;
+        margin-bottom: 50px;
     }
 
     .submit-btn:hover {
-        background-color: #008c9e;
+        background-color: #fbff00;
+        color: black;
     }
 
     .payment-result {
@@ -138,85 +141,149 @@
         color: #00bcd4;
         font-weight: bold;
     }
+
+    .cart-item-quantity {
+        border: none;
+        max-width: 50px;
+    }
+
+    .cart-item {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+
+    .btn_delete_item {
+        background-color: transparent;
+        color: red;
+        margin-top: -4px;
+    }
+
+    .d-flex-chechout {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-around;
+    }
+
+    .processing-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 1000;
+    }
+
+    .img-cart {
+        max-width: 100px;
+    }
+
+    .cart-item-name {
+        margin-left: 50px;
+        max-width: 300px;
+    }
+
+    .stock {
+        margin-left: 200px;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="espacioenblanco"></div>
 
-<div class="checkout-container">
+<div class="">
     <form id="payment-form" onsubmit="submitPayment(event)">
         <h1>Finaliza tu Compra</h1>
+        <div class="d-flex-chechout">
 
-        <div class="section personal-info">
-            <h2>Información Personal</h2>
-            <div class="form-group">
-                <label for="name">Nombre Completo</label>
-                <input type="text" id="name" placeholder="Ingresa tu nombre completo" required />
-            </div>
-            <div class="form-group">
-                <label for="email">Correo Electrónico</label>
-                <input type="email" id="email" placeholder="ejemplo@correo.com" required />
-            </div>
-            <div class="form-group">
-                <label for="phone">Teléfono</label>
-                <input type="tel" id="phone" placeholder="Ingresa tu número de teléfono" required />
-            </div>
-        </div>
-
-        <div class="section shipping-info">
-            <h2>Dirección de Envío</h2>
-            <div class="form-group">
-                <label for="address">Dirección</label>
-                <input type="text" id="address" placeholder="Calle, número, departamento" required />
-            </div>
-            <div class="form-group">
-                <label for="city">Ciudad</label>
-                <input type="text" id="city" placeholder="Ingresa tu ciudad" required />
-            </div>
-            <div class="form-group">
-                <label for="postalCode">Código Postal</label>
-                <input type="text" id="postalCode" placeholder="Código Postal" required />
-            </div>
-        </div>
-
-        <div class="section payment-info">
-            <h2>Información de Pago</h2>
-            <div class="form-group">
-                <label for="cardNumber">Número de Tarjeta</label>
-                <input type="text" id="cardNumber" placeholder="XXXX-XXXX-XXXX-XXXX" required />
-            </div>
-            <div class="form-group card-details">
-                <div>
-                    <label for="expiry">Expiración (MM/AA)</label>
-                    <input type="text" id="expiry" placeholder="MM/AA" required />
+            <div class="section personal-info">
+                <h2>Información Personal</h2>
+                <div class="form-group">
+                    <label for="name">Nombre Completo</label>
+                    <input type="text" name="name" id="name" placeholder="Ingresa tu nombre completo" required />
                 </div>
-                <div>
-                    <label for="cvv">CVV</label>
-                    <input type="text" id="cvv" placeholder="XXX" required />
+                <div class="form-group">
+                    <label for="email">Correo Electrónico</label>
+                    <input type="email" name="email" id="email" placeholder="ejemplo@correo.com" required />
+                </div>
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" name="phone" id="phone" placeholder="Ingresa tu número de teléfono" required />
                 </div>
             </div>
-        </div>
 
-        <button type="submit" class="submit-btn">Pagar</button>
+            <div class="section shipping-info">
+                <h2>Dirección de Envío</h2>
+                <div class="form-group">
+                    <label for="address">Dirección</label>
+                    <input type="text" name="address" id="address" placeholder="Calle, número, departamento" required />
+                </div>
+                <div class="form-group">
+                    <label for="city">Ciudad</label>
+                    <input type="text" name="city" id="city" placeholder="Ingresa tu ciudad" required />
+                </div>
+                <div class="form-group">
+                    <label for="postalCode">Código Postal</label>
+                    <input type="text" name="postalCode" id="postalCode" placeholder="Código Postal" required />
+                </div>
+            </div>
+
+            <div class="section payment-info">
+                <h2>Información de Pago</h2>
+                <div class="form-group">
+                    <label for="titular">Titular de la Tarjeta</label>
+                    <input type="text" name="titular" id="titular" required />
+                </div>
+                <div class="form-group">
+                    <label for="dniTitular">Dni del Titular</label>
+                    <input type="text" name="dniTitular" id="dniTitular" required />
+                </div>
+                <div class="form-group">
+                    <label for="cardNumber">Número de Tarjeta</label>
+                    <input type="text" name="cardNumber" id="cardNumber" placeholder="XXXX-XXXX-XXXX-XXXX" required />
+                </div>
+                <div class="form-group card-details">
+                    <div>
+                        <label for="expiry">Expiración (MM/AA)</label>
+                        <input type="text" name="expiry" id="expiry" placeholder="MM/AA" required />
+                    </div>
+                    <div>
+                        <label for="cvv">CVV</label>
+                        <input type="text" name="cvv" id="cvv" placeholder="XXX" required />
+                    </div>
+                </div>
+            </div>
+        </div>
     </form>
 
-    <!-- New Cart Container -->
-    <div class="cart-summary">
-        <h2>Productos en el Carrito</h2>
-        <div id="cart-header" class="cart-header">
-            <div class="cart-header-item">Producto</div>
-            <div class="cart-header-item">Nombre</div>
-            <div class="cart-header-item">Cantidad</div>
-            <div class="cart-header-item">Precio</div>
+    <div class="checkout-container">
+        <div class="cart-summary">
+            <h2>Productos en el Carrito</h2>
+            <div id="cart-header" class="cart-header">
+                <div class="cart-header-item">Producto</div>
+                <div class="cart-header-item">Nombre</div>
+                <div class="cart-header-item">Cantidad</div>
+                <div class="cart-header-item">Stock</div>
+                <div class="cart-header-item">Precio</div>
+                <div class="cart-header-item">Acciones</div>
+            </div>
+            <div id="cart-items-checkout">
+                <!-- Los productos añadidos al carrito aparecerán aquí -->
+            </div>
+            <div class="total-container">
+                <p class="total-text">Total a pagar: <span id="total-amount" class="total-amount">$0</span></p>
+            </div>
         </div>
-        <div id="cart-items-checkout">
-            <!-- Los productos añadidos al carrito aparecerán aquí -->
-        </div>
-
     </div>
-</div>
 
+    <button type="submit" class="submit-btn" onclick="submitPayment(event)">Pagar</button>
+    <div id="processing-message" class="processing-message" style="display: none;">Procesando compra...</div>
+
+</div>
 
 {% endblock %}
 
@@ -225,15 +292,13 @@
     function renderCartCheckout() {
         fetch('/api/products/')
             .then(response => {
-                // Verificar que la respuesta sea exitosa
                 if (!response.ok) {
                     throw new Error('Error al obtener los productos');
                 }
-                return response.json();  // Parsear la respuesta JSON
+                return response.json();
             })
             .then(data => {
-                // Obtener los productos del JSON y mostrarlos en la consola
-                const productos = data.productos;  // Aquí ya tienes el array de productos
+                const productos = data.productos;
 
                 // Limpiar contenido actual del carrito
                 const cartItems = document.getElementById("cart-items-checkout");
@@ -242,29 +307,327 @@
                 // Obtener el carrito del localStorage
                 let cart = JSON.parse(localStorage.getItem('cart')) || [];
                 let total = 0;
+
                 // Crear elementos del carrito en la interfaz
-                cart.forEach(item => {
-                    // Buscar el producto por id en la lista de productos
+                cart.forEach((item, index) => {
                     const prod = productos.find(p => p.id == item.name);
-                    const itemTotal = item.cant * item.price; // Calculate total for this item
-                    total += itemTotal; // Add to total
+                    const itemTotal = item.cant * item.price;
+                    total += itemTotal;
                     if (prod) {
                         const cartItem = document.createElement('div');
                         cartItem.classList.add('cart-item');
-                        cartItem.innerHTML = `<img  src="https://www.muycomputer.com/wp-content/uploads/2016/12/66e37912bb19.jpg" alt="Producto"><p class="cart-item-name">${prod.nombre}</p><p class="cart-item-quantity">${item.cant}</p><p class="cart-item-price">$${item.price}</p>`;
+                        cartItem.innerHTML = `
+                            <img src="https://i.ibb.co/27QqPsd/Logo.jpg" class="img-cart" alt="Producto">
+                            <p class="cart-item-name">${prod.nombre}</p>
+                            <input id="quantity" type="number" class="cart-item-quantity" style="margin-top:-15px" value="${item.cant}" min="1" max="${prod.stock}" data-index="${index}">
+                            <p class="cart-item-quantity stock">Stock: ${prod.stock}</p>
+                            <p class="cart-item-price">$${item.price}</p>
+                            <button class="btn_delete_item" onclick="removeFromCart('${prod.id}')"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                        `;
                         cartItems.appendChild(cartItem);
                     }
                 });
+
+                // Actualizar el total
+                document.getElementById("total-amount").textContent = `$${total.toFixed(2)}`;
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     }
 
-    renderCartCheckout()
+
+
+    function updateCart() {
+        const cartItems = document.querySelectorAll(".cart-item-quantity");
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let total = 0;
+
+        cartItems.forEach(input => {
+            const index = input.getAttribute('data-index');
+            const newQuantity = parseInt(input.value);
+
+            if (newQuantity > 0) {
+                cart[index].cant = newQuantity;
+                const itemTotal = newQuantity * cart[index].price;
+                total += itemTotal;
+            }
+        });
+
+        // Guardar el carrito actualizado en localStorage
+        localStorage.setItem('cart', JSON.stringify(cart));
+
+        // Actualizar el total a pagar
+        document.getElementById("total-amount").textContent = `$${total.toFixed(2)}`;
+    }
+
+    function removeFromCart(index) {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        cart.splice(index, 1); // Eliminar el producto del carrito
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCartCheckout(); // Re-renderizar el carrito
+    }
+
+    // Añadir eventos a los botones de eliminar y campos de cantidad
+    document.getElementById("cart-items-checkout").addEventListener('click', function (e) {
+        if (e.target.classList.contains('remove-btn')) {
+            const index = e.target.getAttribute('data-index');
+            removeFromCart(index); // Eliminar producto del carrito
+        }
+    });
+
+    document.getElementById("cart-items-checkout").addEventListener('input', function (e) {
+        if (e.target.classList.contains('cart-item-quantity')) {
+            updateCart(); // Actualizar cantidad de producto
+        }
+    });
+
+    // Renderizar el carrito al cargar la página
+    renderCartCheckout();
+    function isValidEmail(email) {
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailPattern.test(email);
+    }
+
+    // Función para validar que solo haya letras
+    function isValidName(name) {
+        const namePattern = /^[A-Za-z\s]+$/; // Permite solo letras y espacios
+        return namePattern.test(name);
+    }
+
+    // Función para validar que solo haya números
+    function isValidPhoneOrPostalCode(value) {
+        const numberPattern = /^[0-9]+$/; // Permite solo dígitos
+        return numberPattern.test(value);
+    }
+
+    // Función para validar el número de tarjeta
+    function isValidCardNumber(cardNumber) {
+        const cardNumberPattern = /^\d{16}$/; // Valida tarjetas de 16 dígitos
+        return cardNumberPattern.test(cardNumber);
+    }
+
+    function isValidDniNumber(dniNumber) {
+        const cardNumberPattern = /^\d{8}$/; // Valida dni de 8 dígitos
+        return cardNumberPattern.test(dniNumber);
+    }
+
+    // Función para validar el formato de vencimiento
+    function isValidExpiry(expiry) {
+        const expiryPattern = /^(0[1-9]|1[0-2])\/\d{4}$/; // Formato mm/yyyy
+        return expiryPattern.test(expiry);
+    }
+
+    // Función para validar el código CVV
+    function isValidCVV(cvv) {
+        const cvvPattern = /^\d{3}$/; // Valida códigos CVV de 3 dígitos
+        return cvvPattern.test(cvv);
+    }
+
+    // Función para validar todos los campos antes de enviar
+    function validateFields() {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const city = document.getElementById('city').value.trim();
+        const postalCode = document.getElementById('postalCode').value.trim();
+        const titular = document.getElementById('titular').value.trim();
+        const dniTitular = document.getElementById('dniTitular').value.trim();
+        const cardNumber = document.getElementById('cardNumber').value.trim();
+        const expiry = document.getElementById('expiry').value.trim();
+        const cvv = document.getElementById('cvv').value.trim();
+
+        if (!isValidName(name)) {
+            alert('El nombre solo debe contener letras y espacios.');
+            return false;
+        }
+
+        if (!isValidEmail(email)) {
+            alert('El email no es válido.');
+            return false;
+        }
+
+        if (!isValidPhoneOrPostalCode(phone)) {
+            alert('El teléfono solo debe contener números.');
+            return false;
+        }
+
+        if (!isValidPhoneOrPostalCode(postalCode)) {
+            alert('El código postal solo debe contener números.');
+            return false;
+        }
+
+        if (!isValidName(titular)) {
+            alert('El titular solo debe contener letras y espacios.');
+            return false;
+        }
+
+        if (!isValidDniNumber(dniTitular)) {
+            alert('El DNI solo debe contener números y longuitud mayor a 7');
+            return false;
+        }
+
+        if (!isValidCardNumber(cardNumber)) {
+            alert('El número de tarjeta debe tener 16 dígitos.');
+            return false;
+        }
+
+        if (!isValidExpiry(expiry)) {
+            alert('El vencimiento debe estar en formato mm/yyyy.');
+            return false;
+        }
+
+        if (!isValidCVV(cvv)) {
+            alert('El código CVV debe tener 3 dígitos.');
+            return false;
+        }
+
+        // Si todos los campos son válidos
+        return true;
+    }
 
 
 
+
+    function submitPayment(event) {
+        event.preventDefault(); // Evitar el envío del formulario
+
+        // Recoger los datos del formulario
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const city = document.getElementById('city').value;
+        const postalCode = document.getElementById('postalCode').value;
+        const titular = document.getElementById('titular').value;
+        const dniTitular = document.getElementById('dniTitular').value;
+        const cardNumber = document.getElementById('cardNumber').value;
+        const expiry = document.getElementById('expiry').value;
+        const cvv = document.getElementById('cvv').value;
+
+        if (!validateFields()) {
+            event.preventDefault();
+        }
+        else {
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length == 0) {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'El carrito no puede estar vacio',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                })
+                return;
+            }
+            validateCartQuantities();
+            const products = cart.map(item => ({
+                id: item.name,
+                quantity: item.cant,
+                price: item.price,
+            }));
+
+            // Crear el objeto que se enviará al backend
+            const data = {
+                name,
+                email,
+                phone,
+                address,
+                city,
+                postalCode,
+                titular,
+                dniTitular,
+                cardNumber,
+                expiry,
+                cvv,
+                products,
+            };
+
+            // Mostrar mensaje de procesamiento
+            const processingMessage = document.getElementById('processing-message');
+            processingMessage.style.display = 'block';
+
+            // Simular un retraso de 4 segundos antes de enviar la solicitud
+            setTimeout(() => {
+                // Enviar la solicitud POST al backend
+                fetch('{% url "checkout" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'), // Agrega el token CSRF
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Ocultar el mensaje de procesamiento
+                        processingMessage.style.display = 'none';
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Compra Generada',
+                                text: data.message + ' Pedido N°: ' + data.cod,
+                                icon: 'success',
+                                confirmButtonText: 'Aceptar'
+                            }).then(() => {
+                                localStorage.removeItem('cart');
+                                window.location.href = '../tienda';
+                            });
+                            // Puedes redirigir o limpiar el formulario aquí
+                        } else {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: data.message,
+                                icon: 'error',
+                                confirmButtonText: 'Intentar de nuevo'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        // Ocultar el mensaje de procesamiento
+                        processingMessage.style.display = 'none';
+                        console.error('Error:', error);
+                        alert('Ocurrió un error al enviar la solicitud.');
+                    });
+            }, 4000); // 4000 milisegundos = 4 segundos
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Comprobar si esta cookie comienza con el nombre que buscamos
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    function validateCartQuantities() {
+        // Seleccionamos todos los inputs de cantidad en el carrito
+        const quantityInputs = document.querySelectorAll('.cart-item-quantity');
+
+        // Recorremos cada input
+        quantityInputs.forEach(function (input) {
+            // Obtenemos el valor actual y el máximo permitido (stock)
+            const currentValue = parseInt(input.value);
+            const maxStock = parseInt(input.max);
+            const productName = input.closest('.cart-item').querySelector('.cart-item-name').innerText;
+
+            // Verificamos si la cantidad es mayor al stock
+            if (currentValue > maxStock) {
+                // Mostramos una alerta si la cantidad supera el stock
+                alert(`La cantidad para el producto "${productName}" no puede exceder el stock disponible (${maxStock}).`);
+                input.value = maxStock;  // Ajustamos el valor al stock máximo
+            }
+        });
+    }
 
 </script>
 

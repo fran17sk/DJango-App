@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px 0;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        .date-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .date-form label {
+            margin-right: 10px;
+        }
+
+        .date-form input {
+            padding: 5px;
+            margin-right: 10px;
+        }
+
+        .date-form button {
+            padding: 5px 15px;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 24%;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .charts {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chart {
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 48%;
+            margin-bottom: 20px;
+        }
+
+        .chart h2 {
+            font-size: 18px;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body onload="setDefaultDates(); fetchData();">
+
+    <h1>Dashboard</h1>
+
+    <div class="container">
+        <!-- Cards en la parte superior -->
+        <div class="cards">
+            <div class="card">
+                <h3>Total Ingresos</h3>
+                <p id="totalIngresos">0</p>
+            </div>
+            <div class="card" id="resultadoCard">
+                <h3 style="color: white;">Resultado</h3>
+                <p style="color: white;" id="resultado">N/A</p>
+            </div>
+            <div class="card">
+                <h3>Total Egresos</h3>
+                <p id="totalEgresos">0</p>
+            </div>
+            <div class="card">
+                <h3>Total Ventas Online</h3>
+                <p id="totalVentasOnline">0</p>
+            </div>
+        </div>
+
+        <!-- Formulario para seleccionar fechas -->
+        <div class="date-form">
+            <label for="fecha_inicio">Fecha Inicio:</label>
+            <input type="date" id="fecha_inicio">
+            <label for="fecha_fin">Fecha Fin:</label>
+            <input type="date" id="fecha_fin">
+            <button onclick="fetchData()" class="btn-outline-primary">Filtrar</button>
+        </div>
+
+        <!-- Gráfico de líneas para ingresos y egresos -->
+        <div class="charts">
+            <div class="chart">
+                <h2>Ingresos y Egresos</h2>
+                <canvas id="ingresosEgresosChart"></canvas>
+            </div>
+                    <!-- Gráfico de las últimas 5 ventas -->
+            <div class="chart">
+                <h2>Productos Más Vendidos</h2>
+                <canvas id="productosMasVendidosChart"></canvas>
+            </div>
+        </div>
+        <!-- Gráficos de torta para las otras estadísticas -->
+        <div class="charts">
+            <div class="chart">
+                <h2>Marca Más Vendida</h2>
+                <canvas id="marcaMasVendidaChart"></canvas>
+            </div>
+            <div class="chart">
+                <h2>Categoría Más Vendida</h2>
+                <canvas id="categoriaMasVendidaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="charts">
+            <div class="chart">
+                <h2>Empleado que Más Vendió</h2>
+                <canvas id="empleadoMasVendioChart"></canvas>
+            </div>
+            <div class="chart">
+                <h2>Ventas Online</h2>
+                <canvas id="ventasOnlineChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let ingresosEgresosChart;
+        let marcaMasVendidaChart;
+        let categoriaMasVendidaChart;
+        let empleadoMasVendioChart;
+        let ventasOnlineChart;
+        let ultimasVentasChart;
+        let productosMasVendidosChart;
+
+        function setDefaultDates() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+            const lastDay = now.toISOString().split('T')[0];
+
+            document.getElementById('fecha_inicio').value = firstDay;
+            document.getElementById('fecha_fin').value = lastDay;
+
+            const fechaInicioInput = document.getElementById('fecha_inicio');
+            const fechaFinInput = document.getElementById('fecha_fin');
+
+            fechaFinInput.setAttribute('min', firstDay);
+            fechaFinInput.setAttribute('max', lastDay);
+        }
+
+        function fetchData() {
+            const fechaInicio = document.getElementById('fecha_inicio').value;
+            const fechaFin = document.getElementById('fecha_fin').value;
+
+            if (!fechaInicio || !fechaFin) {
+                alert('Por favor selecciona ambas fechas.');
+                return;
+            }
+
+            // Fetch para ingresos y egresos
+            fetch(`/ingresos-egresos/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    const totalesIngresos = data.ingresos.map(item => item.total);
+                    const totalesEgresos = data.egresos.map(item => item.total);
+                    const ultimoIngreso = totalesIngresos.length > 0 ? totalesIngresos[totalesIngresos.length - 1] : 0;
+                    const ultimoEgreso = totalesEgresos.length > 0 ? totalesEgresos[totalesEgresos.length - 1] : 0;
+
+                    document.getElementById('totalIngresos').textContent = formatCurrency(ultimoIngreso);
+                    document.getElementById('totalEgresos').textContent = formatCurrency(ultimoEgreso);
+                    const resultado = ultimoIngreso - ultimoEgreso;
+                    document.getElementById('resultado').textContent = formatCurrency(resultado);
+                    
+                    const resultadoCard = document.getElementById('resultadoCard');
+                    resultadoCard.style.backgroundColor = resultado < 0 ? 'red' : 'green';
+                    resultadoCard.style.color = 'white';
+
+                    const fechasIngresos = data.ingresos.map(item => item.fecha_trunc);
+                    const fechasEgresos = data.egresos.map(item => item.fecha_trunc);
+
+                    // Limpiar el gráfico anterior antes de crear uno nuevo
+                    destroyChart(ingresosEgresosChart);
+                    ingresosEgresosChart = renderIngresosEgresosChart(fechasIngresos, totalesIngresos, fechasEgresos, totalesEgresos);
+                });
+
+            // (resto de las llamadas fetch permanecen igual, pero también debes limpiar los gráficos antes de renderizarlos)
+            // Para cada gráfico que vayas a renderizar, asegúrate de destruir el gráfico anterior
+
+            // Fetch para marca más vendida
+            fetch(`/marca-mas-vendida/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.producto__marca__nombreMarca);
+                    const cantidades = data.map(item => item.cantidad_total);
+                    destroyChart(marcaMasVendidaChart);
+                    marcaMasVendidaChart = renderPieChart('marcaMasVendidaChart', 'Marca Más Vendida', labels, cantidades);
+                });
+
+            // Fetch para categoría más vendida
+            fetch(`/categoria-mas-vendida/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.producto__tipo__categoria__nombreCategoria);
+                    const cantidades = data.map(item => item.cantidad_total);
+                    destroyChart(categoriaMasVendidaChart);
+                    categoriaMasVendidaChart = renderPieChart('categoriaMasVendidaChart', 'Categoría Más Vendida', labels, cantidades);
+                });
+
+            // Fetch para empleado que más vendió
+            fetch(`/empleado-mas-vendio/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.usuario__username);
+                    const cantidades = data.map(item => item.ventas_totales);
+                    destroyChart(empleadoMasVendioChart);
+                    empleadoMasVendioChart = renderPieChart('empleadoMasVendioChart', 'Empleado que Más Vendió', labels, cantidades);
+                });
+
+            // Fetch para ventas online
+            fetch(`/ventas-online/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalVentasOnline').textContent = data.reduce((sum, item) => sum + item.cantidad_total, 0);
+                    const labels = data.map(item => item.status);
+                    const cantidades = data.map(item => item.cantidad_total);
+                    destroyChart(ventasOnlineChart);
+                    ventasOnlineChart = renderPieChart('ventasOnlineChart', 'Ventas Online', labels, cantidades);
+                });
+
+            // Fetch para las últimas 5 ventas
+                fetch(`/productos-mas-vendidos/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const labels = data.map(item => item.producto__nombreProducto);
+                        const cantidades = data.map(item => item.total_vendido);
+                        destroyChart(productosMasVendidosChart);
+                        productosMasVendidosChart = renderBarChart('productosMasVendidosChart', '5 Productos Más Vendidos', labels, cantidades);
+    });
+        }
+
+        function destroyChart(chart) {
+            if (chart) {
+                chart.destroy(); // Destruir el gráfico si existe
+            }
+        }
+
+
+        function renderIngresosEgresosChart(fechasIngresos, totalesIngresos, fechasEgresos, totalesEgresos) {
+            const ctx = document.getElementById('ingresosEgresosChart').getContext('2d');
+            const fechas = Array.from(new Set([...fechasIngresos, ...fechasEgresos])).sort();
+            const datosIngresos = fechas.map(fecha => {
+                const index = fechasIngresos.indexOf(fecha);
+                return index !== -1 ? totalesIngresos[index] : 0;
+            });
+            const datosEgresos = fechas.map(fecha => {
+                const index = fechasEgresos.indexOf(fecha);
+                return index !== -1 ? totalesEgresos[index] : 0;
+            });
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: fechas,
+                    datasets: [
+                        {
+                            label: 'Ingresos',
+                            data: datosIngresos,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0,
+                        },
+                        {
+                            label: 'Egresos',
+                            data: datosEgresos,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            pointRadius: 0,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return `$${value}`;
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: true,
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+function renderPieChart(chartId, title, labels, data) {
+    const ctx = document.getElementById(chartId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: title,
+                data: data,
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: title
+                }
+            }
+        }
+    });
+}
+
+function renderBarChart(chartId, label, labels, data) {
+    const ctx = document.getElementById(chartId).getContext('2d');
+    return new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',  // Color 1
+                    'rgba(54, 162, 235, 0.2)',  // Color 2
+                    'rgba(255, 206, 86, 0.2)',  // Color 3
+                    'rgba(75, 192, 192, 0.2)',  // Color 4
+                    'rgba(153, 102, 255, 0.2)'  // Color 5
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',    // Color 1
+                    'rgba(54, 162, 235, 1)',    // Color 2
+                    'rgba(255, 206, 86, 1)',    // Color 3
+                    'rgba(75, 192, 192, 1)',    // Color 4
+                    'rgba(153, 102, 255, 1)'    // Color 5
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins:{
+                legend:{
+                    display:false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+function formatCurrency(value) {
+    return "$ "+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") ; // Formato en pesos
+}
+document.getElementById('generarReporte').addEventListener('click', function () {
+            fetchData();
+        });
+    </script>
+</body>
+</html>

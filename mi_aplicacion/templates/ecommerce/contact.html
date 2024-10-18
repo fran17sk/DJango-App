@@ -1,5 +1,60 @@
 {% extends 'ecommerce/home.html' %}
 {% load static %}
+{% block extra-head %}
+<style>
+    .form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+        color: #333;
+    }
+
+    .formularioContact {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .formularioContact:focus {
+        border-color: #ffcc00;
+        /* Color de borde en foco */
+        outline: none;
+        box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+    }
+
+    .btn-enviar {
+        background-color: #2995ed;
+        /* Color de botón */
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-enviar:hover {
+        background-color: #0939a1;
+        /* Color de hover para el botón */
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <main>
     <div class="espacioenblanco"></div>
@@ -33,7 +88,7 @@
                             d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
                     </svg></a>
                 <a href="">
-                    <h5>bluedragonstore@gmail.com</h5>
+                    <h5>Sinfoniastore@gmail.com</h5>
                 </a>
             </div>
             <div class="redContact">
@@ -44,22 +99,30 @@
                         <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
                     </svg></a>
                 <a href="">
-                    <h5>Sucursal Central: Buenos Aires N°135 </h5>
+                    <h5>Sucursal: Pje. Gonzalo Abreu 1518</h5>
                 </a>
             </div>
         </div>
         <div class="formContact">
-            <form class="form" id="Mensj_contactles" method="post">
+            <form class="form" id="consultaForm" method="post">
                 {% csrf_token %}
-                <label>Nombre y apellido</label>
-                <input id="nombre_id" type="text" id="name_contact" name='nombre' class="formularioContact">
-                <label>Correo electronico</label>
-                <input id="correo_id" type="email" id="e-mail_contact" name='correo' class="formularioContact">
-                <label>Celular (opcional)</label>
-                <input id="telefono_id" type="tel" id="cell_contact" name='telefono' placeholder="ej:..3874756154"
-                    class="formularioContact">
-                <label>Mensaje</label>
-                <input id="consulta_id" type="text" name="consulta" class="formularioContact mensj">
+                <div class="form-group">
+                    <label for="nombre_id">Nombre y Apellido</label>
+                    <input id="nombre_id" type="text" name="nombre" class="formularioContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="correo_id">Correo Electrónico</label>
+                    <input id="correo_id" type="email" name="correo" class="formularioContact" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefono_id">Celular (opcional)</label>
+                    <input id="telefono_id" type="tel" name="telefono" placeholder="ej:..3874756154"
+                        class="formularioContact">
+                </div>
+                <div class="form-group">
+                    <label for="consulta_id">Mensaje</label>
+                    <textarea id="consulta_id" name="consulta" class="formularioContact mensj" required></textarea>
+                </div>
                 <button type="submit" class="btn-enviar rounded-bottom">ENVIAR</button>
             </form>
         </div>
@@ -67,4 +130,65 @@
     </section>
 </main>
 
+{% endblock %}
+
+{% block extra-scripts %}
+<script>
+    document.getElementById('consultaForm').addEventListener('submit', function (event) {
+        // Obtener todos los campos obligatorios
+        const nombre = document.getElementById('nombre_id');
+        const correo = document.getElementById('correo_id');
+        const mensaje = document.getElementById('consulta_id');
+
+        // Verificar si los campos obligatorios están llenos
+        if (!nombre.value.trim() || !correo.value.trim() || !mensaje.value.trim()) {
+            event.preventDefault(); // Evitar el envío del formulario
+            alert('Por favor, completa todos los campos obligatorios.'); // Mensaje de advertencia
+        }
+    });
+    document.getElementById('consultaForm').addEventListener('submit', function (e) {
+        e.preventDefault();  // Evitar que se recargue la página
+        var form = this;
+
+        // Realizar la petición AJAX
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Mostrar alerta de éxito
+                    Swal.fire({
+                        title: 'Éxito!',
+                        text: data.message,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(() => {
+                        form.reset();  // Limpiar el formulario
+                    });
+                } else {
+                    // Mostrar alerta de error
+                    Swal.fire({
+                        title: 'Error!',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'Intentar de nuevo'
+                    });
+                }
+            })
+            .catch(error => {
+                // Manejar cualquier error en la petición AJAX
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Ocurrió un error inesperado. Por favor, intenta nuevamente.',
+                    icon: 'error',
+                    confirmButtonText: 'Intentar de nuevo'
+                });
+            });
+    });
+</script>
 {% endblock %}

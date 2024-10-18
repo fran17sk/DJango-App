@@ -1,0 +1,69 @@
+{% extends 'ecommerce/admin_dashboard.html' %}
+
+{% block content %}
+<main class="main-container" style="background-color: #fff;">
+
+    <div class="container" style="background-color: #fff;width: 100%;">
+        <div class="d-flex-sp">
+            <h1 style="color: black;">Lista de Articulos</h1>
+        </div>
+        <div class="">
+            <table id="example" class="display" style="width:100%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Color</th>
+                        <th>Marca</th>
+                        <th>Tipo</th>
+                        <th>Iconos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr>
+                        <td>{{producto.id}}</td>
+                        <td>{{producto.nombre}}</td>
+                        <td>{{producto.descripcion}}</td>
+                        <td>{{producto.estado}}</td>
+                        <td>{{producto.proveedor}}</td>
+                        <td>{{producto.categoria}}</td>
+                        <td><a href="{% url 'admin_prods_edit' producto.pk %}">Ver</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</main>
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<!-- Script para manejar la confirmación de eliminación -->
+<script>
+    function showDeleteConfirmation(id) {
+        Swal.fire({
+            title: '¿Estás seguro que desea eliminar este Producto?',
+            text: "No podrás deshacer esta acción.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            // Opcional: Puedes ajustar las opciones de personalización aquí
+            backdrop: 'rgba(0,0,0,0.4)', // Opcional: Ajusta el fondo del modal
+            allowOutsideClick: false // Opcional: Evita cerrar el modal haciendo clic fuera de él
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirigir a la URL de eliminación con el id de la fila
+                window.location.href = `delete/${id}`;
+            }
+        });
+    }
+</script>
+{% endblock %}
