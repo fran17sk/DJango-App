@@ -9,6 +9,8 @@ from django.urls import reverse_lazy,reverse
 import json
 from .models import *
 from .forms import *
+from django.db.models.functions import TruncDate
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import logout
@@ -18,7 +20,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .forms import CustomLoginForm
-from django.db.models import Sum
+from django.db.models import Sum,Count
 from django.contrib.auth import logout
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -33,6 +35,9 @@ import matplotlib
 matplotlib.use('Agg')  # Configurar backend no interactivo
 import matplotlib.pyplot as plt
 import io
+from .utils import obtener_latitud_longitud  
+from django.db.models import OuterRef, Subquery
+
 @login_required
 def home(request):
     return render(request, 'base.html')
@@ -834,6 +839,11 @@ def registrar_factura(request):
 
 def EcommerceHome (request):
     sucursales = Sucursal.objects.all()
+    coordenadas = obtener_latitud_longitud(4400, 'AR')
+    if coordenadas:
+        print(f"Latitud: {coordenadas['latitud']}, Longitud: {coordenadas['longitud']}")
+    else:
+        print("No se encontraron coordenadas para el código postal proporcionado.") 
     if request.user.groups.filter(name='admin').exists():
         productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
         categorias = Categoria.objects.all()
@@ -851,14 +861,15 @@ def EcommerceHome (request):
 
 def ListProducts (request):
     cat = request.GET.get('category')
+    latest_price = ListaPrecio.objects.filter(producto=OuterRef('pk')).order_by('-fecha_creacion').values('precio')[:1]
     if cat :
         category = Categoria.objects.get(nombre=cat)
-        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0, categoria=category)
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad'), precio_actual=Subquery(latest_price)).filter(total_stock__gt=0, categoria=category)
         categorias = Categoria.objects.all()
         return render (request, 'ecommerce/productos.html',{'productos': productos,'categorias':categorias,'cat':category})
 
     else:
-        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
+        productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad'), precio_actual=Subquery(latest_price)).filter(total_stock__gt=0)
         categorias = Categoria.objects.all()
         return render (request, 'ecommerce/productos.html',{'productos': productos,'categorias':categorias})
 
@@ -922,7 +933,7 @@ def mi_cuenta(request):
 
 def get_products_json(request):
     # Obtener todos los productos (puedes añadir filtros si lo deseas)
-    productos = Producto.objects.all()
+    productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
 
     # Crear una lista de productos en formato JSON
     productos_list = []
@@ -930,6 +941,7 @@ def get_products_json(request):
         productos_list.append({
             'id': producto.id,
             'nombre': producto.nombre,
+            'stock':producto.total_stock
         })
     # Devolver la respuesta en JSON
     return JsonResponse({'productos': productos_list})
@@ -939,10 +951,150 @@ def custom_logout_view(request):
     logout(request)
     return HttpResponseRedirect('/tienda')
 
-
-@login_required
 def checkout(request):
-    return render (request, 'ecommerce/checkout.html')
+    if request.method == 'POST':
+        form = CustomLoginForm(request, data=request.POST)
+        form_register = CustomUserCreationForm(request.POST)
+        if 'register' in request.POST and form_register.is_valid():
+            user = form_register.save()
+            client_group = Group.objects.get(name='client')
+            client_group.user_set.add(user)
+            login(request, user)  # Loguear automáticamente al usuario después de registrarse
+            messages.success(request, f"Cuenta creada con éxito para {user.username}")
+            return redirect('checkout')  # Redirigir a la página principal o donde desees
+        else:
+            messages.error(request, "Error al crear la cuenta. Verifica los datos.")
+
+        if 'login_form' in request.POST and form.is_valid():
+            print('login')
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('checkout')  # Redirige a la página principal o donde quieras
+            else:
+                messages.error(request, 'Nombre de usuario o contraseña incorrectos')
+        else:
+            messages.error(request, 'Error en la validación del formulario')
+
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print(data)
+            # Obtén los datos del JSON
+            name = data.get('name')
+            email = data.get('email')
+            phone = data.get('phone')
+            address = data.get('address')
+            city = data.get('city')
+            postalCode = data.get('postalCode')
+            titular = data.get('titular')
+            dniTitular = data.get('dniTitular')
+            cardNumber = data.get('cardNumber')
+            expiry = data.get('expiry')
+            cvv = data.get('cvv')
+            products = data.get('products')  # Lista de productos [{nombre, cantidad, precio}, ...]
+
+            user = User.objects.get(username=request.user)
+
+            # Lista de campos obligatorios
+            required_fields = [
+                name, email, phone, address, city, postalCode,
+                titular, dniTitular, cardNumber, expiry, cvv, products
+            ]
+
+            # Verifica si alguno de los campos obligatorios es None o vacío
+            if any(field is None or field == '' for field in required_fields):
+                return JsonResponse({'success': False, 'message': 'Todos los campos son obligatorios.'}, status=400)
+
+            # Crear la orden de venta
+            orden = OrdenVentaOnline.objects.create(
+                nro_orden='ORD-{}'.format(OrdenVentaOnline.objects.count() + 1),  # Genera un número de orden único
+                status='Pendiente',  # Puedes cambiar el estado según tu lógica
+                fecha=datetime.now(),
+                user=user,
+                nombre_completo=name,
+                correo_electronico=email,
+                telefono=phone,
+                direccion=address,
+                cuidad=city,
+                codigo_postal=postalCode,
+                titular_tarjeta=titular,
+                dni_tarjeta=dniTitular,
+                numero_tarjeta=cardNumber,
+                exp_tarjeta=expiry,
+                cvv_tarjeta=cvv,
+            )
+
+
+            ultimate_factura = FacturaVenta.objects.order_by('-id').first()
+            sucursal = Sucursal.objects.first()
+            tienda_online = Cliente.objects.get(id=1)
+            factura = FacturaVenta.objects.create(
+            numeroFactura=ultimate_factura.id+8,  # Use the order number as the invoice number, or generate a new one
+            fecha=datetime.now(),  # Make sure to set the correct deposito
+            metodo_pago='Tarjeta',  # Set according to your logic
+            total=0,  # Initialize total, you can calculate it after adding details
+            observaciones='',  # Set any relevant observations
+            descuento=0,
+            sucursal=sucursal,
+            cliente = tienda_online 
+            )
+
+            # Crear detalles de venta para cada producto
+            total_price = 0
+            for product in products:
+                producto_id = product.get('id')  # Debes asegurarte de que el nombre corresponda a un objeto Producto en tu base de datos
+                cantidad = product.get('quantity')
+                precio = product.get('price')
+
+                # Obtener la instancia del producto y su stock
+                try:
+                    producto_instance = Producto.objects.get(id=producto_id)
+
+                    # Buscar el stock del producto en el depósito correspondiente (suponiendo que se maneja el stock por depósito)
+                    stock_item = ProductoPorDeposito.objects.filter(producto=producto_instance).first()
+
+                    if stock_item and stock_item.cantidad >= cantidad:
+                        # Descontar el stock
+                        stock_item.cantidad -= cantidad
+                        stock_item.save()
+
+                        # Crear el detalle de la venta
+                        DetalleVentaOnline.objects.create(
+                            producto=producto_instance,
+                            OrdenVentaOnline=orden,
+                            cantidad=cantidad,
+                            precio=precio,
+                            subtotal=cantidad * precio,  # Calcula el subtotal
+                        )
+                        total_price += cantidad * precio  # Accumulate total price for invoice
+                        DetalleVenta.objects.create(
+                            producto=producto_instance,
+                            facturaventa=factura,  # Link the detail to the created invoice
+                            cantidad=cantidad,
+                            precio=precio,
+                            subtotal=cantidad * precio,
+                        )
+                        # Update the invoice total
+                    else:
+                        return JsonResponse({'success': False, 'message': f'Stock insuficiente para el producto {producto_instance.nombreProducto}'}, status=400)
+                except Producto.DoesNotExist:
+                    return JsonResponse({'success': False, 'message': f'El producto {producto_id} no existe.'}, status=400)
+
+            factura.total = total_price
+            factura.save()
+            return JsonResponse({'success': True, 'message': 'Su pedido fue procesado con éxito', 'cod': orden.nro_orden})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'JSON inválido'}, status=400)
+
+    else:
+        if request.user.is_authenticated:
+            return render(request, 'ecommerce/checkout.html')
+        else:
+            return render(request, 'ecommerce/login.html')
 
 
 ###################### Clientes #####################
@@ -1574,3 +1726,116 @@ def responder_consultas(request):
 
     # En caso de que el método no sea POST
     return JsonResponse({'success': False, 'message': 'Método no permitido.'}, status=500)
+
+def ingresos_egresos_view(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    # Asegúrate de que las fechas sean válidas
+    if not fecha_inicio or not fecha_fin:
+        return JsonResponse({'error': 'Fechas inválidas'}, status=400)
+
+    # Obtener los ingresos con fecha truncada
+    ingresos = list(FacturaVenta.objects.filter(
+        fecha__date__range=[fecha_inicio, fecha_fin]
+    ).annotate(fecha_trunc=TruncDate('fecha'))
+     .values('fecha_trunc')
+     .annotate(total=Sum('total'))
+     .order_by('fecha_trunc'))
+
+    # Obtener los egresos con fecha truncada
+    egresos = list(FacturasCompras.objects.filter(
+        fecha_registro__date__range=[fecha_inicio, fecha_fin]
+    ).annotate(fecha_trunc=TruncDate('fecha_registro'))
+     .values('fecha_trunc')
+     .annotate(total=Sum('total'))
+     .order_by('fecha_trunc'))
+
+    # Generar un rango de fechas
+    start_date = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+    end_date = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+    fecha_range = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
+
+    # Crear una lista de ingresos acumulativos
+    ingresos_acumulados = []
+    total_ingresos = 0
+    for fecha in fecha_range:
+        total_diario = next((item['total'] for item in ingresos if item['fecha_trunc'] == fecha), 0)
+        total_ingresos += total_diario
+        ingresos_acumulados.append({'fecha_trunc': fecha, 'total': total_ingresos})
+
+    # Crear una lista de egresos acumulativos
+    egresos_acumulados = []
+    total_egresos = 0
+    for fecha in fecha_range:
+        total_diario = next((item['total'] for item in egresos if item['fecha_trunc'] == fecha), 0)
+        total_egresos += total_diario
+        egresos_acumulados.append({'fecha_trunc': fecha, 'total': total_egresos})
+
+    return JsonResponse({
+        'ingresos': ingresos_acumulados,
+        'egresos': egresos_acumulados,
+    })
+def marca_mas_vendida(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    # Primero filtras las ventas en el rango de fechas
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+
+    # Luego buscas los detalles de las ventas filtradas
+    marcas = DetalleVenta.objects.filter(facturaventa__in=ventas_en_periodo)\
+        .values('producto__marca__nombreMarca')\
+        .annotate(cantidad_total=Sum('cantidad'))\
+        .order_by('-cantidad_total')[:3]
+
+    return JsonResponse(list(marcas), safe=False)
+
+def categoria_mas_vendida(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+    # Primero filtras las ventas en el rango de fechas
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+        
+        # Calcular la categoría más vendida
+    categorias = DetalleVenta.objects.filter(facturaventa__in=ventas_en_periodo).values('producto__tipo__categoria__nombreCategoria') \
+            .annotate(cantidad_total=Sum('cantidad')) \
+            .order_by('-cantidad_total')
+    return JsonResponse(list(categorias), safe=False)
+
+def empleado_mas_vendio(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+
+        # Calcular el empleado que más vendió
+    empleados = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin]).values('usuario__username') \
+            .annotate(ventas_totales=Sum('total')) \
+            .order_by('-ventas_totales')
+    print (empleados)
+    return JsonResponse(list(empleados), safe=False)
+
+
+def ventas_online(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')    
+        # Calcular las ventas online por estado
+    ventas_online = OrdenVentaOnline.objects.filter(fecha__range=[fecha_inicio, fecha_fin]).values('status') \
+            .annotate(cantidad_total=Count('status')) \
+            .order_by('-cantidad_total')
+
+    return JsonResponse(list(ventas_online), safe=False)
+
+def productos_mas_vendidos(request):
+    fecha_inicio = request.GET.get('fecha_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    ventas_en_periodo = FacturaVenta.objects.filter(fecha__date__range=[fecha_inicio, fecha_fin])
+
+    productos_vendidos = (
+        DetalleVenta.objects.filter(facturaventa__in =ventas_en_periodo)
+        .values('producto__nombreProducto')
+        .annotate(total_vendido=Sum('cantidad'))
+        .order_by('-total_vendido')[:5]
+    )
+    print(productos_vendidos)
+    return JsonResponse(list(productos_vendidos), safe=False)

@@ -267,7 +267,7 @@
                 <div class="cart-header-item">Producto</div>
                 <div class="cart-header-item">Nombre</div>
                 <div class="cart-header-item">Cantidad</div>
-                <div class="cart-header-item">Stock</div>
+                <div class="cart-header-item">Disponibles</div>
                 <div class="cart-header-item">Precio</div>
                 <div class="cart-header-item">Acciones</div>
             </div>
@@ -320,7 +320,7 @@
                             <img src="https://i.ibb.co/27QqPsd/Logo.jpg" class="img-cart" alt="Producto">
                             <p class="cart-item-name">${prod.nombre}</p>
                             <input id="quantity" type="number" class="cart-item-quantity" style="margin-top:-15px" value="${item.cant}" min="1" max="${prod.stock}" data-index="${index}">
-                            <p class="cart-item-quantity stock">Stock: ${prod.stock}</p>
+                            <p class="cart-item-quantity stock">${prod.stock}</p>
                             <p class="cart-item-price">$${item.price}</p>
                             <button class="btn_delete_item" onclick="removeFromCart('${prod.id}')"><i class="fa fa-trash" aria-hidden="true"></i></button>
                         `;
