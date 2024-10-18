@@ -1840,3 +1840,35 @@ def productos_mas_vendidos(request):
     )
     print(productos_vendidos)
     return JsonResponse(list(productos_vendidos), safe=False)
+
+def listar_ventas(request):
+    ventas = OrdenVentaOnline.objects.all().order_by('-id')
+    return render(request, 'ecommerce/ventas.html', {'ventas': ventas})
+def listar_ventas_entregadas(request):
+    ventas = OrdenVentaOnline.objects.filter(status='entregado').order_by('-id')
+    return render(request, 'ecommerce/ventas_entregadas.html', {'ventas': ventas})
+
+def cambiar_estado(request, orden_id):
+    if request.method == 'POST':
+        orden = OrdenVentaOnline.objects.get(id=orden_id)
+        data = json.loads(request.body)
+        nuevo_estado = data.get('estado')
+
+        if nuevo_estado in ['preparacion', 'despachado', 'entregado']:
+            orden.status = nuevo_estado
+            orden.save()
+            return JsonResponse({'success': True, 'message': 'Estado actualizado'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Estado no válido'}, status=400)
+    return JsonResponse({'success': False, 'message': 'Método no permitido'}, status=405)
+
+
+def listar_ventas_pendientes(request):
+    ventas = OrdenVentaOnline.objects.filter(status='Pendiente').order_by('-id')
+    return render(request, 'ecommerce/ventas_pendientes.html', {'ventas': ventas})
+def listar_ventas_despachadas(request):
+    ventas = OrdenVentaOnline.objects.filter(status='despachado').order_by('-id')
+    return render(request, 'ecommerce/ventas_despachadas.html', {'ventas': ventas})
+def listar_ventas_preparacion(request):
+    ventas = OrdenVentaOnline.objects.filter(status='preparacion').order_by('-id')
+    return render(request, 'ecommerce/ventas_preparacion.html', {'ventas': ventas})

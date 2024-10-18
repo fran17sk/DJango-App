@@ -312,7 +312,7 @@
                     const labels = data.map(item => item.status);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(ventasOnlineChart);
-                    ventasOnlineChart = renderPieChart('ventasOnlineChart', 'Ventas Online', labels, cantidades);
+                    ventasOnlineChart = renderPieChartVentasOnline('ventasOnlineChart', 'Ventas Online', labels, cantidades);
                 });
 
             // Fetch para las últimas 5 ventas
@@ -455,6 +455,50 @@ function renderBarChart(chartId, label, labels, data) {
             scales: {
                 y: {
                     beginAtZero: true
+                }
+            }
+        }
+    });
+}
+function renderPieChartVentasOnline(id, title, labels, cantidades) {
+    const ctx = document.getElementById(id).getContext('2d');
+
+    const backgroundColors = labels.map(label => {
+        switch (label.toLowerCase()) {
+            case 'pendiente':
+                return 'red';
+            case 'preparacion':
+                return 'yellow';
+            case 'entregado':
+                return 'green';
+            case 'despachado':
+                return 'skyblue';
+            default:
+                return 'gray'; // Color por defecto para cualquier otro estado
+        }
+    });
+
+    return new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: cantidades,
+                backgroundColor: backgroundColors,
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: title
                 }
             }
         }

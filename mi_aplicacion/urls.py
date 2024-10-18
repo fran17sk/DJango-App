@@ -97,7 +97,7 @@ urlpatterns = [
     path ('ventas/new',VentasCreateView.as_view(),name='ventas_new'),
     path('guardar_ventas/',views.guardar_venta,name='guardar_venta'),
     path('ventas/<int:pk>',views.ventas_detalle,name='ventas_detail'),
-path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
+    path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
 
     
         ## INFORMES ##
@@ -113,6 +113,14 @@ path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
     path('tienda/logout' , views.custom_logout_view,name='logout_tienda'),
     path('tienda/productos',views.admin_productos,name='admin_prods'),
     path('tienda/productos/<int:pk>',views.admin_producto_edit,name='admin_prods_edit'),
+    path('tienda/listar_ventas', views.listar_ventas,name='admin_list_ventas'),
+    path('tienda/listar_ventas_entregadas', views.listar_ventas_entregadas,name='admin_list_ventas_entregadas'),
+    path('tienda/listar_ventas_pendientes', views.listar_ventas_pendientes,name='admin_list_ventas_pendientes'),
+    path('tienda/listar_ventas_despachadas', views.listar_ventas_despachadas,name='admin_list_ventas_despachadas'),
+    path('tienda/listar_ventas_preparacion', views.listar_ventas_preparacion,name='admin_list_ventas_preparacion'),
+
+    path('cambiar_estado/<int:orden_id>/', cambiar_estado, name='cambiar_estado'),
+
     path('producto/<int:producto_id>/agregar_imagenes/', agregar_imagenes, name='agregar_imagenes'),
     path('producto/<int:producto_id>/eliminar_imagen/<int:media_id>/', eliminar_imagen, name='eliminar_imagen'),
     path('tienda/mis_ordenes', views.mis_ordenes, name='mis_ordenes'),

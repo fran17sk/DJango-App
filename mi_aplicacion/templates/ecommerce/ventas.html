@@ -1,0 +1,334 @@
+{% extends 'ecommerce/admin_dashboard.html' %}
+{% block content-styles %}
+<style>
+    .body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        width: 1200px;
+    }
+
+    .order-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    .order-table th,
+    .order-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .order-table th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+
+    .status {
+        padding: 5px;
+        border-radius: 3px;
+        font-weight: bold;
+        text-transform: capitalize;
+    }
+
+    .status-pendiente {
+        background-color: red;
+        color: white;
+    }
+
+    .status-entregado {
+        background-color: green;
+        color: white;
+    }
+
+    .status-despachado {
+        background-color: blue;
+        color: white;
+    }
+
+    .status-cancelado {
+        background-color: red;
+        color: white;
+    }
+
+    .customer-info {
+        margin-bottom: 10px;
+    }
+
+    .order-items {
+        margin-top: 10px;
+    }
+
+    .sale-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .sale-card h3 {
+        margin-bottom: 10px;
+    }
+
+    .table-details {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+    }
+
+    .table-details th,
+    .table-details td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table-details th {
+        background-color: #f1f1f1;
+    }
+
+    .table-details td {
+        text-align: right;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .sale-card {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .sale-card h3 {
+        margin-bottom: 10px;
+    }
+
+    .table-details {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+    }
+
+    .table-details th,
+    .table-details td {
+        padding: 8px 12px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table-details th {
+        background-color: #f1f1f1;
+    }
+
+    .table-details td {
+        text-align: right;
+    }
+
+    .status-buttons {
+        margin-top: 20px;
+    }
+
+    .status-buttons button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-right: 10px;
+    }
+
+    .btn-preparacion {
+        background-color: red;
+        color: white;
+    }
+
+    .btn-despachado {
+        background-color: orange;
+        color: white;
+    }
+
+    .btn-entregado {
+        background-color: green;
+        color: white;
+    }
+
+    .ENTREGADOS {
+        text-decoration: none;
+        margin-bottom: 10px;
+        background-color: #00a11b;
+        color: #ddd;
+        border-radius: 10px;
+        border: #333 solid 1px;
+        margin: 5px;
+        padding: 5px;
+    }
+
+    .PENDIENTES {
+        text-decoration: none;
+        margin-bottom: 10px;
+
+        background-color: #d71010;
+        color: #ddd;
+        border-radius: 10px;
+        border: #333 solid 1px;
+        margin: 5px;
+        padding: 5px;
+    }
+
+    .PREPARACION {
+        text-decoration: none;
+        margin-bottom: 10px;
+
+        background-color: #e9d133;
+        color: #040404;
+        border-radius: 10px;
+        border: #333 solid 1px;
+        margin: 5px;
+        padding: 5px;
+
+    }
+
+    .DESPACHADOS {
+        text-decoration: none;
+        margin-bottom: 10px;
+
+        background-color: #05b0b3;
+        color: #000000;
+        border-radius: 10px;
+        border: #333 solid 1px;
+        margin: 5px;
+        padding: 5px;
+
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="body">
+
+    <div class="container">
+        <h1>Ventas</h1>
+        <div class="d-flex">
+            <a class="ENTREGADOS" href="{% url 'admin_list_ventas_entregadas' %}">VER ENTREGADOS</a>
+            <a class="PENDIENTES" href="{% url 'admin_list_ventas_pendientes' %}">VER PENDIENTES</a>
+            <a class="PREPARACION" href="{% url 'admin_list_ventas_preparacion' %}">VER EN PREPARACION</a>
+            <a class="DESPACHADOS" href="{% url 'admin_list_ventas_despachadas' %}">VER DESPACHADOS</a>
+        </div>
+        {% if ventas %}
+        {% for venta in ventas %}
+        <div class="sale-card">
+            <h3>Orden: {{ venta.nro_orden }}</h3>
+            <p><strong>Status:</strong>
+                <span style="color: {{ venta.get_status_color }}">
+                    {{ venta.status }} <!-- Debug: Show the current status -->
+                </span>
+            </p>
+            <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y" }}</p>
+            <p><strong>Cliente:</strong> {{ venta.nombre_completo }}</p>
+            <p><strong>Correo:</strong> {{ venta.correo_electronico }}</p>
+            <p><strong>Teléfono:</strong> {{ venta.telefono }}</p>
+            <p><strong>Dirección:</strong> {{ venta.direccion }}, {{ venta.cuidad }}, {{ venta.codigo_postal }}</p>
+
+            <table class="table-details">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Producto</th>
+                        <th style="text-align: right;">Precio</th>
+                        <th style="text-align: right;">Cantidad</th>
+                        <th style="text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in venta.detalleventaonline_set.all %}
+                    <tr>
+                        <td style="text-align: left;">{{ item.producto.nombre }}</td>
+                        <td style="text-align: right;">${{ item.precio }}</td>
+                        <td style="text-align: right;">{{ item.cantidad }}</td>
+                        <td style="text-align: right;">${{ item.subtotal }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Status Logic for Buttons -->
+            <div class="status-buttons">
+                <!-- Debugging: Display the current status value -->
+
+
+                {% if venta.status == "Pendiente" %}
+                <button onclick="cambiarEstado('{{ venta.id }}', 'preparacion')" class="btn btn-preparacion"
+                    style="background-color: red; color: white;">Cambiar a En Preparación</button>
+                {% elif venta.status == "preparacion" %}
+                <button onclick="cambiarEstado('{{ venta.id }}', 'despachado')" class="btn btn-despachado"
+                    style="background-color: orange; color: white;">Cambiar a Despachado</button>
+                {% elif venta.status == "despachado" %}
+                <button onclick="cambiarEstado('{{ venta.id }}', 'entregado')" class="btn btn-entregado"
+                    style="background-color: green; color: white;">Marcar como Entregado</button>
+                {% elif venta.status == "entregado" %}
+                <button class="btn btn-entregado" style="background-color: green; color: white;">ENTREGADO</button>
+
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No hay ventas disponibles.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra-scripts %}
+<script>
+    function cambiarEstado(ordenId, nuevoEstado) {
+        fetch(`/cambiar_estado/${ordenId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                estado: nuevoEstado
+            })
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Estado actualizado correctamente');
+                    location.reload();  // Recargar la página para ver el nuevo estado
+                } else {
+                    alert('Error al cambiar el estado');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Obtener el token CSRF de las cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
