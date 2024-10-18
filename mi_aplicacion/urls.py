@@ -1,6 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import *
+from django.conf.urls.static import static
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -104,16 +106,25 @@ path('get_codigo_afip/', views.get_codigo_AFIP, name='get_codigo_afip'),
     path('generar-informe-ventas/', generar_informe_ventas, name='generar_informe_ventas'),
     path('tienda/', views.EcommerceHome, name='tienda'),
     path('tienda/articulos', views.ListProducts , name='productos'),
-    path('tienda/contacto',ContactView.as_view() , name='contact'),
+    path('tienda/contacto',views.ContactView , name='contact'),
     path('tienda/login',EcommerceLoginView, name='ecommerce_login'),
     path('logout_ecomerce/', views.custom_logout_view, name='logout_ecommerce'),
     path('tienda/mi_cuenta/', views.mi_cuenta, name='mi_cuenta'),
     path('tienda/logout' , views.custom_logout_view,name='logout_tienda'),
+    path('tienda/productos',views.admin_productos,name='admin_prods'),
+    path('tienda/productos/<int:pk>',views.admin_producto_edit,name='admin_prods_edit'),
+    path('producto/<int:producto_id>/agregar_imagenes/', agregar_imagenes, name='agregar_imagenes'),
+    path('producto/<int:producto_id>/eliminar_imagen/<int:media_id>/', eliminar_imagen, name='eliminar_imagen'),
+    path('tienda/mis_ordenes', views.mis_ordenes, name='mis_ordenes'),
+    path('mis-ordenes/<int:orden_id>/', views.detalle_orden, name='detalle_orden'),
+    path('tienda/nosotros' ,views.nosotros , name='nosotros'),
+    path('consulta/responder', views.responder_consultas, name='hola'),
+    path('consultas',views.admin_consultas,name='admin_consultas'),
 
 
     path('api/products/', views.get_products_json, name='get_products_json'),
     path('checkout',views.checkout , name='checkout'),
-    ]
+    ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 ###urlpatterns = [

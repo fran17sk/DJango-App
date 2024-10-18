@@ -50,3 +50,15 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class ConsultaForm(forms.ModelForm):
+    class Meta:
+        model = Consulta
+        fields = ['nombre', 'correo', 'telefono', 'consulta']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Correo'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Teléfono'}),
+            'consulta': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Consulta'}),
+        }

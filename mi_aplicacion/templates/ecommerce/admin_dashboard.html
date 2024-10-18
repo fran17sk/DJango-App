@@ -271,72 +271,46 @@
             box-shadow: 0px 4px 6px rgba(230, 0, 0, 0.3);
             /* Sombra al hacer hover */
         }
+
+        .container {
+            width: 100%;
+        }
     </style>
+    {% block content-styles %} {% endblock %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/dataTables.dataTables.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.datatables.net/2.1.4/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.dataTables.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.print.min.js"></script>
 </head>
 
 <body>
     <div class="grid-container">
 
         {% include 'ecommerce/_admin_slidebar.html' %}
-        <main class="main-container">
-            <div class="main-title">
-            </div>
-
-            <div class="main-cards">
-
-                <div class="card">
-                    <div class="card-inner">
-                        <h3>PRODUCTOS</h3>
-                        <span class="material-icons-outlined">inventory_2</span>
-                    </div>
-                    <h1>{{ productos|length }}</h1>
-                </div>
-
-                <div class="card">
-                    <div class="card-inner">
-                        <h3>CATEGORIAS</h3>
-                        <span class="material-icons-outlined">category</span>
-                    </div>
-                    <h1>{{ categorias|length }}</h1>
-                </div>
-
-                <div class="card">
-                    <div class="card-inner">
-                        <h3>CLIENTES</h3>
-                        <span class="material-icons-outlined">groups</span>
-                    </div>
-                    <h1>{{ clientes|length }}</h1>
-                </div>
-
-                <div class="card">
-                    <div class="card-inner">
-                        <h3>Consultas</h3>
-                        <span class="material-icons-outlined">email</span>
-                    </div>
-                    <h1>{{ consultas|length }}</h1>
-                </div>
-
-            </div>
-
-            <div class="charts">
-
-                <div class="charts-card">
-                    <h2 class="chart-title">Los 5 mejores productos</h2>
-                    <div id="bar-chart"></div>
-                </div>
-
-                <div class="charts-card">
-                    <h2 class="chart-title">Órdenes de Compra y Venta</h2>
-                    <div id="area-chart"></div>
-                </div>
-
-            </div>
-        </main>
+        {% block content %} {% endblock %}
     </div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.35.5/apexcharts.min.js"></script>
     <script>
+
+        new DataTable('#example', {
+            layout: {
+                topStart: {
+                    buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+                }
+            }
+        });
+
+        new DataTable('#prods', {
+
+        });
         // SIDEBAR TOGGLE
         var sidebarOpen = false;
         var sidebar = document.getElementById("sidebar");
@@ -586,6 +560,9 @@
         var areaChart = new ApexCharts(document.querySelector("#area-chart"), areaChartOptions);
         areaChart.render();
     </script>
+
+    {% block extra-scripts %}
+    {% endblock %}
 </body>
 
 </html>

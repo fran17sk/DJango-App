@@ -840,12 +840,13 @@ def EcommerceHome (request):
         client_group = Group.objects.get(name='client')
         clientes = User.objects.filter(groups=client_group)
         consultas = Consulta.objects.all()
-        return render(request, 'ecommerce/admin_dashboard.html',{'productos':productos,'categorias':categorias,'clientes':clientes,'consultas':consultas})
+        return render(request, 'ecommerce/admin_main.html',{'productos':productos,'categorias':categorias,'clientes':clientes,'consultas':consultas})
     elif request.user.groups.filter(name='client').exists():
         return render (request,'ecommerce/main.html',{'sucursales':sucursales})
     else:
         return render (request,'ecommerce/main.html',{'sucursales':sucursales})
-    
+
+
     
 
 def ListProducts (request):
@@ -864,11 +865,18 @@ def ListProducts (request):
 def LoginView (request):
     return render (request, 'ecommerce/login.html')
 
-class ContactView (CreateView):
-    model = Consulta
-    template_name = 'ecommerce/contact.html'
-    fields = '__all__'
-    success_url = reverse_lazy('contact')
+def ContactView (request):
+    if request.method == 'POST':
+        form = ConsultaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True, 'message': 'Su consulta fue enviada satisfactoriamente.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Hubo un error al enviar la consulta. Por favor, intente de nuevo.'})
+    else:
+        form = ConsultaForm()
+    
+    return render(request, 'ecommerce/contact.html', {'form': form})
 
 def EcommerceLoginView(request):
 
@@ -908,7 +916,9 @@ def custom_logout_view(request):
     return HttpResponseRedirect('/tienda')
 
 def mi_cuenta(request):
-    return render(request,'ecommerce/mi_cuenta.html')
+    username = request.user
+    user = User.objects.get(username=username)
+    return render(request,'ecommerce/mi_cuenta.html',{'user':user})
 
 def get_products_json(request):
     # Obtener todos los productos (puedes añadir filtros si lo deseas)
@@ -921,7 +931,6 @@ def get_products_json(request):
             'id': producto.id,
             'nombre': producto.nombre,
         })
-    print(productos_list)
     # Devolver la respuesta en JSON
     return JsonResponse({'productos': productos_list})
 
@@ -930,8 +939,11 @@ def custom_logout_view(request):
     logout(request)
     return HttpResponseRedirect('/tienda')
 
+
+@login_required
 def checkout(request):
     return render (request, 'ecommerce/checkout.html')
+
 
 ###################### Clientes #####################
 class ClientesListaView(LoginRequiredMixin,ListView):
@@ -1479,3 +1491,86 @@ def generar_informe_facturas(request):
     response['Content-Disposition'] = f'attachment; filename="informe_compras_{tipo}_{datetime.today()}.pdf"'
 
     return response
+
+def admin_productos(request):
+    productos = Producto.objects.annotate(total_stock = Sum('productopordeposito__cantidad')).filter(total_stock__gt=0)
+
+    return render(request,'ecommerce/productos_list.html',{'productos':productos})
+def admin_producto_edit(request,pk):
+    producto = get_object_or_404(Producto, pk=pk)
+    
+    context = {
+        'producto': producto
+    }
+    return render(request,'ecommerce/prod_detail.html',context)
+def agregar_imagenes(request, producto_id):
+    producto = Producto.objects.get(id=producto_id)
+    if request.method == 'POST' and request.FILES:
+        for file in request.FILES.getlist('imageFile'):
+            # Crear una nueva instancia de Media para cada archivo subido
+            media = Media(content=file, mimetype=file.content_type, name=file.name)
+            media.save()
+            producto.media.add(media)  # Asocia la imagen al producto
+        return redirect('admin_prods_edit', pk=producto.id)
+    return render(request, 'agregar_imagenes.html', {'producto': producto})
+
+def eliminar_imagen(request, producto_id, media_id):
+    producto = get_object_or_404(Producto, id=producto_id)
+    media = get_object_or_404(Media, id=media_id)
+
+    # Elimina la imagen del producto
+    producto.media.remove(media)
+    media.delete()  # Si deseas eliminar el archivo de la base de datos también
+
+    return redirect('admin_prods_edit', pk=producto.id)  # Redirige a la vista del producto
+def mis_ordenes(request):
+    user = User.objects.get(username=request.user)
+    ordenes = OrdenVentaOnline.objects.filter(user=user).order_by('-id')
+    print(ordenes)
+    return render(request,'ecommerce/mis_ordenes.html',{'ordenes': ordenes})
+
+def detalle_orden(request, orden_id):
+    # Obtén la orden por ID
+    orden = get_object_or_404(OrdenVentaOnline, id=orden_id, user=request.user)
+    # Obtén los detalles de la orden
+    detalles = DetalleVentaOnline.objects.filter(OrdenVentaOnline=orden)
+
+    context = {
+        'orden': orden,
+        'detalles': detalles,
+    }
+    
+    return render(request, 'ecommerce/detalle_orden.html', context)
+def nosotros(request):
+    return render(request,'ecommerce/nosotros.html')
+def admin_consultas(request):
+    consultas = Consulta.objects.all().order_by('estado')
+    
+    return render(request,'ecommerce/admin_consultas.html',{'consultas':consultas})
+
+
+def responder_consultas(request):
+    if request.method == 'POST':
+        try:
+            # Cargar el cuerpo de la solicitud como JSON
+            data = json.loads(request.body)
+            mensaje = data.get('mensaje')
+            consulta_id = data.get('consulta')
+            print(data)
+
+            # Obtener la consulta correspondiente
+            consulta = get_object_or_404(Consulta, id=int(consulta_id))
+
+            # Guardar la respuesta en el campo 'respuesta' del modelo
+            consulta.respuesta = mensaje
+            consulta.estado = 'respondida'  # Cambiar el estado si es necesario
+            consulta.save()
+
+            # Devolver una respuesta exitosa
+            return JsonResponse({'success': True, 'message': 'Respuesta enviada correctamente.'})
+        
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Error al procesar los datos.'}, status=500)
+
+    # En caso de que el método no sea POST
+    return JsonResponse({'success': False, 'message': 'Método no permitido.'}, status=500)

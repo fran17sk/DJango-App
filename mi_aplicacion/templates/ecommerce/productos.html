@@ -25,16 +25,32 @@
     <section id="productos">
         <div class="prodFlex carou" id="listado">
             {% for prod in productos %}
-            <div id="" class="producto card">
-                <img src="https://www.muycomputer.com/wp-content/uploads/2016/12/66e37912bb19.jpg" alt="Producto"
-                    class="img-prod">
-                <h5 class="product-price">$500.000</h5>
-                <div class="c">
-                    <h6 class="titleProd">{{prod.nombre|slice:"30"}}</h6>
+            <div class="product-card">
+                <div class="product-image">
+                    <div id="carousel-{{ prod.id }}" class="carousel">
+                        {% if prod.media.all %}
+                        {% for image in prod.media.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.content.url }}" alt="{{ prod.nombreProducto }}" class="img-prod">
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="carousel-item active">
+                            <img src="https://via.placeholder.com/800x400?text=Sin+imagen+disponible"
+                                alt="Sin imagen disponible" class="img-prod">
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-                <button onclick="addToCart({{ prod.id }},1,500000)" class="add-to-cart">COMPRAR</button>
-                <p>Stock Disponible: {{prod.total_stock}}</p>
+                <div class="product-details">
+                    <h6 class="product-title">{{ prod.nombre|slice:"30" }}</h6>
+                    <p class="product-price">${{ prod.precio_actual }}</p>
+                    <p class="product-stock">Stock Disponible: {{ prod.total_stock }}</p>
+                    <button onclick="addToCart({{ prod.id }}, 1, {{ prod.precio_actual }})"
+                        class="add-to-cart-btn">Comprar</button>
+                </div>
             </div>
+
             {% empty %}
             <p>No hay productos disponibles.</p>
             {% endfor %}

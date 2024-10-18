@@ -1,0 +1,289 @@
+{% extends 'ecommerce/home.html' %}
+{% block extra-head %}
+<style>
+    * {}
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+        margin: 0;
+        padding: 0px;
+    }
+
+    .checkout-container {
+        display: flex;
+        justify-content: space-between;
+        /* Aligns form and cart side by side */
+        /* Set a max width for the container */
+        width: 100%;
+        margin: auto;
+    }
+
+    .cart-summary {
+        background-color: #1f1f1f;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        width: 100%;
+        /* Fixed width for cart summary */
+        margin-left: 20px;
+        margin-bottom: 20px;
+        /* Spacing between form and cart */
+    }
+
+    .cart-summary h2 {
+        padding-bottom: 10px;
+    }
+
+    .total-container {
+        margin-top: 20px;
+        margin-left: 80%;
+    }
+
+    .total-text {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .total-amount {
+        font-weight: bold;
+        font-size: 18px;
+        color: #00bcd4;
+        /* Color for total amount */
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #fbff00;
+    }
+
+    .section {
+        min-width: 400px;
+        margin-bottom: 25px;
+    }
+
+    h2 {
+        margin-bottom: 15px;
+        font-weight: 600;
+        padding-bottom: 5px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #444;
+        border-radius: 5px;
+        background-color: #292929;
+        color: #ffffff;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
+        border-color: #fbff00;
+        outline: none;
+    }
+
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .card-details div {
+        flex: 1;
+        margin-right: 10px;
+    }
+
+    .card-details div:last-child {
+        margin-right: 0;
+    }
+
+    .submit-btn {
+        background-color: #000000;
+        color: #ffffff;
+        border: none;
+        padding: 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 250px;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-left: 40%;
+        margin-bottom: 50px;
+    }
+
+    .submit-btn:hover {
+        background-color: #fbff00;
+        color: black;
+    }
+
+    .payment-result {
+        margin-top: 20px;
+        text-align: center;
+        color: #00bcd4;
+        font-weight: bold;
+    }
+
+    .cart-item-quantity {
+        border: none;
+        max-width: 50px;
+    }
+
+    .cart-item {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+    }
+
+    .btn_delete_item {
+        background-color: transparent;
+        color: red;
+        margin-top: -4px;
+    }
+
+    .d-flex-chechout {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-around;
+    }
+
+    .processing-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 1000;
+    }
+
+    .cart-item-field {
+        color: #000000;
+    }
+
+    .status-pendiente {
+        background-color: yellow;
+        color: black;
+        /* Texto negro para contraste */
+    }
+
+    .status-entregado {
+        background-color: green;
+        color: white;
+        /* Texto blanco para contraste */
+    }
+
+    .status-cancelado {
+        background-color: red;
+        color: white;
+        /* Texto blanco para contraste */
+    }
+
+    .status-despachado {
+        background-color: blue;
+        color: white;
+        /* Texto blanco para contraste */
+    }
+
+    /* Para alinear el texto al centro y un poco de padding */
+    .cart-item-field {
+        padding: 10px;
+        border-radius: 5px;
+        /* Bordes redondeados */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="espacioenblanco"></div>
+
+<div class="">
+    <div class="checkout-container">
+        <div class="cart-summary">
+            <h2>Mis Compras | Usuario: {{ request.user.username }}</h2>
+            <div id="cart-header" class="cart-header">
+                <div class="cart-header-item text-center">N° Orden</div>
+                <div class="cart-header-item text-center">Fecha</div>
+                <div class="cart-header-item text-center">Estado</div>
+                <div class="cart-header-item text-center">Nombre Completo</div>
+                <div class="cart-header-item text-center">Correo Electrónico</div>
+                <div class="cart-header-item text-center">Acciones</div>
+            </div>
+            <div id="cart-items-checkout">
+                {% for orden in ordenes %}
+                <div class="cart-item">
+                    <div class="cart-item-field text-center">{{ orden.nro_orden }}</div>
+                    <div class="cart-item-field text-center">{{ orden.fecha }}</div>
+                    <div class="cart-item-field text-center" id="status-{{ orden.id }}">
+                        {{ orden.status }}
+                    </div>
+                    <div class="cart-item-field text-center">{{ orden.nombre_completo }}</div>
+                    <div class="cart-item-field text-center">{{ orden.correo_electronico }}</div>
+                    <div class="cart-item-field text-center">
+                        <a href="{% url 'detalle_orden' orden.id %}">Ver Detalle</a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="cart-item">
+                    <div class="cart-item-field text-center" colspan="10">No tienes órdenes registradas.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+{% block extra-scripts %}
+<script>
+    // Esperar a que el DOM esté completamente cargado
+    document.addEventListener("DOMContentLoaded", function () {
+        const orders = document.querySelectorAll('.cart-item');
+
+        orders.forEach(order => {
+            const statusElement = order.querySelector('.cart-item-field:nth-child(3)'); // Estado es la tercera columna
+            const statusText = statusElement.textContent.trim();
+
+            // Asignar la clase correspondiente según el estado
+            switch (statusText) {
+                case 'Entregado':
+                    statusElement.classList.add('status-entregado');
+                    break;
+                case 'Pendiente':
+                    statusElement.classList.add('status-pendiente');
+                    break;
+                case 'Cancelado':
+                    statusElement.classList.add('status-cancelado');
+                    break;
+                case 'Despachado':
+                    statusElement.classList.add('status-despachado');
+                    break;
+                default:
+                    // Puedes manejar otros estados si es necesario
+                    break;
+            }
+        });
+    });
+</script>
+{% endblock %}

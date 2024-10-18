@@ -19,42 +19,42 @@
 
     <ul class="sidebar-list">
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="{% url 'tienda' %}">
                 <span class="material-icons-outlined">dashboard</span> Panel
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="{% url 'admin_prods' %}">
                 <span class="material-icons-outlined">inventory_2</span> Productos
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
-                <span class="material-icons-outlined">category</span> Categorias
+            <a href="{% url 'admin_consultas' %}">
+                <span class="material-icons-outlined">email</span> Consultas
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="#">
                 <span class="material-icons-outlined">groups</span> Clientes
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="#">
                 <span class="material-icons-outlined">fact_check</span> Inventario
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="#">
                 <span class="material-icons-outlined">poll</span> Reportes
             </a>
         </li>
         <li class="sidebar-list-item">
-            <a href="#" target="_blank">
+            <a href="#">
                 <span class="material-icons-outlined">settings</span> Configuración
             </a>
         </li>
         <li class="sidebar-list-item"></li>
-        <a class="btn_salir" href="{% url 'logout_tienda' %}" target="_blank">
+        <a class="btn_salir" href="{% url 'logout_tienda' %}">
             Logout
         </a>
         </li>
