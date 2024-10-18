@@ -1,0 +1,351 @@
+{% extends 'ecommerce/admin_dashboard.html' %}
+{% block content-styles %}
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        font-family: Arial, sans-serif;
+        color: #333;
+    }
+
+    .card-detalle {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fff9f9;
+        transition: transform 0.2s ease-in-out;
+        padding: 50px;
+    }
+
+    .card-detalle:hover {
+        transform: scale(1.0);
+    }
+
+    .card-detalle-header {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .card-detalle-header h2 {
+        margin: 0;
+        font-size: 24px;
+        color: #333;
+    }
+
+    .card-detalle-body {
+        padding: 20px;
+    }
+
+    .carousel {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .carousel-inner {
+        display: flex;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .carousel-item {
+        min-width: 100%;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel img {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .card-detalle p {
+        font-size: 16px;
+        margin: 10px 0;
+        color: black;
+    }
+
+    .media-link {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-top: 10px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .media-link:hover {
+        background-color: #0056b3;
+    }
+
+    .btn {
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        display: inline-block;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Styles for carousel controls */
+    .carousel-control {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 10px;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .carousel-control.left {
+        left: 10px;
+    }
+
+    .carousel-control.right {
+        right: 10px;
+    }
+
+    .modal {
+        display: none;
+        /* Ocultar el modal por defecto */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        /* Ancho máximo del modal */
+        animation: slideDown 0.3s ease;
+        /* Animación de entrada */
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #4a90e2;
+        /* Línea inferior en el header */
+        padding-bottom: 10px;
+    }
+
+    .modal-header h5 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #4a90e2;
+        /* Color del título */
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 10px;
+    }
+
+    .modal-footer .btn {
+        background-color: #4a90e2;
+        /* Color del botón */
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .modal-footer .btn:hover {
+        background-color: #357ab8;
+        /* Color del botón al pasar el mouse */
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control-file {
+        border: 2px solid #e0e0e0;
+        /* Borde del input */
+        border-radius: 5px;
+        padding: 5px;
+        width: 100%;
+        transition: border-color 0.3s;
+    }
+
+    .form-control-file:focus {
+        border-color: #4a90e2;
+        /* Borde del input al enfocar */
+        outline: none;
+        /* Sin borde predeterminado */
+    }
+
+    .carousel-item {
+        display: none;
+        /* Oculta todas las imágenes por defecto */
+        transition: opacity 0.5s ease-in-out;
+    }
+
+    .carousel-item.active {
+        display: block;
+        /* Solo la imagen activa se mostrará */
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<main class="main-container" style="background-color: #fff;">
+    <div class="container">
+        <div class="card-detalle">
+            <div class="card-header">
+                <h2>{{ producto.nombreProducto }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="carousel" id="carouselImages">
+                    <div class="carousel-inner">
+                        {% if producto.media.all %}
+                        {% for image in producto.media.all %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ image.content.url }}" alt="{{ producto.nombreProducto }}" class="img-prod">
+                            <a href="{% url 'eliminar_imagen' producto.id image.id %}"
+                                class="btn btn-danger">Eliminar</a>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="carousel-item active">
+                            <img src="" alt="Sin imagen disponible" class="d-block w-100">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Controles del carrusel -->
+                    <span class="carousel-control left" onclick="moveCarousel(-1)">&#10094;</span>
+                    <span class="carousel-control right" onclick="moveCarousel(1)">&#10095;</span>
+                </div>
+
+
+                <p class="mt-3"><strong>Descripción:</strong> {{ producto.Descripcion }}</p>
+                <p><strong>nombre:</strong> {{ producto.nombre }}</p>
+                <p><strong>descripcion:</strong> {{ producto.descripcion }}</p>
+                <p><strong>estado:</strong> {{ producto.estado }}</p>
+                <p><strong>proveedor:</strong> {{ producto.proveedor }}</p>
+                <p><strong>categoria:</strong> {{ producto.categoria }}</p>
+
+                <a class="media-link" id="openModalButton">Agregar Imágenes</a>
+                <a class="media-link" href="">Eliminar Imágenes</a>
+            </div>
+        </div>
+        <a class="btn btn-primary" style="margin-top: 50px;" href="{% url 'admin_prods' %}">Volver a la lista de
+            productos</a>
+    </div>
+
+    <!-- Modal para agregar imágenes -->
+    <div id="addImageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Agregar Imágenes</h5>
+                <button id="closeModalButton">&times;</button>
+            </div>
+            <form method="post" enctype="multipart/form-data" action="{% url 'agregar_imagenes' producto.id %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="imageFile">Seleccionar Imágenes</label>
+                        <input type="file" class="form-control-file" id="imageFile" name="imageFile" multiple required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="closeModalButton" class="btn">Cerrar</button>
+                    <button type="submit" class="btn">Agregar Imágenes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+</main>
+<!-- SweetAlert JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+
+<script>
+    const openModalButton = document.getElementById('openModalButton');
+    const addImageModal = document.getElementById('addImageModal');
+    const closeModalButtons = document.querySelectorAll('#closeModalButton');
+
+    openModalButton.addEventListener('click', () => {
+        addImageModal.style.display = 'flex'; // Mostrar el modal
+    });
+
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            addImageModal.style.display = 'none'; // Ocultar el modal
+        });
+    });
+
+    // Cerrar el modal si el usuario hace clic fuera de él
+    window.addEventListener('click', (event) => {
+        if (event.target === addImageModal) {
+            addImageModal.style.display = 'none';
+        }
+    });
+
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.carousel-item');
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.remove('active');
+            slide.style.display = i === index ? 'block' : 'none';  // Muestra solo la imagen activa
+        });
+        slides[index].classList.add('active');
+    }
+
+    function moveCarousel(direction) {
+        currentSlide = (currentSlide + direction + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // Mostrar la primera imagen al cargar la página
+    showSlide(currentSlide);
+</script>
+
+<!-- Script para manejar la confirmación de eliminación -->
+{% endblock %}

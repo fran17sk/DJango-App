@@ -1,0 +1,126 @@
+{% extends 'ecommerce/home.html' %}
+
+{% block content %}
+<div class="espacioenblanco"></div>
+
+
+<div class="detalle-orden-container">
+    <h2>Detalle de Orden: {{ orden.nro_orden }} |
+        <span class="status">
+            <span class="status-dot" style="background-color: {{ orden.get_status_color }};"></span>
+            {{ orden.status }}
+        </span>
+    </h2>
+
+    <div class="orden-info">
+        <div class="d-flex-detalleorden">
+            <div>
+                <h4>Datos Personales</h4>
+                <p><strong>Usuario:</strong> {{ orden.user }}</p>
+                <p><strong>Nombre Completo:</strong> {{ orden.nombre_completo }}</p>
+                <p><strong>Correo Electrónico:</strong> {{ orden.correo_electronico }}</p>
+                <p><strong>Teléfono:</strong> {{ orden.telefono }}</p>
+            </div>
+            <div>
+                <h4>Datos de Direccion de Envio</h4>
+                <p><strong>Dirección:</strong> {{ orden.direccion }}</p>
+                <p><strong>Ciudad:</strong> {{ orden.cuidad }}</p>
+                <p><strong>Código Postal:</strong> {{ orden.codigo_postal }}</p>
+            </div>
+            <div>
+                <h4>Datos de facturacion</h4>
+                <p><strong>Titular de la Tarjeta:</strong> {{ orden.titular_tarjeta }}</p>
+                <p><strong>DNI del Titular:</strong> {{ orden.dni_tarjeta }}</p>
+                <p><strong>Número de Tarjeta:</strong> {{ orden.numero_tarjeta }}</p>
+                <p><strong>Fecha de Vencimiento:</strong> {{ orden.exp_tarjeta }}</p>
+            </div>
+        </div>
+    </div>
+
+    <h3>Detalles de los Productos</h3>
+    <table class="tabla-detalle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.producto.nombreProducto }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>${{ detalle.precio }}</td>
+                <td>${{ detalle.subtotal }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td></td>
+                <td></td>
+                <td>TOTAL</td>
+                <td id="total-detalle"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<style>
+    .detalle-orden-container {
+        margin: 20px auto;
+        width: 80%;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .orden-info {
+        margin-bottom: 20px;
+    }
+
+    .tabla-detalle {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tabla-detalle th,
+    .tabla-detalle td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+    }
+
+    .d-flex-detalleorden {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+    }
+</style>
+
+{% endblock %}
+
+{% block extra-scripts %}
+
+<script>
+    let total = 0;
+
+    // Recorrer las filas de la tabla
+    const rows = document.querySelectorAll('tbody tr');
+
+    rows.forEach(row => {
+        const subtotalCell = row.cells[3]; // Columna de subtotal
+        const subtotalText = subtotalCell.textContent || subtotalCell.innerText;
+        const subtotalValue = parseFloat(subtotalText.replace(/[$]/, '').replace(/,/g, '')); // Convertir a float
+
+        // Sumar al total si es un número válido
+        if (!isNaN(subtotalValue)) {
+            total += subtotalValue;
+        }
+    });
+
+    // Mostrar el total en la celda correspondiente
+    document.getElementById('total-detalle').textContent = '$' + total.toFixed(2);
+</script>
+{% endblock %}
