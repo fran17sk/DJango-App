@@ -45,136 +45,138 @@
     </div>
 
     <!-- Botón para abrir el modal -->
-    <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal">Agregar Producto</button>
+    <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal">Agregar
+        Producto</button>
 
-<!-- Modal de Bootstrap para agregar productos -->
-<div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="productoModal">Agregar Producto</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Buscador de productos -->
-                <div class="mb-3">
-                    <label for="buscarProducto" class="form-label">Buscar Producto</label>
-                    <input type="text" class="form-control" id="buscarProducto" placeholder="Buscar por nombre o ID">
+    <!-- Modal de Bootstrap para agregar productos -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productoModal">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <!-- Tabla de productos -->
-                <table class="table table-striped mt-4" id="productosTable">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Precio Unitario</th>
-                            <th>Seleccionar</th>
-                        </tr>
-                    </thead>
-                    <tbody id="productosTableBody">
-                        <!-- Los productos se agregarán aquí vía AJAX -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar Selección</button>
+                <div class="modal-body">
+                    <!-- Buscador de productos -->
+                    <div class="mb-3">
+                        <label for="buscarProducto" class="form-label">Buscar Producto</label>
+                        <input type="text" class="form-control" id="buscarProducto"
+                            placeholder="Buscar por nombre o ID">
+                    </div>
+                    <!-- Tabla de productos -->
+                    <table class="table table-striped mt-4" id="productosTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Precio Unitario</th>
+                                <th>Seleccionar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productosTableBody">
+                            <!-- Los productos se agregarán aquí vía AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar Selección</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Tabla de detalle de venta -->
-<div id="DetalleOrden">
-    <table class="table table-striped mt-4" id="detalleOrdenTable">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio Unitario</th>
-                <th>Subtotal</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="productosSeleccionadosBody">
-            <!-- Productos seleccionados para la venta -->
-        </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                <td id="totalVenta" class="fw-bold"></td>
-                <td></td>
-            </tr>
-        </tfoot>
-    </table>
-</div>
+    <!-- Tabla de detalle de venta -->
+    <div id="DetalleOrden">
+        <table class="table table-striped mt-4" id="detalleOrdenTable">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productosSeleccionadosBody">
+                <!-- Productos seleccionados para la venta -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                    <td id="totalVenta" class="fw-bold"></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
-<button class="btn btn-success" id="guardarVentaBtn">Guardar Venta</button>
-<a class="btn btn-danger" href="{% url 'ventas_list' %}" style="margin-top: 10px;">Cancelar</a>
+    <button class="btn btn-success" id="guardarVentaBtn">Guardar Venta</button>
+    <a class="btn btn-danger" href="{% url 'ventas_list' %}" style="margin-top: 10px;">Cancelar</a>
 
 
-<!-- SweetAlert CDN -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
-    function generarCodigoRandom() {
-        return Math.floor(1000 + Math.random() * 9000);  // Genera un número entre 1000 y 9999
-    }
-    document.addEventListener("DOMContentLoaded", function () {
-        const sucursalSelect = document.getElementById('id_sucursal');
-        const codigoSucursalInput = document.getElementById('codigo_sucursal');
+    <script>
+        function generarCodigoRandom() {
+            return Math.floor(1000 + Math.random() * 9000);  // Genera un número entre 1000 y 9999
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const sucursalSelect = document.getElementById('id_sucursal');
+            const codigoSucursalInput = document.getElementById('codigo_sucursal');
             const fechaInput = document.getElementById('fecha');
             const today = new Date().toISOString().split('T')[0];  // Obtener la fecha en formato yyyy-mm-dd
             fechaInput.value = today;  // Establecer la fecha actual
             sucursalSelect.addEventListener('change', function () {
-        // Obtener el valor de la sucursal seleccionada
-        const sucursalId = sucursalSelect.value;
+                // Obtener el valor de la sucursal seleccionada
+                const sucursalId = sucursalSelect.value;
 
-        if (sucursalId) {
-            // Realizar la petición AJAX para obtener el `codigoAFIP` de la sucursal seleccionada
-            fetch(`/get_codigo_afip/?sucursal_id=${sucursalId}`)
+                if (sucursalId) {
+                    // Realizar la petición AJAX para obtener el `codigoAFIP` de la sucursal seleccionada
+                    fetch(`/get_codigo_afip/?sucursal_id=${sucursalId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.codigoAFIP) {
+                                // Generar el código con `codigoAFIP` + guión + 4 dígitos aleatorios
+                                const codigoRandom = generarCodigoRandom();
+                                const codigoSucursal = `${data.codigoAFIP}-${codigoRandom}`;
+
+                                // Asignar el código generado al input de `codigo_sucursal`
+                                codigoSucursalInput.value = codigoSucursal;
+                            } else {
+                                console.error("No se encontró el código AFIP para la sucursal seleccionada.");
+                            }
+                        })
+                        .catch(error => console.error('Error al obtener el código AFIP:', error));
+                } else {
+                    // Limpiar el campo si no se selecciona una sucursal
+                    codigoSucursalInput.value = '';
+                }
+            });
+        });
+        const productosSeleccionados = new Set();  // Almacenar los IDs de productos seleccionados
+
+        function formatearPrecio(precio) {
+            return precio.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+
+        // Cargar productos cuando se abre el modal
+        $('#productoModal').on('show.bs.modal', function () {
+            const sucursalId = $('#id_sucursal').val();  // Obtener el ID de la sucursal seleccionada
+            fetch(`/get_productos_sucursal/?sucursal_id=${sucursalId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.codigoAFIP) {
-                        // Generar el código con `codigoAFIP` + guión + 4 dígitos aleatorios
-                        const codigoRandom = generarCodigoRandom();
-                        const codigoSucursal = `${data.codigoAFIP}-${codigoRandom}`;
-
-                        // Asignar el código generado al input de `codigo_sucursal`
-                        codigoSucursalInput.value = codigoSucursal;
-                    } else {
-                        console.error("No se encontró el código AFIP para la sucursal seleccionada.");
-                    }
-                })
-                .catch(error => console.error('Error al obtener el código AFIP:', error));
-        } else {
-            // Limpiar el campo si no se selecciona una sucursal
-            codigoSucursalInput.value = '';
-        }
-    });
-        });
-    const productosSeleccionados = new Set();  // Almacenar los IDs de productos seleccionados
-
-    function formatearPrecio(precio) {
-    return precio.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-
-    // Cargar productos cuando se abre el modal
-    $('#productoModal').on('show.bs.modal', function () {
-        const sucursalId = $('#id_sucursal').val();  // Obtener el ID de la sucursal seleccionada
-        fetch(`/get_productos_sucursal/?sucursal_id=${sucursalId}`, {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            const productos = data.productos;
-            let productosHtml = '';
-            productos.forEach(producto => {
-                const isDisabled = productosSeleccionados.has(producto.id) ? 'disabled' : '';  // Deshabilitar si ya está en la tabla
-                productosHtml += `
+                    const productos = data.productos;
+                    let productosHtml = '';
+                    productos.forEach(producto => {
+                        const isDisabled = productosSeleccionados.has(producto.id) ? 'disabled' : '';  // Deshabilitar si ya está en la tabla
+                        productosHtml += `
                     <tr>
                         <td>${producto.id}</td>
                         <td>${producto.nombre}</td>
@@ -182,38 +184,38 @@
                         <td><input type="checkbox" class="seleccionarProducto" data-id="${producto.id}" data-nombre="${producto.nombre}" data-precio="${producto.precio_unitario}" ${isDisabled}></td>
                     </tr>
                 `;
-            });
-            $('#productosTableBody').html(productosHtml);
-            $('#productosTableBody .precioUnitario').each(function () {
-                const precioSinFormatear = parseFloat($(this).text());
-                $(this).text(formatearPrecio(precioSinFormatear));
+                    });
+                    $('#productosTableBody').html(productosHtml);
+                    $('#productosTableBody .precioUnitario').each(function () {
+                        const precioSinFormatear = parseFloat($(this).text());
+                        $(this).text(formatearPrecio(precioSinFormatear));
+                    });
+                });
+        });
+
+        // Filtrar productos en la tabla
+        $('#buscarProducto').on('input', function () {
+            const filtro = $(this).val().toLowerCase();
+            $('#productosTableBody tr').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(filtro) > -1);
             });
         });
-    });
 
-    // Filtrar productos en la tabla
-    $('#buscarProducto').on('input', function () {
-        const filtro = $(this).val().toLowerCase();
-        $('#productosTableBody tr').filter(function () {
-            $(this).toggle($(this).text().toLowerCase().indexOf(filtro) > -1);
-        });
-    });
+        // Al hacer clic en "Agregar Selección"
+        $('#agregarProductoBtn').click(function () {
+            $('#productosTableBody .seleccionarProducto:checked').each(function () {
+                const id = $(this).data('id');
+                const nombre = $(this).data('nombre');
+                const precio = parseFloat($(this).data('precio'));
 
-    // Al hacer clic en "Agregar Selección"
-    $('#agregarProductoBtn').click(function () {
-        $('#productosTableBody .seleccionarProducto:checked').each(function () {
-            const id = $(this).data('id');
-            const nombre = $(this).data('nombre');
-            const precio = parseFloat($(this).data('precio'));
+                // Verificar si el producto ya está en la lista de seleccionados
+                if (productosSeleccionados.has(id)) {
+                    Swal.fire('Advertencia', 'El producto ya ha sido agregado.', 'warning');
+                    return;
+                }
 
-            // Verificar si el producto ya está en la lista de seleccionados
-            if (productosSeleccionados.has(id)) {
-                Swal.fire('Advertencia', 'El producto ya ha sido agregado.', 'warning');
-                return;
-            }
-
-            // Crear una nueva fila con un input para la cantidad
-            const nuevaFila = `
+                // Crear una nueva fila con un input para la cantidad
+                const nuevaFila = `
                 <tr data-product-id="${id}">
                     <td>${nombre}</td>
                     <td><input type="number" class="form-control cantidadProducto" min="1" value="1" data-precio="${precio}"></td>
@@ -223,107 +225,107 @@
                 </tr>
             `;
 
-            // Agregar a la tabla de productos seleccionados
-            $('#productosSeleccionadosBody').append(nuevaFila);
-            productosSeleccionados.add(id);  // Agregar el ID del producto a la lista de seleccionados
-            actualizarTotal();  // Actualizar total después de agregar
+                // Agregar a la tabla de productos seleccionados
+                $('#productosSeleccionadosBody').append(nuevaFila);
+                productosSeleccionados.add(id);  // Agregar el ID del producto a la lista de seleccionados
+                actualizarTotal();  // Actualizar total después de agregar
+            });
+
+            // Actualizar subtotal cuando se cambia la cantidad
+            $('.cantidadProducto').on('input', function () {
+                const cantidad = parseInt($(this).val());
+                const precio = parseFloat($(this).data('precio'));
+                const subtotal = (cantidad * precio).toFixed(2);
+                $(this).closest('tr').find('.subtotalProducto').text(formatearPrecio(parseFloat(subtotal)));
+                actualizarTotal();  // Actualizar total al modificar la cantidad
+            });
+
+            // Cerrar el modal
+            $('#productoModal').modal('hide'); // Asegúrate de que este código se ejecute
         });
 
-        // Actualizar subtotal cuando se cambia la cantidad
-        $('.cantidadProducto').on('input', function () {
-            const cantidad = parseInt($(this).val());
-            const precio = parseFloat($(this).data('precio'));
-            const subtotal = (cantidad * precio).toFixed(2);
-            $(this).closest('tr').find('.subtotalProducto').text(formatearPrecio(parseFloat(subtotal)));
-            actualizarTotal();  // Actualizar total al modificar la cantidad
+        // Manejo de eliminación de productos seleccionados
+        $(document).on('click', '.eliminarProducto', function () {
+            const productoId = $(this).closest('tr').data('product-id');
+            $(this).closest('tr').remove();
+            productosSeleccionados.delete(productoId);  // Eliminar el ID del producto de la lista de seleccionados
+            actualizarTotal();  // Actualizar total al eliminar
         });
 
-        // Cerrar el modal
-        $('#productoModal').modal('hide'); // Asegúrate de que este código se ejecute
-    });
+        function actualizarTotal() {
+            let total = 0;
+            $('#productosSeleccionadosBody .subtotalProducto').each(function () {
+                total += parseFloat($(this).text().trim().replace(/\./g, '').replace(",", "."));  // Sumar cada subtotal, eliminando el formato de separadores
+            });
+            $('#totalVenta').text(`${formatearPrecio(total)}`);  // Actualizar el total con el formato adecuado
+        }
 
-    // Manejo de eliminación de productos seleccionados
-    $(document).on('click', '.eliminarProducto', function () {
-        const productoId = $(this).closest('tr').data('product-id');
-        $(this).closest('tr').remove();
-        productosSeleccionados.delete(productoId);  // Eliminar el ID del producto de la lista de seleccionados
-        actualizarTotal();  // Actualizar total al eliminar
-    });
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    function actualizarTotal() {
-        let total = 0;
-        $('#productosSeleccionadosBody .subtotalProducto').each(function () {
-            total += parseFloat($(this).text().trim().replace(".", "").replace(",", "."));  // Sumar cada subtotal, eliminando el formato de separadores
-        });
-        $('#totalVenta').text(`${formatearPrecio(total)}`);  // Actualizar el total con el formato adecuado
-    }
+        // Enviar los productos seleccionados a la API al guardar la orden
+        $('#guardarVentaBtn').click(function () {
+            const numeroFactura = $('#id_numeroFactura').val();
+            const fecha = $('#fecha').val();
+            const cliente = $('#id_cliente').val();
+            const metodoPago = $('#id_metodo_pago').val();
+            const condiciones = $('#condiciones').val();
+            const total = $('#totalVenta').text().replace(/\./g, '').replace(/,/g, '.');
+            const sucursal = $('#id_sucursal').val();
+            const codigo_sucursal = $('#codigo_sucursal').val()
 
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const productosAgregados = [];
+            $('#detalleOrdenTable tbody tr').each(function () {
+                const productoNombre = $(this).find('td').eq(0).text();
+                const cantidad = $(this).find('.cantidadProducto').val();
+                const precio = $(this).find('td').eq(2).text().replace(/\./g, '').replace(/,/g, '.');
+                const subtotal = $(this).find('td').eq(3).text().replace(/\./g, '').replace(/,/g, '.');
 
-    // Enviar los productos seleccionados a la API al guardar la orden
-    $('#guardarVentaBtn').click(function () {
-        const numeroFactura = $('#id_numeroFactura').val();
-        const fecha = $('#fecha').val();
-        const cliente = $('#id_cliente').val();
-        const metodoPago = $('#id_metodo_pago').val();
-        const condiciones = $('#condiciones').val();
-        const total = $('#totalVenta').text().replace(/\./g, '').replace(/,/g,'.');
-        const sucursal = $('#id_sucursal').val();
-        const codigo_sucursal=$('#codigo_sucursal').val()
+                productosAgregados.push({
+                    productoNombre: productoNombre,
+                    cantidad: cantidad,
+                    precio: precio,
+                    subtotal: subtotal
+                });
+            });
 
-        const productosAgregados = [];
-        $('#detalleOrdenTable tbody tr').each(function () {
-            const productoNombre = $(this).find('td').eq(0).text();
-            const cantidad = $(this).find('.cantidadProducto').val();
-            const precio = $(this).find('td').eq(2).text().replace(/\./g, '').replace(/,/g,'.');
-            const subtotal = $(this).find('td').eq(3).text().replace(/\./g, '').replace(/,/g,'.');
+            const ordenData = {
+                numero_factura: numeroFactura,
+                fecha: fecha,
+                cliente: cliente,
+                metodo_pago: metodoPago,
+                condiciones: condiciones,
+                sucursal: sucursal,
+                total,
+                codigo_sucursal,
+                productos: productosAgregados
+            };
 
-            productosAgregados.push({
-                productoNombre: productoNombre,
-                cantidad: cantidad,
-                precio: precio,
-                subtotal: subtotal
+            Swal.fire({
+                title: '¿Estás seguro de guardar esta venta?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, guardar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{% url 'guardar_venta' %}",  // Cambiar por tu ruta de API
+                        type: 'POST',
+                        data: JSON.stringify(ordenData),
+                        contentType: 'application/json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('X-CSRFToken', csrfToken);  // Agregar token CSRF a la cabecera
+                        },
+                        success: function (response) {
+                            Swal.fire('Éxito', 'La venta ha sido guardada exitosamente', 'success');
+                            window.location.href = "{% url 'ventas_list' %}"
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'Ocurrió un error al guardar la venta', 'error');
+                        }
+                    });
+                }
             });
         });
-
-        const ordenData = {
-            numero_factura: numeroFactura,
-            fecha: fecha,
-            cliente: cliente,
-            metodo_pago: metodoPago,
-            condiciones: condiciones,
-            sucursal: sucursal,
-            total,
-            codigo_sucursal,
-            productos: productosAgregados
-        };
-
-        Swal.fire({
-            title: '¿Estás seguro de guardar esta venta?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{% url 'guardar_venta' %}",  // Cambiar por tu ruta de API
-                    type: 'POST',
-                    data: JSON.stringify(ordenData),
-                    contentType: 'application/json',
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader('X-CSRFToken', csrfToken);  // Agregar token CSRF a la cabecera
-                    },
-                    success: function (response) {
-                        Swal.fire('Éxito', 'La venta ha sido guardada exitosamente', 'success');
-                        window.location.href="{% url 'ventas_list' %}"
-                    },
-                    error: function () {
-                        Swal.fire('Error', 'Ocurrió un error al guardar la venta', 'error');
-                    }
-                });
-            }
-        });
-    });
-</script>
-{% endblock %}
+    </script>
+    {% endblock %}

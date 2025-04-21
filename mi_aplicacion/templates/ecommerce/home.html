@@ -14,6 +14,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@1,300&display=swap"
     rel="stylesheet" />
   <script src="http://code.jquery.com/jquery-latest.js"></script>
+  {%load static %}
+
   <style>
     /*HEADER*/
     * {
@@ -1797,7 +1799,7 @@
             if (prod) {
               const cartItem = document.createElement('div');
               cartItem.classList.add('cart-item');
-              cartItem.innerHTML = `<img  src="https://i.ibb.co/27QqPsd/Logo.jpg" alt="Producto">
+              cartItem.innerHTML = `<img  src="{% static 'media/icono.jpg' %}" alt="Producto">
                             <p class="cart-item-name">${prod.nombre}</p>
                             <p class="cart-item-quantity">${item.cant}</p>
                             <p class="cart-item-price">$${item.price}</p>

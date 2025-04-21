@@ -994,6 +994,7 @@ def checkout(request):
             cardNumber = data.get('cardNumber')
             expiry = data.get('expiry')
             cvv = data.get('cvv')
+            ubicacion = data.get('ubicacion')
             products = data.get('products')  # Lista de productos [{nombre, cantidad, precio}, ...]
 
             user = User.objects.get(username=request.user)
@@ -1001,7 +1002,7 @@ def checkout(request):
             # Lista de campos obligatorios
             required_fields = [
                 name, email, phone, address, city, postalCode,
-                titular, dniTitular, cardNumber, expiry, cvv, products
+                titular, dniTitular, cardNumber, expiry, cvv,ubicacion, products
             ]
 
             # Verifica si alguno de los campos obligatorios es None o vacío
@@ -1029,7 +1030,7 @@ def checkout(request):
 
 
             ultimate_factura = FacturaVenta.objects.order_by('-id').first()
-            sucursal = Sucursal.objects.first()
+            sucursal = Sucursal.objects.last()
             tienda_online = Cliente.objects.get(id=1)
             factura = FacturaVenta.objects.create(
             numeroFactura=ultimate_factura.id+8,  # Use the order number as the invoice number, or generate a new one

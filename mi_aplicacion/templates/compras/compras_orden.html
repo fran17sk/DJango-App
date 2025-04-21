@@ -1,274 +1,280 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% block extra_head %}
-    <title>Orden de Compra</title>
-    <style>
-        .d-flex-sp{
-            display: flex;
-            flex-flow: row nowrap;
-            justify-content: space-between;
-        }
-        /* Ocultar la tabla de productos al inicio */
-        #DetalleOrden{
-            display: none;
-            
-        }
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .form-row .form-group {
-            flex: 1;
-            margin-right: 10px;
-        }
-        .form-row .form-group:last-child {
-            margin-right: 0;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        .form-group-fecha{
-            margin-right: 10px;
-        }
+<title>Orden de Compra</title>
+<style>
+    .d-flex-sp {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+    }
 
-    </style>
+    /* Ocultar la tabla de productos al inicio */
+    #DetalleOrden {
+        display: none;
+
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+        margin-right: 10px;
+    }
+
+    .form-row .form-group:last-child {
+        margin-right: 0;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group-fecha {
+        margin-right: 10px;
+    }
+</style>
 {% endblock %}
 {% block content %}
-    <div class="container">
-        <form id="csrfForm">
-            {% csrf_token %}
-        </form>
-        <h2>Orden de Compra</h2>
-    
-        <!-- Selección de proveedor -->
-         <div class="flex">
-             <div class="form-group mb-3">
-                 <label for="id_proveedor" class="form-label">Proveedor</label>
-                 <select id="id_proveedor" class="form-select" required>
-                     <!-- Opciones de proveedores serán cargadas desde Django -->
-                 </select>
-             </div>
-             <div class="form-group mb-3">
-                 <label for="nordenCompra" class="form-label">N°Orden Compra</label>
-                 {{form.nordenCompra}}
-             </div>
-         </div>
-         <div class="flex">
+<div class="container">
+    <form id="csrfForm">
+        {% csrf_token %}
+    </form>
+    <h2>Orden de Compra</h2>
 
-             <!-- Fecha de la orden -->
-             <div class="form-group mb-3">
-                 <label for="fecha" class="form-label">Fecha de la Orden</label>
-                 <input type="date" class="form-control" id="fecha" required>
-             </div>
-         
-             <!-- Fecha de entrega -->
-             <div class="form-group mb-3">
-                 <label for="fechaentrega" class="form-label">Fecha de Entrega</label>
-                 <input type="date" class="form-control" id="fechaentrega">
-             </div>
-         
-             <!-- Lugar de entrega -->
-             <div class="form-group mb-3">
-                 <label for="lugarentrega" class="form-label">Lugar de Entrega</label>
-                 <select id="lugarentrega" class="form-select">
-                     <!-- Opciones de depósitos serán cargadas desde Django -->
-                 </select>
-             </div>
-         </div>
-    
-        <!-- Condiciones -->
-        <div class="mb-3">
-            <label for="condiciones" class="form-label">Condiciones</label>
-            <textarea id="condiciones" class="form-control" rows="3"></textarea>
+    <!-- Selección de proveedor -->
+    <div class="flex">
+        <div class="form-group mb-3">
+            <label for="id_proveedor" class="form-label">Proveedor</label>
+            <select id="id_proveedor" class="form-select" required>
+                <!-- Opciones de proveedores serán cargadas desde Django -->
+            </select>
         </div>
-    
-        <!-- Botón para abrir el modal -->
-        <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal" disabled>Agregar Producto</button>
+        <div class="form-group mb-3">
+            <label for="nordenCompra" class="form-label">N°Orden Compra</label>
+            {{form.nordenCompra}}
+        </div>
+    </div>
+    <div class="flex">
 
-        <!-- Modal de Bootstrap para agregar productos -->
-        <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="productoModal">Agregar Producto</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="productoForm">
-                            <div class="mb-3">
-                                <label for="producto" class="form-label">Producto</label>
-                                <select id="producto" class="form-select" required>
-                                    <option value="">Elegir producto</option>
-                                    <!-- Opciones de productos serán cargadas vía AJAX -->
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="cantidad" class="form-label">Cantidad</label>
-                                <input type="number" class="form-control" id="cantidad" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="precioUnitario" class="form-label">Precio Unitario</label>
-                                <input type="number" class="form-control text-end" id="precioUnitario" step="0.01" required>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar</button>
-                    </div>
+        <!-- Fecha de la orden -->
+        <div class="form-group mb-3">
+            <label for="fecha" class="form-label">Fecha de la Orden</label>
+            <input type="date" class="form-control" id="fecha" required>
+        </div>
+
+        <!-- Fecha de entrega -->
+        <div class="form-group mb-3">
+            <label for="fechaentrega" class="form-label">Fecha de Entrega</label>
+            <input type="date" class="form-control" id="fechaentrega">
+        </div>
+
+        <!-- Lugar de entrega -->
+        <div class="form-group mb-3">
+            <label for="lugarentrega" class="form-label">Lugar de Entrega</label>
+            <select id="lugarentrega" class="form-select">
+                <!-- Opciones de depósitos serán cargadas desde Django -->
+            </select>
+        </div>
+    </div>
+
+    <!-- Condiciones -->
+    <div class="mb-3">
+        <label for="condiciones" class="form-label">Condiciones</label>
+        <textarea id="condiciones" class="form-control" rows="3"></textarea>
+    </div>
+
+    <!-- Botón para abrir el modal -->
+    <button class="btn btn-primary" data-bs-toggle="modal" id="AbrirF" data-bs-target="#productoModal" disabled>Agregar
+        Producto</button>
+
+    <!-- Modal de Bootstrap para agregar productos -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productoModal">Agregar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productoForm">
+                        <div class="mb-3">
+                            <label for="producto" class="form-label">Producto</label>
+                            <select id="producto" class="form-select" required>
+                                <option value="">Elegir producto</option>
+                                <!-- Opciones de productos serán cargadas vía AJAX -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad</label>
+                            <input type="number" class="form-control" id="cantidad" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precioUnitario" class="form-label">Precio Unitario</label>
+                            <input type="number" class="form-control text-end" id="precioUnitario" step="0.01" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="agregarProductoBtn">Agregar</button>
                 </div>
             </div>
         </div>
-    
-        <div id="DetalleOrden">
-            <!-- Tabla para mostrar productos agregados -->
-            <table class="table table-striped mt-4" id="productosTable">
-                <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Precio Unitario</th>
-                        <th>Subtotal</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="productosTableBody">
-                    <!-- Los productos se agregarán aquí -->
-                </tbody>
-                <tfoot>
-                    <tr >
-                        <td colspan="4" class="text-end"><strong>Total:</strong></td>
-                        <td id="totalVenta" class="fw-bold"></td>
-                    </tr>
-                </tfoot> 
-            </table>
-        </div>
-        <div class="form-row mb-3">
-            <div style="display: flex;flex-direction: row;">
-                <button class="btn btn-success" id="confirmarOrdenBtn" style="margin-right: 10px;">Guardar Orden</button>
-                <a class="btn btn-danger" href="{% url 'orden_list' %}" style="margin-top: 10px;">Cancelar</a>
-            </div>
+    </div>
+
+    <div id="DetalleOrden">
+        <!-- Tabla para mostrar productos agregados -->
+        <table class="table table-striped mt-4" id="productosTable">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="productosTableBody">
+                <!-- Los productos se agregarán aquí -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end"><strong>Total:</strong></td>
+                    <td id="totalVenta" class="fw-bold"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    <div class="form-row mb-3">
+        <div style="display: flex;flex-direction: row;">
+            <button class="btn btn-success" id="confirmarOrdenBtn" style="margin-right: 10px;">Guardar Orden</button>
+            <a class="btn btn-danger" href="{% url 'orden_list' %}" style="margin-top: 10px;">Cancelar</a>
         </div>
     </div>
+</div>
 {% endblock %}
 
-{% block script %} 
+{% block script %}
 <script>
-$(document).ready(function() {
-    const proveedorSelect = $('#id_proveedor');
-    const lugarentregaSelect = $('#lugarentrega');
-    const agregarProductoBtn = $('#AbrirF');
-    const detalleOrden = $('#DetalleOrden');
-    const productoSelect = $('#producto'); // Asegúrate de que este select esté definido
-    let productosAgregados = [];
+    $(document).ready(function () {
+        const proveedorSelect = $('#id_proveedor');
+        const lugarentregaSelect = $('#lugarentrega');
+        const agregarProductoBtn = $('#AbrirF');
+        const detalleOrden = $('#DetalleOrden');
+        const productoSelect = $('#producto'); // Asegúrate de que este select esté definido
+        let productosAgregados = [];
 
-    // Función para cargar proveedores
-    function cargarProveedores() {
-        $.ajax({
-            url: "{% url 'get_proveedores' %}",
-            success: function(data) {
-                const proveedores = data.proveedores;
-                proveedorSelect.empty();
-                proveedorSelect.append(new Option('Seleccione un proveedor', ''));
-                proveedores.forEach(function(proveedor) {
-                    proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
-                });
-            }
-        });
-    }
-
-    // Función para cargar depósitos
-    function cargarDepositos() {
-        $.ajax({
-            url: "{% url 'get_depositos' %}",
-            success: function(data) {
-                const depositos = data.depositos;
-                lugarentregaSelect.empty();
-                lugarentregaSelect.append(new Option('Seleccione un depósito', ''));
-                depositos.forEach(function(deposito) {
-                    lugarentregaSelect.append(new Option(deposito.nombre, deposito.id));
-                });
-            }
-        });
-    }
-
-    // Cargar proveedores y depósitos al iniciar
-    cargarProveedores();
-    cargarDepositos();
-
-    proveedorSelect.change(function () {
-        const proveedorSeleccionado = proveedorSelect.val();
-        if (proveedorSeleccionado) {
-            agregarProductoBtn.prop('disabled', false);
-            cargarProductos(proveedorSeleccionado);
-        } else {
-            agregarProductoBtn.prop('disabled', true);
+        // Función para cargar proveedores
+        function cargarProveedores() {
+            $.ajax({
+                url: "{% url 'get_proveedores' %}",
+                success: function (data) {
+                    const proveedores = data.proveedores;
+                    proveedorSelect.empty();
+                    proveedorSelect.append(new Option('Seleccione un proveedor', ''));
+                    proveedores.forEach(function (proveedor) {
+                        proveedorSelect.append(new Option(proveedor.nombre, proveedor.id));
+                    });
+                }
+            });
         }
-    });
 
-$('#agregarProductoBtn').click(function() {
-    const productoId = $('#producto').val();
-    const productoNombre = $('#producto option:selected').text();
-    const cantidad = parseInt($('#cantidad').val(), 10); // Asegúrate de que esto sea un número
-    const precioUnitarioInput = parseFloat($('#precioUnitario').val());
-    
-    if (isNaN(precioUnitarioInput)) {
-        alert("El precio unitario debe ser un número válido.");
-        return; // Sale si no es un número
-    }
-    
-    const precioUnitario = precioUnitarioInput.toFixed(2);
-    const subtotal = (cantidad * precioUnitarioInput).toFixed(2); // Calcular subtotal
+        // Función para cargar depósitos
+        function cargarDepositos() {
+            $.ajax({
+                url: "{% url 'get_depositos' %}",
+                success: function (data) {
+                    const depositos = data.depositos;
+                    lugarentregaSelect.empty();
+                    lugarentregaSelect.append(new Option('Seleccione un depósito', ''));
+                    depositos.forEach(function (deposito) {
+                        lugarentregaSelect.append(new Option(deposito.nombre, deposito.id));
+                    });
+                }
+            });
+        }
 
-    if (productoId && cantidad && !isNaN(precioUnitarioInput)) {
-        productosAgregados.push({
-            productoId: productoId,
-            productoNombre: productoNombre,
-            cantidad: cantidad,
-            precioUnitario: precioUnitario,
-            subtotal: subtotal
+        // Cargar proveedores y depósitos al iniciar
+        cargarProveedores();
+        cargarDepositos();
+
+        proveedorSelect.change(function () {
+            const proveedorSeleccionado = proveedorSelect.val();
+            if (proveedorSeleccionado) {
+                agregarProductoBtn.prop('disabled', false);
+                cargarProductos(proveedorSeleccionado);
+            } else {
+                agregarProductoBtn.prop('disabled', true);
+            }
         });
 
-        agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
-        deshabilitarProducto(productoId);
-        detalleOrden.show();
-        calcularTotal(); // Calcular total al agregar
+        $('#agregarProductoBtn').click(function () {
+            const productoId = $('#producto').val();
+            const productoNombre = $('#producto option:selected').text();
+            const cantidad = parseInt($('#cantidad').val(), 10); // Asegúrate de que esto sea un número
+            const precioUnitarioInput = parseFloat($('#precioUnitario').val());
 
-        // Limpiar campos del modal
-        $('#producto').val('');
-        $('#cantidad').val('');
-        $('#precioUnitario').val('');
-        $('#productoModal').modal('hide');
-    }
-});
+            if (isNaN(precioUnitarioInput)) {
+                alert("El precio unitario debe ser un número válido.");
+                return; // Sale si no es un número
+            }
 
-$('#AbrirF').click(function() {
-    $('#productoModal').modal('show'); // Asegúrate de mostrar el modal
-});
-function calcularTotal() {
-    let total = 0;
-    productosAgregados.forEach(function(producto) {
-        total += parseFloat(producto.subtotal);
-    });
+            const precioUnitario = precioUnitarioInput.toFixed(2);
+            const subtotal = (cantidad * precioUnitarioInput).toFixed(2); // Calcular subtotal
 
-    // Actualizar el campo de total
-    $('#totalVenta').text(`$${formatearPrecio(total.toFixed(2))}`);
+            if (productoId && cantidad && !isNaN(precioUnitarioInput)) {
+                productosAgregados.push({
+                    productoId: productoId,
+                    productoNombre: productoNombre,
+                    cantidad: cantidad,
+                    precioUnitario: precioUnitario,
+                    subtotal: subtotal
+                });
 
-    // Mostrar el contenedor del total si hay productos
-    if (productosAgregados.length > 0) {
-        $('#totalVenta').show();
-    } else {
-        $('#totalVenta').hide();
-    }
-}
-// Función para formatear precio
-function formatearPrecio(precio) {
-    return parseFloat(precio).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
+                agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal);
+                deshabilitarProducto(productoId);
+                detalleOrden.show();
+                calcularTotal(); // Calcular total al agregar
 
-// Función para agregar productos a la tabla
-function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal) {
-    $('#productosTableBody').append(`
+                // Limpiar campos del modal
+                $('#producto').val('');
+                $('#cantidad').val('');
+                $('#precioUnitario').val('');
+                $('#productoModal').modal('hide');
+            }
+        });
+
+        $('#AbrirF').click(function () {
+            $('#productoModal').modal('show'); // Asegúrate de mostrar el modal
+        });
+        function calcularTotal() {
+            let total = 0;
+            productosAgregados.forEach(function (producto) {
+                total += parseFloat(producto.subtotal);
+            });
+
+            // Actualizar el campo de total
+            $('#totalVenta').text(`$${formatearPrecio(total.toFixed(2))}`);
+
+            // Mostrar el contenedor del total si hay productos
+            if (productosAgregados.length > 0) {
+                $('#totalVenta').show();
+            } else {
+                $('#totalVenta').hide();
+            }
+        }
+        // Función para formatear precio
+        function formatearPrecio(precio) {
+            return parseFloat(precio).toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        // Función para agregar productos a la tabla
+        function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtotal) {
+            $('#productosTableBody').append(`
         <tr data-producto-id="${productoNombre}">
             <td>${productoNombre}</td>
             <td>${cantidad}</td>
@@ -277,114 +283,114 @@ function agregarProductoATabla(productoNombre, cantidad, precioUnitario, subtota
             <td><button class="btn btn-danger btn-sm eliminarProductoBtn">Eliminar</button></td>
         </tr>
     `);
-    calcularTotal(); // Calcular total al agregar
+            calcularTotal(); // Calcular total al agregar
 
-}
-
-    // Manejar la eliminación de productos de la tabla
-    $('#productosTableBody').on('click', '.eliminarProductoBtn', function() {
-        const row = $(this).closest('tr');
-        const index = row.index();
-        const productoId = productosAgregados[index].productoId;
-        productosAgregados.splice(index, 1);
-        habilitarProducto(productoId);
-        row.remove();
-        calcularTotal(); // Calcular total al agregar
-
-        // Ocultar la tabla si no quedan productos
-        if (productosAgregados.length === 0) {
-            detalleOrden.hide();
         }
-    });
 
-    // Función para deshabilitar la opción de producto en el select
-    function deshabilitarProducto(productoId) {
-        $('#producto option[value="' + productoId + '"]').prop('disabled', true);
-    }
+        // Manejar la eliminación de productos de la tabla
+        $('#productosTableBody').on('click', '.eliminarProductoBtn', function () {
+            const row = $(this).closest('tr');
+            const index = row.index();
+            const productoId = productosAgregados[index].productoId;
+            productosAgregados.splice(index, 1);
+            habilitarProducto(productoId);
+            row.remove();
+            calcularTotal(); // Calcular total al agregar
 
-    // Función para habilitar la opción de producto en el select
-    function habilitarProducto(productoId) {
-        $('#producto option[value="' + productoId + '"]').prop('disabled', false);
-    }
-
-    // Función para cargar productos
-    function cargarProductos(proveedorId) {
-        $.ajax({
-            url: "{% url 'get_productos' %}",
-            data: { 'proveedor_id': proveedorId },
-            success: function(data) {
-                const productos = data.productos;
-                productoSelect.empty();
-                productoSelect.append(new Option('Elegir producto', ''));
-                productos.forEach(function(producto) {
-                    const option = new Option(producto.nombre, producto.id);
-                    productoSelect.append(option);
-                });
-
-                // Deshabilitar las opciones que ya se encuentran en la tabla
-                productosAgregados.forEach(function(producto) {
-                    deshabilitarProducto(producto.productoId);
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error('Error al cargar productos:', error);
-                alert('No se pudieron cargar los productos. Intente nuevamente.');
+            // Ocultar la tabla si no quedan productos
+            if (productosAgregados.length === 0) {
+                detalleOrden.hide();
             }
         });
-    }
 
-    // Función para obtener el CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
+        // Función para deshabilitar la opción de producto en el select
+        function deshabilitarProducto(productoId) {
+            $('#producto option[value="' + productoId + '"]').prop('disabled', true);
         }
-        return cookieValue;
-    }
 
-    const csrftoken = getCookie('csrftoken');
+        // Función para habilitar la opción de producto en el select
+        function habilitarProducto(productoId) {
+            $('#producto option[value="' + productoId + '"]').prop('disabled', false);
+        }
 
-    $('#confirmarOrdenBtn').click(function() {
-        const ordenData = {
-            'nordenCompra': $('#id_nordenCompra').val(),
-            'proveedor_id': $('#id_proveedor').val(),
-            'fecha': $('#fecha').val(),
-            'fechaentrega': $('#fechaentrega').val(),
-            'lugarentrega': $('#lugarentrega').val(),
-            'condiciones': $('#condiciones').val(),
-            'total': parseFloat($('#totalVenta').text().replace('$', '').replace('.', '').replace(',', '.')), // Convertir total formateado a float
-            'productos': productosAgregados
-        };
-        console.log(ordenData)
-        $.ajax({
-            type: "POST",
-            url: "{% url 'confirmar_orden_compra' %}",
-            data: JSON.stringify(ordenData),
-            contentType: "application/json",
-            headers: {
-                "X-CSRFToken": csrftoken // Enviar el token CSRF en los headers
-            },
-            success: function(response) {
-                alert('Orden confirmada exitosamente');
-                window.location.href = "{% url 'orden_list' %}";
-            },
-            error: function(xhr, status, error) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    alert('Error: ' + response.message || 'Error al confirmar la orden');
-                } catch (e) {
-                    alert('Error desconocido');
+        // Función para cargar productos
+        function cargarProductos(proveedorId) {
+            $.ajax({
+                url: "{% url 'get_productos' %}",
+                data: { 'proveedor_id': proveedorId },
+                success: function (data) {
+                    const productos = data.productos;
+                    productoSelect.empty();
+                    productoSelect.append(new Option('Elegir producto', ''));
+                    productos.forEach(function (producto) {
+                        const option = new Option(producto.nombre, producto.id);
+                        productoSelect.append(option);
+                    });
+
+                    // Deshabilitar las opciones que ya se encuentran en la tabla
+                    productosAgregados.forEach(function (producto) {
+                        deshabilitarProducto(producto.productoId);
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error al cargar productos:', error);
+                    alert('No se pudieron cargar los productos. Intente nuevamente.');
+                }
+            });
+        }
+
+        // Función para obtener el CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        $('#confirmarOrdenBtn').click(function () {
+            const ordenData = {
+                'nordenCompra': $('#id_nordenCompra').val(),
+                'proveedor_id': $('#id_proveedor').val(),
+                'fecha': $('#fecha').val(),
+                'fechaentrega': $('#fechaentrega').val(),
+                'lugarentrega': $('#lugarentrega').val(),
+                'condiciones': $('#condiciones').val(),
+                'total': parseFloat($('#totalVenta').text().replace('$', '').replace(/\./g, '').replace(',', '.')), // Convertir total formateado a float
+                'productos': productosAgregados
+            };
+            console.log(ordenData)
+            $.ajax({
+                type: "POST",
+                url: "{% url 'confirmar_orden_compra' %}",
+                data: JSON.stringify(ordenData),
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFToken": csrftoken // Enviar el token CSRF en los headers
+                },
+                success: function (response) {
+                    alert('Orden confirmada exitosamente');
+                    window.location.href = "{% url 'orden_list' %}";
+                },
+                error: function (xhr, status, error) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        alert('Error: ' + response.message || 'Error al confirmar la orden');
+                    } catch (e) {
+                        alert('Error desconocido');
+                    }
+                }
+            });
         });
     });
-});
 </script>
 {% endblock %}

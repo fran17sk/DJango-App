@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,54 +92,128 @@
             width: 100%;
             height: 200px;
         }
+
         .date-form {
-    display: flex;
-    align-items: center;
-    margin-top: 20px;
-}
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
 
-.date-form label {
-    margin-right: 10px;
-    font-weight: bold;
-    color: #333; /* A juego con el resto del texto */
-}
+        .date-form label {
+            margin-right: 10px;
+            font-weight: bold;
+            color: #333;
+            /* A juego con el resto del texto */
+        }
 
-.date-input {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 8px;
-    font-size: 14px;
-    width: 150px;
-    color: #333;
-}
+        .date-input {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 14px;
+            width: 150px;
+            color: #333;
+        }
 
-.date-input:focus {
-    border-color: #007bff; /* Color a juego con otros elementos */
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
+        .date-input:focus {
+            border-color: #007bff;
+            /* Color a juego con otros elementos */
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
 
-.filter-button {
-    background-color: #007bff; /* Azul similar a otros botones del dashboard */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 15px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+        .filter-button {
+            background-color: #007bff;
+            /* Azul similar a otros botones del dashboard */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-.filter-button:hover {
-    background-color: #0056b3; /* Color más oscuro para el hover */
-}
+        .filter-button:hover {
+            background-color: #0056b3;
+            /* Color más oscuro para el hover */
+        }
 
-.filter-button:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
+        .filter-button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .btn-quick-select {
+            margin: 10px 5px;
+            padding: 10px 15px;
+            font-size: 0.95em;
+            font-weight: bold;
+            color: #ffffff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-quick-select:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-today {
+            background-color: #28a745;
+        }
+
+        .btn-today:hover {
+            background-color: #218838;
+        }
+
+        .btn-yesterday {
+            background-color: #007bff;
+        }
+
+        .btn-yesterday:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-week {
+            background-color: #17a2b8;
+        }
+
+        .btn-week:hover {
+            background-color: #117a8b;
+        }
+
+        .btn-month {
+            background-color: #ffc107;
+        }
+
+        .btn-month:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-year {
+            background-color: #fd7e14;
+        }
+
+        .btn-year:hover {
+            background-color: #e8590c;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
+
 <body onload="setDefaultDates(); fetchData();">
 
     <h1>Dashboard</h1>
@@ -172,14 +247,20 @@
             <input type="date" id="fecha_fin" class="date-input">
             <button class="filter-button" onclick="fetchData()">Filtrar</button>
         </div>
-
+        <div class="d-flex justify-content-between flex-wrap">
+            <button class="btn-quick-select btn-today" onclick="setToday()">Hoy</button>
+            <button class="btn-quick-select btn-yesterday" onclick="setYesterday()">Ayer</button>
+            <button class="btn-quick-select btn-week" onclick="setLastWeek()">Última Semana</button>
+            <button class="btn-quick-select btn-month" onclick="setLastMonth()">Último Mes</button>
+            <button class="btn-quick-select btn-year" onclick="setLastYear()">Último Año</button>
+        </div>
         <!-- Gráfico de líneas para ingresos y egresos -->
         <div class="charts">
             <div class="chart">
-                <h2>Ingresos y Egresos</h2>
+                <h2 id="ingresosyegresos">Ingresos y Egresos</h2>
                 <canvas id="ingresosEgresosChart"></canvas>
             </div>
-                    <!-- Gráfico de las últimas 5 ventas -->
+            <!-- Gráfico de las últimas 5 ventas -->
             <div class="chart">
                 <h2>Productos Más Vendidos</h2>
                 <canvas id="productosMasVendidosChart"></canvas>
@@ -213,6 +294,7 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+
         let ingresosEgresosChart;
         let marcaMasVendidaChart;
         let categoriaMasVendidaChart;
@@ -234,6 +316,55 @@
 
             fechaFinInput.setAttribute('min', firstDay);
             fechaFinInput.setAttribute('max', lastDay);
+        }
+
+        // Funciones JavaScript para cambiar las fechas automáticamente
+        function setToday() {
+            let today = new Date();
+            today.setDate(today.getDate() - 1);
+            let ayer = today.toISOString().split('T')[0];
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate());
+
+            let hoy = yesterday.toISOString().split('T')[0];
+            document.getElementById('fecha_inicio').value = ayer;
+            document.getElementById('fecha_fin').value = hoy;
+
+        }
+
+        function setYesterday() {
+            let today = new Date();
+            today.setDate(today.getDate() - 2);
+            let ayer = today.toISOString().split('T')[0];
+            let yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            let hoy = yesterday.toISOString().split('T')[0];
+            document.getElementById('fecha_inicio').value = ayer;
+            document.getElementById('fecha_fin').value = hoy;
+        }
+
+        function setLastWeek() {
+            let today = new Date();
+            let lastWeek = new Date();
+            lastWeek.setDate(today.getDate() - 7);
+            document.getElementById('fecha_inicio').value = lastWeek.toISOString().split('T')[0];
+            document.getElementById('fecha_fin').value = today.toISOString().split('T')[0];
+        }
+
+        function setLastMonth() {
+            let today = new Date();
+            let lastMonth = new Date();
+            lastMonth.setMonth(today.getMonth() - 1);
+            document.getElementById('fecha_inicio').value = lastMonth.toISOString().split('T')[0];
+            document.getElementById('fecha_fin').value = today.toISOString().split('T')[0];
+        }
+
+        function setLastYear() {
+            let today = new Date();
+            let lastYear = new Date();
+            lastYear.setFullYear(today.getFullYear() - 1);
+            document.getElementById('fecha_inicio').value = lastYear.toISOString().split('T')[0];
+            document.getElementById('fecha_fin').value = today.toISOString().split('T')[0];
         }
 
         function fetchData() {
@@ -258,7 +389,7 @@
                     document.getElementById('totalEgresos').textContent = formatCurrency(ultimoEgreso);
                     const resultado = ultimoIngreso - ultimoEgreso;
                     document.getElementById('resultado').textContent = formatCurrency(resultado);
-                    
+
                     const resultadoCard = document.getElementById('resultadoCard');
                     resultadoCard.style.backgroundColor = resultado < 0 ? 'red' : 'green';
                     resultadoCard.style.color = 'white';
@@ -281,7 +412,7 @@
                     const labels = data.map(item => item.producto__proveedor__nombre);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(marcaMasVendidaChart);
-                    marcaMasVendidaChart = renderPieChart('marcaMasVendidaChart', 'Proveedor Más Vendido', labels, cantidades);
+                    marcaMasVendidaChart = renderPieChart('marcaMasVendidaChart', `Periodo: - ${fechaInicio} a ${fechaFin}`, labels, cantidades);
                 });
 
             // Fetch para categoría más vendida
@@ -291,7 +422,7 @@
                     const labels = data.map(item => item.producto__categoria__nombre);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(categoriaMasVendidaChart);
-                    categoriaMasVendidaChart = renderPieChart('categoriaMasVendidaChart', 'Categoría Más Vendida', labels, cantidades);
+                    categoriaMasVendidaChart = renderPieChart('categoriaMasVendidaChart', `Periodo: - ${fechaInicio} a ${fechaFin}`, labels, cantidades);
                 });
 
             // Fetch para empleado que más vendió
@@ -301,7 +432,7 @@
                     const labels = data.map(item => item.sucursal__nombre);
                     const cantidades = data.map(item => item.ventas_totales);
                     destroyChart(empleadoMasVendioChart);
-                    empleadoMasVendioChart = renderPieChart('empleadoMasVendioChart', 'Sucursal que Más Vendió', labels, cantidades);
+                    empleadoMasVendioChart = renderPieChart('empleadoMasVendioChart', `Periodo: - ${fechaInicio} a ${fechaFin}`, labels, cantidades);
                 });
 
             // Fetch para ventas online
@@ -312,18 +443,18 @@
                     const labels = data.map(item => item.status);
                     const cantidades = data.map(item => item.cantidad_total);
                     destroyChart(ventasOnlineChart);
-                    ventasOnlineChart = renderPieChartVentasOnline('ventasOnlineChart', 'Ventas Online', labels, cantidades);
+                    ventasOnlineChart = renderPieChartVentasOnline('ventasOnlineChart', `Periodo: - ${fechaInicio} a ${fechaFin}`, labels, cantidades);
                 });
 
             // Fetch para las últimas 5 ventas
-                fetch(`/productos-mas-vendidos/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const labels = data.map(item => item.producto__nombre);
-                        const cantidades = data.map(item => item.total_vendido);
-                        destroyChart(productosMasVendidosChart);
-                        productosMasVendidosChart = renderBarChart('productosMasVendidosChart', '5 Productos Más Vendidos', labels, cantidades);
-    });
+            fetch(`/productos-mas-vendidos/?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.producto__nombre);
+                    const cantidades = data.map(item => item.total_vendido);
+                    destroyChart(productosMasVendidosChart);
+                    productosMasVendidosChart = renderBarChart('productosMasVendidosChart', `Periodo: - ${fechaInicio} a ${fechaFin}`, labels, cantidades);
+                });
         }
 
         function destroyChart(chart) {
@@ -376,7 +507,7 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: function(value) {
+                                callback: function (value) {
                                     return `$${value}`;
                                 }
                             }
@@ -391,125 +522,126 @@
             });
         }
 
-function renderPieChart(chartId, title, labels, data) {
-    const ctx = document.getElementById(chartId).getContext('2d');
-    return new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: title,
-                data: data,
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
+        function renderPieChart(chartId, title, labels, data) {
+            const ctx = document.getElementById(chartId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: title,
+                        data: data,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
                 },
-                title: {
-                    display: true,
-                    text: title
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: title
+                        }
+                    }
                 }
-            }
+            });
         }
-    });
-}
 
-function renderBarChart(chartId, label, labels, data) {
-    const ctx = document.getElementById(chartId).getContext('2d');
-    return new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',  // Color 1
-                    'rgba(54, 162, 235, 0.2)',  // Color 2
-                    'rgba(255, 206, 86, 0.2)',  // Color 3
-                    'rgba(75, 192, 192, 0.2)',  // Color 4
-                    'rgba(153, 102, 255, 0.2)'  // Color 5
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',    // Color 1
-                    'rgba(54, 162, 235, 1)',    // Color 2
-                    'rgba(255, 206, 86, 1)',    // Color 3
-                    'rgba(75, 192, 192, 1)',    // Color 4
-                    'rgba(153, 102, 255, 1)'    // Color 5
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins:{
-                legend:{
-                    display:false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-function renderPieChartVentasOnline(id, title, labels, cantidades) {
-    const ctx = document.getElementById(id).getContext('2d');
-
-    const backgroundColors = labels.map(label => {
-        switch (label.toLowerCase()) {
-            case 'pendiente':
-                return 'red';
-            case 'preparacion':
-                return 'yellow';
-            case 'entregado':
-                return 'green';
-            case 'despachado':
-                return 'skyblue';
-            default:
-                return 'gray'; // Color por defecto para cualquier otro estado
-        }
-    });
-
-    return new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: cantidades,
-                backgroundColor: backgroundColors,
-                borderColor: '#fff',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top',
+        function renderBarChart(chartId, label, labels, data) {
+            const ctx = document.getElementById(chartId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',  // Color 1
+                            'rgba(54, 162, 235, 0.2)',  // Color 2
+                            'rgba(255, 206, 86, 0.2)',  // Color 3
+                            'rgba(75, 192, 192, 0.2)',  // Color 4
+                            'rgba(153, 102, 255, 0.2)'  // Color 5
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',    // Color 1
+                            'rgba(54, 162, 235, 1)',    // Color 2
+                            'rgba(255, 206, 86, 1)',    // Color 3
+                            'rgba(75, 192, 192, 1)',    // Color 4
+                            'rgba(153, 102, 255, 1)'    // Color 5
+                        ],
+                        borderWidth: 1
+                    }]
                 },
-                title: {
-                    display: true,
-                    text: title
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
                 }
-            }
+            });
         }
-    });
-}
-function formatCurrency(value) {
-    return "$ "+value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") ; // Formato en pesos
-}
-document.getElementById('generarReporte').addEventListener('click', function () {
+        function renderPieChartVentasOnline(id, title, labels, cantidades) {
+            const ctx = document.getElementById(id).getContext('2d');
+
+            const backgroundColors = labels.map(label => {
+                switch (label.toLowerCase()) {
+                    case 'pendiente':
+                        return 'red';
+                    case 'preparacion':
+                        return 'yellow';
+                    case 'entregado':
+                        return 'green';
+                    case 'despachado':
+                        return 'skyblue';
+                    default:
+                        return 'gray'; // Color por defecto para cualquier otro estado
+                }
+            });
+
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: cantidades,
+                        backgroundColor: backgroundColors,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: title
+                        }
+                    }
+                }
+            });
+        }
+        function formatCurrency(value) {
+            return "$ " + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); // Formato en pesos
+        }
+        document.getElementById('generarReporte').addEventListener('click', function () {
             fetchData();
         });
     </script>
 </body>
+
 </html>

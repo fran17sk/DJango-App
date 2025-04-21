@@ -1,4 +1,6 @@
 {% extends 'ecommerce/home.html' %}
+{% load static %}
+
 {% block extra-head %}
 <style>
     * {
@@ -53,6 +55,13 @@
         font-size: 18px;
         color: #00bcd4;
         /* Color for total amount */
+    }
+
+    #map {
+        height: 400px;
+        margin-bottom: 20px;
+        width: 50%;
+        margin: auto;
     }
 
     h1 {
@@ -190,6 +199,10 @@
         margin-left: 200px;
     }
 </style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -249,7 +262,7 @@
                 <div class="form-group card-details">
                     <div>
                         <label for="expiry">Expiración (MM/AA)</label>
-                        <input type="text" name="expiry" id="expiry" placeholder="MM/AA" required />
+                        <input type="text" name="expiry" id="expiry" placeholder="MM/AAAA" required />
                     </div>
                     <div>
                         <label for="cvv">CVV</label>
@@ -258,6 +271,12 @@
                 </div>
             </div>
         </div>
+        <div class="form-group" style="display: none;">
+            <label for="Ubicacion" class="form-label">Ubicación (Latitud, Longitud)</label>
+            <input id="Ubicacion" name="Ubicacion" class="form-control" readonly />
+        </div>
+
+        <div id="map" style="display: none;"></div>
     </form>
 
     <div class="checkout-container">
@@ -289,6 +308,40 @@
 
 {% block extra-scripts %}
 <script>
+    var map = L.map('map').setView([-24.782126, -65.423198], 15);  // Centrar en Salta, Argentina
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Marcador movible
+    var marker = L.marker([-24.782126, -65.423198], { draggable: true }).addTo(map);
+
+    // Función para actualizar ubicación y dirección
+    function updateLocation(lat, lng) {
+        document.getElementById('Ubicacion').value = lat + ', ' + lng;
+
+        // Llamada a la API de geocodificación inversa
+        $.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`, function (data) {
+            if (data && data.address) {
+                // Incluir número de calle si está disponible
+                var road = data.address.road || 'Calle no encontrada';
+                var house_number = data.address.house_number ? ` ${data.address.house_number}` : '';
+                var full_address = road + house_number;
+                document.getElementById('Direccion').value = full_address;
+            }
+        });
+    }
+
+    // Evento al arrastrar el marcador
+    marker.on('dragend', function (e) {
+        var position = marker.getLatLng();
+        updateLocation(position.lat, position.lng);
+    });
+
+    // Actualizar ubicación inicial
+    updateLocation(marker.getLatLng().lat, marker.getLatLng().lng);
+
+
     function renderCartCheckout() {
         fetch('/api/products/')
             .then(response => {
@@ -317,7 +370,7 @@
                         const cartItem = document.createElement('div');
                         cartItem.classList.add('cart-item');
                         cartItem.innerHTML = `
-                            <img src="https://i.ibb.co/27QqPsd/Logo.jpg" class="img-cart" alt="Producto">
+                            <img src="{% static 'media/icono.jpg' %}" class="img-cart" alt="Producto">
                             <p class="cart-item-name">${prod.nombre}</p>
                             <input id="quantity" type="number" class="cart-item-quantity" style="margin-top:-15px" value="${item.cant}" min="1" max="${prod.stock}" data-index="${index}">
                             <p class="cart-item-quantity stock">${prod.stock}</p>
@@ -438,48 +491,122 @@
         const expiry = document.getElementById('expiry').value.trim();
         const cvv = document.getElementById('cvv').value.trim();
 
+        if (!name ||
+            !email ||
+            !phone ||
+            !address ||
+            !city ||
+            !postalCode ||
+            !titular ||
+            !dniTitular ||
+            !cardNumber ||
+            !expiry ||
+            !cvv) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Formulario incompleto',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+            return
+        }
+
         if (!isValidName(name)) {
-            alert('El nombre solo debe contener letras y espacios.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El nombre solo debe contener letras y espacios.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidEmail(email)) {
-            alert('El email no es válido.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El formato del correo es incorrecto',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidPhoneOrPostalCode(phone)) {
-            alert('El teléfono solo debe contener números.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El teléfono solo debe contener números.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidPhoneOrPostalCode(postalCode)) {
-            alert('El código postal solo debe contener números.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El código postal solo debe contener números.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidName(titular)) {
-            alert('El titular solo debe contener letras y espacios.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El titular solo debe contener letras y espacios.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidDniNumber(dniTitular)) {
-            alert('El DNI solo debe contener números y longuitud mayor a 7');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El DNI solo debe contener números y longuitud mayor a 7',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidCardNumber(cardNumber)) {
-            alert('El número de tarjeta debe tener 16 dígitos.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El número de tarjeta debe tener 16 dígitos.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidExpiry(expiry)) {
-            alert('El vencimiento debe estar en formato mm/yyyy.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El vencimiento debe estar en formato mm/yyyy.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
         if (!isValidCVV(cvv)) {
-            alert('El código CVV debe tener 3 dígitos.');
+            Swal.fire({
+                title: 'Error!',
+                text: 'El código CVV debe tener 3 dígitos.',
+                icon: 'error',
+                confirmButtonText: 'Intentar de nuevo'
+            });
+
             return false;
         }
 
@@ -505,6 +632,7 @@
         const cardNumber = document.getElementById('cardNumber').value;
         const expiry = document.getElementById('expiry').value;
         const cvv = document.getElementById('cvv').value;
+        const ubicacion = document.getElementById('Ubicacion').value;
 
         if (!validateFields()) {
             event.preventDefault();
@@ -541,6 +669,7 @@
                 cardNumber,
                 expiry,
                 cvv,
+                ubicacion,
                 products,
             };
 
